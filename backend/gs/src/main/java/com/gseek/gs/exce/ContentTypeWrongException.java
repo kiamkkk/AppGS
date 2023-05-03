@@ -1,4 +1,4 @@
-﻿package com.gseek.gs.exce;
+package com.gseek.gs.exce;
 
 /**
  * @author Phak

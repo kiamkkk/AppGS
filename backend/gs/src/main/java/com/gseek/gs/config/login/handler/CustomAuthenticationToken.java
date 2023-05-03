@@ -1,4 +1,4 @@
-﻿package com.gseek.gs.config.login.handler;
+package com.gseek.gs.config.login.handler;
 
 import lombok.Getter;
 import lombok.Setter;

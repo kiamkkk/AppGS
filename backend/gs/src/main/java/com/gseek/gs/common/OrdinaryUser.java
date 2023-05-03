@@ -1,4 +1,4 @@
-﻿package com.gseek.gs.common;
+package com.gseek.gs.common;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;

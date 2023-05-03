@@ -101,9 +101,11 @@ public class UserServiceImpl implements UserService {
 
         UserPassword userPassword=userPasswordMapper.selectUserPasswordByUsername(username);
         if (userPassword==null){
+            log.debug("UsernameNotFound|"+username);
             throw new UsernameNotFoundException("UsernameNotFound:"+username);
         }
         user.setPassword(userPassword.getPassword());
+        user.setUserId(userPassword.getUserId());
         return user;
     }
 }

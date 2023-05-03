@@ -1,4 +1,4 @@
-﻿package com.gseek.gs.config.login.handler;
+package com.gseek.gs.config.login.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -41,13 +41,13 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             throws RepeatLoginException,IOException,ServerBackendException {
         response.setContentType("application/json;charset=utf-8");
 
-        if (authentication instanceof CustomAuthenticationToken customAuthenticationToken){
-            //根据userName和userId来获取token
+        if (authentication instanceof CustomAuthenticationToken){
+            CustomAuthenticationToken customAuthenticationToken=(CustomAuthenticationToken) authentication;
+            //根据userName来构建token
             String userName = (String) customAuthenticationToken.getPrincipal();
+            String token=TokenUtil.gainToken(userName);
             int userId=customAuthenticationToken.getUserId();
-            String token=TokenUtil.gainToken(userName,userId);
-
-            redisService.saveToken(token);
+            redisService.saveToken(token,userId);
 
             ObjectNode objectNode=objectMapper.createObjectNode();
             objectNode.put("token", token);

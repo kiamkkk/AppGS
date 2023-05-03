@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 有关springSecurity认证授权流程的类放在这里
  *
  * @author Phak

@@ -1,13 +1,15 @@
-﻿package com.gseek.gs.config.login.handler;
+package com.gseek.gs.config.login.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.exce.ContentTypeWrongException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +20,11 @@ import java.io.InputStream;
  * @author Phak
  * @since 2023/5/3-13:27
  */
-public class CustomAuthenticationFilter  extends UsernamePasswordAuthenticationFilter {
+public class CustomAuthenticationFilter  extends AbstractAuthenticationProcessingFilter {
+
+    public CustomAuthenticationFilter() {
+        super(new AntPathRequestMatcher("/users","POST"));
+    }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
@@ -31,14 +37,13 @@ public class CustomAuthenticationFilter  extends UsernamePasswordAuthenticationF
             try (InputStream is = request.getInputStream()){
                 AuthenticationBean authenticationBean = mapper.readValue(is,AuthenticationBean.class);
                 authRequest = new CustomAuthenticationToken(
-                        authenticationBean.getUserName(), authenticationBean.getPassword(),0);
+                        authenticationBean.getUserName(), authenticationBean.getPassword(),114514);
+                setDetails(request, authRequest);
             }catch (IOException e) {
                 e.printStackTrace();
                 //todo -1表示不成功???好像有点不妥
                 authRequest = new CustomAuthenticationToken(
                         "", "",-1);
-            }finally {
-                setDetails(request, authRequest);
             }
 
             return this.getAuthenticationManager().authenticate(authRequest);
@@ -47,5 +52,9 @@ public class CustomAuthenticationFilter  extends UsernamePasswordAuthenticationF
         else {
             throw new ContentTypeWrongException();
         }
+    }
+
+    protected void setDetails(HttpServletRequest request, UsernamePasswordAuthenticationToken authRequest) {
+        authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
     }
 }

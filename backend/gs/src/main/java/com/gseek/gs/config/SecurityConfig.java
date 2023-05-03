@@ -4,12 +4,15 @@ import com.gseek.gs.config.login.handler.CustomAuthenticationFailureHandler;
 import com.gseek.gs.config.login.handler.CustomAuthenticationFilter;
 import com.gseek.gs.config.login.handler.CustomAuthenticationSuccessHandler;
 import com.gseek.gs.service.inter.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.password.MessageDigestPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -23,6 +26,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Autowired
+    @Qualifier("userServiceImpl")
+    UserService userService;
+
     //todo 改造验证流程
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
@@ -34,34 +42,41 @@ public class SecurityConfig {
         httpSecurity.formLogin().disable();
 
         httpSecurity.authorizeHttpRequests()
-                .requestMatchers("/users/register","/users").anonymous()
-                .requestMatchers("/users/**").hasAnyAuthority("USER","ADMIN");
+                .requestMatchers("/users/register", "/users").anonymous()
+                .anyRequest().hasAnyAuthority("USER", "ADMIN");
 
-        httpSecurity.addFilterAt(authenticationFilter(successHandler,failureHandler),
-                UsernamePasswordAuthenticationFilter.class );
+        httpSecurity.addFilterAt(authenticationFilter(successHandler, failureHandler),
+                UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         //todo 继续用MD5？
-        MessageDigestPasswordEncoder passwordEncoder=new MessageDigestPasswordEncoder("SHA-256");
-        return passwordEncoder;
+        /*MessageDigestPasswordEncoder passwordEncoder=new MessageDigestPasswordEncoder("SHA-256");*/
+
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
     public CustomAuthenticationFilter authenticationFilter(CustomAuthenticationSuccessHandler successHandler,
-                                                           CustomAuthenticationFailureHandler failureHandler){
-        CustomAuthenticationFilter filter=new CustomAuthenticationFilter();
+                                                           CustomAuthenticationFailureHandler failureHandler) {
+        CustomAuthenticationFilter filter = new CustomAuthenticationFilter();
+        filter.setAuthenticationManager(new ProviderManager(authenticationProvider(userService())));
         filter.setAuthenticationSuccessHandler(successHandler);
         filter.setAuthenticationFailureHandler(failureHandler);
         return filter;
     }
 
     @Bean
-    public DaoAuthenticationProvider authenticationProvider(UserService userService){
-        DaoAuthenticationProvider provider=new DaoAuthenticationProvider();
+    public UserService userService(){
+        return userService;
+    }
+
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider(UserService userService) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder());
         provider.setUserDetailsService(userService);
         return provider;

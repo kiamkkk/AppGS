@@ -1,4 +1,4 @@
-﻿package com.gseek.gs.service.inter;
+package com.gseek.gs.service.inter;
 
 import com.gseek.gs.exce.business.RepeatLoginException;
 
@@ -14,13 +14,27 @@ public interface RedisService {
      *
      * @param token token
      * */
-    void saveToken(String token) throws RepeatLoginException;
+    void saveToken(String token,int userId) throws RepeatLoginException;
 
     /**
-     * 查看token是否存在
+     * 检验token是否有效:
+     * 1.token不存在或为空,无效
+     * 2.token存在,但有效时间小于DEVIATE_TIME,有效但重新签发
+     * 3.token存在且有效时间大于DEVIATE_TIME,有效
      *
-     * @param token token
-     * @return token存在则返回true
+     * @param token
+     * @return TOKEN_VALID    有效
+     *         TOKEN_INVALID  无效
+     *         TOKEN_REISSUE  重新签发
      * */
-    boolean tokenExist(String token);
+    //todo 最好不要用状态码
+    int inspectToken(String token);
+
+    /**
+     * 检验库中是否已经有该用户的token
+     *
+     * @param userName 用户名
+     * @return 有则返回true
+     * */
+    boolean isRepeatLogin(String userName);
 }

@@ -1,4 +1,4 @@
-﻿package com.gseek.gs.config.login.handler;
+package com.gseek.gs.config.login.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
