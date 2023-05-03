@@ -5,8 +5,8 @@
 <mapper namespace="com.gseek.gs.dao.UserInformationMapper">
 
     <insert id="insertUserInformation" parameterType="com.gseek.gs.pojo.UserInformation">
-        insert into user_information (user_id, user_name, email, profile_photo)
-            values (#{userInformation.userId},#{userInformation.userName},
+        insert into user_information (user_id, email, profile_photo)
+            values (#{userInformation.userId},
                     #{userInformation.email},#{userInformation.profilePhoto});
     </insert>
 

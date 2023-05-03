@@ -18,7 +18,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class UserInformation {
     private Integer userId;
-    private String userName;
     private String email;
     private String profilePhoto;
 }

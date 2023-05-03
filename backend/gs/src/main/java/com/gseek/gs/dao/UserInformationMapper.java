@@ -17,7 +17,6 @@ public interface UserInformationMapper {
      * 注册用户的第二个步骤.
      *
      * @param userInformation 包含: userId 用户id
-     *                             userName 用户名
      *                             email 邮箱
      *                             profile_photo 头像url地址
      *

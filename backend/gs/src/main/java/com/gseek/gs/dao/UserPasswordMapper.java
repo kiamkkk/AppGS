@@ -24,6 +24,12 @@ UserPasswordMapper {
      * */
     int insertUserPassword(@Param("userPassword") UserPassword userPassword);
 
+    /**
+     * 根据用户名查找登录信息
+     *
+     * @param userName 用户名
+     * @return 登录信息
+     * */
     UserPassword selectUserPasswordByUsername(@Param("userName") String userName);
 
 }

@@ -70,11 +70,11 @@ public class UserServiceImpl implements UserService {
         }
 
         UserPassword userPassword=new UserPassword();
+        userPassword.setUserName(userName);
         userPassword.setPassword(password);
         userPassword.setSalt(passwordUtil.gainSalt());
 
         UserInformation userInformation=new UserInformation();
-        userInformation.setUserName(userName);
         userInformation.setEmail(email);
 
         userPasswordMapper.insertUserPassword(userPassword);
@@ -95,7 +95,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        List<GrantedAuthority> authorities= new ArrayList<GrantedAuthority>();
+        List<GrantedAuthority> authorities= new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(AUTHORITIE_ORDINARYUSER));
         OrdinaryUser user=new OrdinaryUser(username,authorities);
 
