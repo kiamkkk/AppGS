@@ -10,7 +10,8 @@ import org.apache.ibatis.annotations.Param;
  */
 
 @Mapper
-public interface UserPasswordMapper {
+public interface
+UserPasswordMapper {
 
     /**
      * 插入新一般用户的密码信息.
@@ -23,5 +24,6 @@ public interface UserPasswordMapper {
      * */
     int insertUserPassword(@Param("userPassword") UserPassword userPassword);
 
+    UserPassword selectUserPasswordByUsername(@Param("userName") String userName);
 
 }

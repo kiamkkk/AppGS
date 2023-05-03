@@ -7,6 +7,7 @@ import com.gseek.gs.common.Result;
 import com.gseek.gs.exce.business.ParameterWrong;
 import com.gseek.gs.service.inter.UserService;
 import com.gseek.gs.util.PasswordUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,6 +26,7 @@ import java.sql.SQLException;
 
 @RestController
 @RequestMapping("/users")
+@Slf4j
 public class UserController {
 
     @Autowired
@@ -47,6 +49,7 @@ public class UserController {
         JsonNode jsonNode=objectMapper.readTree(json);
         String userName=jsonNode.get("userName").asText();
         String password=passwordUtil.decode(jsonNode.get("password").asText());
+        log.debug("解密后密码|"+password);
         String email=jsonNode.get("email").asText();
         long time=jsonNode.get("time").asLong();
 

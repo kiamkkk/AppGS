@@ -1,5 +1,6 @@
 package com.gseek.gs.common;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
@@ -17,18 +18,25 @@ import org.springframework.stereotype.Component;
 @Setter
 @Component
 public class Result {
-
-    private ResultCode resultCode;
-
+    //todo 要不要统一响应???
+    private int code;
+    private String msg;
     private Result postSuccess;
 
     @Autowired
+    @JsonIgnore
     ObjectMapper objectMapper;
 
     private Result(){};
 
+    public Result(int code, String msg) {
+        this.code = code;
+        this.msg = msg;
+    }
+
     private Result(ResultCode resultCode) {
-        this.resultCode = resultCode;
+        this.code=resultCode.getCode();
+        this.msg=resultCode.getMsg();
     }
 
     public String gainPostSuccess() throws JsonProcessingException {

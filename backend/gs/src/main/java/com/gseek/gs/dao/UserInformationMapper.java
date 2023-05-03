@@ -25,4 +25,5 @@ public interface UserInformationMapper {
      * */
     int insertUserInformation(@Param("userInformation") UserInformation userInformation);
 
+
 }

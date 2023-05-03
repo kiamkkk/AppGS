@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Money {
+
     private Integer userId;
     private BigDecimal money;
     private Boolean frozen;

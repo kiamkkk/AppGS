@@ -1,5 +1,6 @@
 package com.gseek.gs.service.impl;
 
+import com.gseek.gs.common.OrdinaryUser;
 import com.gseek.gs.dao.MoneyMapper;
 import com.gseek.gs.dao.UserIdentificationMapper;
 import com.gseek.gs.dao.UserInformationMapper;
@@ -12,9 +13,17 @@ import com.gseek.gs.pojo.UserPassword;
 import com.gseek.gs.service.inter.UserService;
 import com.gseek.gs.util.PasswordUtil;
 import com.gseek.gs.util.StrUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 对应/user/**的操作.
@@ -22,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Phak
  * @since 2023/5/2-19:04
  */
+@Slf4j
 @Service("userServiceImpl")
 public class UserServiceImpl implements UserService {
 
@@ -37,25 +47,25 @@ public class UserServiceImpl implements UserService {
     MoneyMapper moneyMapper;
 
     /**
-     * 注册一般用户.
-     *
-     * @param userName 用户名
-     * @param password 密码
-     * @param email 邮箱
-     * @param registerTime 注册时间
+     * 一般用户权限
      * */
+    private final String AUTHORITIE_ORDINARYUSER="USER";
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void register(String userName,String password,String email, long registerTime)
         throws ParameterWrong {
         // 验证参数
         if (!StrUtil.checkUserName(userName)){
+            log.debug("用户名不可用|"+userName);
             throw new ParameterWrong("username");
         }
         if (!StrUtil.checkPassword(password)){
+            log.debug("密码不可用|"+password);
             throw new ParameterWrong("password");
         }
         if (!StrUtil.checkEmail(email)){
+            log.debug("邮箱不可用|"+email);
             throw new ParameterWrong("email");
         }
 
@@ -81,5 +91,19 @@ public class UserServiceImpl implements UserService {
         Money money=new Money(userPassword.getUserId());
         moneyMapper.insertMoney(money);
 
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        List<GrantedAuthority> authorities= new ArrayList<GrantedAuthority>();
+        authorities.add(new SimpleGrantedAuthority(AUTHORITIE_ORDINARYUSER));
+        OrdinaryUser user=new OrdinaryUser(username,authorities);
+
+        UserPassword userPassword=userPasswordMapper.selectUserPasswordByUsername(username);
+        if (userPassword==null){
+            throw new UsernameNotFoundException("UsernameNotFound:"+username);
+        }
+        user.setPassword(userPassword.getPassword());
+        return user;
     }
 }

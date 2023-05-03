@@ -1,5 +1,8 @@
 package com.gseek.gs.service.inter;
 
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -8,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Phak
  * @since 2023/5/2-19:05
  */
-public interface UserService {
+public interface UserService extends UserDetailsService {
 
     /**
      * 注册一般用户.
@@ -20,4 +23,7 @@ public interface UserService {
      * */
     @Transactional(rollbackFor = Exception.class)
     void register(String userName,String password,String email,long registerTime);
+
+    @Override
+    UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
 }

@@ -11,7 +11,7 @@ import lombok.Getter;
  */
 @Getter
 public enum ResultCode {
-
+    //todo 多来点状态码
     /**
      * post成功默认响应
      * */
