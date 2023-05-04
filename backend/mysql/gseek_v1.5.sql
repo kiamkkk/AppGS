@@ -74,6 +74,7 @@ CREATE TABLE `blacklist` (
   `checked` tinyint(1) NOT NULL DEFAULT '0' COMMENT '申诉是否被处理',
   `admin_id` int DEFAULT NULL COMMENT '处理申诉的管理员id',
   `black_id` int NOT NULL AUTO_INCREMENT COMMENT '黑名单id',
+  `disapprove_reason` varchar(200) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '不通过举报原因',
   KEY `black_id` (`black_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*Data for the table `blacklist` */
