@@ -21,15 +21,20 @@ public class StrUtil {
     /**
      * 用户名格式：只有英文大小写、中文、数字
      * */
-    private static final String USERNAME_FORMAT="[0-9][a-z][A-Z][\\u4e00-\\u9fa5]";
+    private static final String USERNAME_FORMAT="[0-9][a-z][A-Z][]\\u4e00-\\u9fa5]";
     /**
      * 邮箱格式：xxx@xxx.xxx
      * */
-    private static final String EMAIL_FORMAT="\\\\w+@\\\\w+\\\\.[a-z]+(\\\\.[a-z]+)?";
+    private static final String EMAIL_FORMAT="\\\\w+@\\\\w+\\\\.a-z+(\\\\.a-z+)?";
+    /**
+     * tokengs：Bearer +xxx
+     * */
+    private static final String TOKEN_FORMAT="^Bearer:\\S+";
 
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(PASSWORD_FORMAT);
     private static final Pattern USER_NAME_PATTERN = Pattern.compile(USERNAME_FORMAT);
     private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_FORMAT);
+    private static final Pattern TOKEN_PATTEN =Pattern.compile(TOKEN_FORMAT);
 
     /**
      * 检验密码格式是否正确
@@ -58,6 +63,16 @@ public class StrUtil {
      * */
     public static boolean checkEmail(final String email){
         Matcher matcher=EMAIL_PATTERN.matcher(email);
+        return matcher.matches();
+    }
+
+    /**
+     * 检验token格式.
+     *
+     * @param token
+     * */
+    public static boolean checkToken(final String token){
+        Matcher matcher=TOKEN_PATTEN.matcher(token);
         return matcher.matches();
     }
 }

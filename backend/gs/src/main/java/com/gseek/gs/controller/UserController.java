@@ -4,18 +4,24 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.common.Result;
+import com.gseek.gs.config.login.handler.CustomWebAuthenticationDetails;
+import com.gseek.gs.exce.ServerException;
+import com.gseek.gs.exce.business.ForbiddenException;
 import com.gseek.gs.exce.business.ParameterWrong;
 import com.gseek.gs.service.inter.UserService;
+import com.gseek.gs.util.MinioUtil;
 import com.gseek.gs.util.PasswordUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.SQLException;
+import java.util.Objects;
 
 /**
  * 对应 /users/** 下的操作
@@ -42,22 +48,108 @@ public class UserController {
     @Qualifier("userServiceImpl")
     UserService userService;
 
-    @PostMapping("/register")
-    public String register(@RequestBody String json)
-            throws JsonProcessingException,ParameterWrong, SQLException {
+    @Autowired
+    MinioUtil minioUtil;
 
+    @PostMapping("/register")
+    public String register(@RequestBody String json, HttpServletResponse response)
+            throws JsonProcessingException,ParameterWrong, SQLException {
+        //todo 这个方法要规范，格式参考下面
         JsonNode jsonNode=objectMapper.readTree(json);
         String userName=jsonNode.get("userName").asText();
-        String password=passwordUtil.decode(jsonNode.get("password").asText());
-        log.debug("解密后密码|"+password);
+        //todo 解密放在service里
+        String rawPassword=passwordUtil.decode(jsonNode.get("password").asText());
+        log.debug("解密后密码|"+rawPassword);
         String email=jsonNode.get("email").asText();
         long time=jsonNode.get("time").asLong();
 
-        userService.register(userName,password,email,time);
+        userService.register(userName,rawPassword,email,time);
 
         return result.gainPostSuccess();
     }
 
+    @GetMapping("/{username}")
+    public String getUserInformation(@PathVariable("username") String userName,
+                                     @CurrentSecurityContext(expression = "authentication")
+                                        Authentication authentication)
+            throws ServerException, JsonProcessingException {
+        if (!Objects.equals(authentication.getName(), userName)){
+            throw new ForbiddenException();
+        }
+        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
+            int userId=details.getUserId();
+            return userService.getUserInformation(userId);
 
+        }else {
+            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
+            throw new ServerException("认证时出错");
+        }
+
+    }
+
+    @GetMapping("/{username}/real_name")
+    public String getRealNameInformation(@PathVariable("username") String userName,
+                                         @CurrentSecurityContext(expression = "authentication")
+                                         Authentication authentication) throws JsonProcessingException {
+        if (!Objects.equals(authentication.getName(), userName)){
+            throw new ForbiddenException();
+        }
+        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
+
+            int userId=details.getUserId();
+            return userService.getRealNameInformation(userId);
+
+        }else {
+            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
+            throw new ServerException("认证时出错");
+        }
+
+    }
+
+    @PatchMapping("/{username}")
+    public String patchUserInformation(@PathVariable("username") String userName,
+                                       @CurrentSecurityContext(expression = "authentication")
+                                       Authentication authentication,
+                                       @RequestParam(value = "email") String email,
+                                       @RequestParam(value = "username") String patchName,
+                                       @RequestParam(value = "headSculpture") MultipartFile profilePhoto) throws JsonProcessingException {
+
+        if (!Objects.equals(authentication.getName(), userName)){
+            throw new ForbiddenException();
+        }
+        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
+
+            int userId=details.getUserId();
+            String photoPath=minioUtil.saveProfilePhoto(userId,profilePhoto);
+            return userService.patchUserInformation(userId,email,patchName,photoPath);
+
+        }else {
+            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
+            throw new ServerException("认证时出错");
+        }
+
+    }
+
+    @PostMapping("/{username}/real_name")
+    public String postRealNameInformation(@PathVariable("username") String userName,
+                                          @RequestBody String json,
+                                          @CurrentSecurityContext(expression = "authentication")
+                                          Authentication authentication) throws JsonProcessingException {
+        if (!Objects.equals(authentication.getName(), userName)){
+            throw new ForbiddenException();
+        }
+        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
+
+            //todo 把这个json解析到RealNameInformationDTO里
+            json;
+
+            int userId=details.getUserId();
+            return userService.postRealNameInformation(userId,realNameInformationDTO);
+
+        }else {
+            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
+            throw new ServerException("认证时出错");
+        }
+    }
 }

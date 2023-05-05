@@ -21,8 +21,6 @@ import java.util.concurrent.TimeUnit;
 public class RedisServiceImpl implements RedisService {
 
     @Autowired
-    TokenUtil tokenUtil;
-    @Autowired
     StringRedisTemplate template;
 
     //todo 最好不要用状态码
@@ -42,11 +40,18 @@ public class RedisServiceImpl implements RedisService {
     private static final long IMMINENT_TIME=10*60*1000;
 
     @Override
-    public void saveToken(String token,int userId) {
-        if (isRepeatLogin(token)){
+    public void saveToken(String token,String userName,int userId) {
+        if (isRepeatLogin(userName)){
             throw new RepeatLoginException();
         }
         addKey(token, userId+"", TokenUtil.EFFECTIVE_TIME,TimeUnit.MILLISECONDS);
+    }
+    @Override
+    public void saveToken(String token,String userName,String userId) {
+        if (isRepeatLogin(userName)){
+            throw new RepeatLoginException();
+        }
+        addKey(token, userId, TokenUtil.EFFECTIVE_TIME,TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -57,7 +62,7 @@ public class RedisServiceImpl implements RedisService {
         }
         if (isExist(token)){
             if (System.currentTimeMillis()>
-                    tokenUtil.extractClaim(token, Claims::getExpiration).getTime()-IMMINENT_TIME){
+                    TokenUtil.extractClaim(token, Claims::getExpiration).getTime()-IMMINENT_TIME){
                 log.debug("token reissue");
                 return TOKEN_REISSUE;
             }
@@ -68,8 +73,12 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public boolean isRepeatLogin(String userName){
-
-        return true;
+        //todo 需要实现
+        return false;
+    }
+    @Override
+    public boolean isTokenExist(String token){
+        return isExist(token);
     }
 
     /**
@@ -84,13 +93,8 @@ public class RedisServiceImpl implements RedisService {
         template.opsForValue().set(key, value, timeout, timeUnit);
     }
 
-    /**
-     * 获得储存的值.
-     *
-     * @param key
-     * @return 储存键值对应的数据
-     */
-    private String getKey(String key) {
+    @Override
+    public String getKey(String key) {
         ValueOperations<String, String> operation = template.opsForValue();
         return operation.get(key);
     }
@@ -102,17 +106,14 @@ public class RedisServiceImpl implements RedisService {
      * @return true为存在
      * */
     private boolean isExist(String key){
-        return Boolean.TRUE.equals(template.hasKey(key));
+        //todo 这个表达式始终为false
+        Boolean a=template.hasKey(key);
+        return Boolean.TRUE.equals(a);
     }
 
-    /**
-     * 删除单个值.
-     *
-     * @param key
-     */
-    private boolean deleteKey(String key) {
+    @Override
+    public boolean deleteKey(String key) {
         return Boolean.TRUE.equals(template.delete(key));
     }
 
-   
 }

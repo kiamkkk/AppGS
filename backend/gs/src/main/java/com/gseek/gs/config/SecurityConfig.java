@@ -1,21 +1,23 @@
 package com.gseek.gs.config;
 
-import com.gseek.gs.config.login.handler.CustomAuthenticationFailureHandler;
-import com.gseek.gs.config.login.handler.CustomAuthenticationFilter;
-import com.gseek.gs.config.login.handler.CustomAuthenticationSuccessHandler;
+import com.gseek.gs.config.login.handler.*;
 import com.gseek.gs.service.inter.UserService;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.session.ForceEagerSessionCreationFilter;
 
 /**
  * SpringSecurity 配置类
@@ -31,6 +33,9 @@ public class SecurityConfig {
     @Qualifier("userServiceImpl")
     UserService userService;
 
+    @Autowired
+    JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
+
     //todo 改造验证流程
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
@@ -38,16 +43,24 @@ public class SecurityConfig {
                                                    CustomAuthenticationFailureHandler failureHandler)
             throws Exception {
         httpSecurity.csrf().disable();
-        httpSecurity.httpBasic().disable();
-        httpSecurity.formLogin().disable();
 
         httpSecurity.authorizeHttpRequests()
-                .requestMatchers("/users/register", "/users").anonymous()
-                .anyRequest().hasAnyAuthority("USER", "ADMIN");
+                .requestMatchers(HttpMethod.OPTIONS).permitAll()
+                .requestMatchers("/users/register","/users").permitAll()
+                .requestMatchers("/users/**").hasAnyAuthority("USER","ADMIN")
+                .anyRequest().anonymous()
+                .and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        ;
 
-        httpSecurity.addFilterAt(authenticationFilter(successHandler, failureHandler),
-                UsernamePasswordAuthenticationFilter.class);
 
+        httpSecurity
+                .addFilterAt(authenticationFilter(successHandler, failureHandler), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationTokenFilter, CustomAuthenticationFilter.class)
+                .addFilterBefore((servletRequest, servletResponse, filterChain) -> {
+                    ServletRequest requestWrapper = new CustomHttpServletRequestWrapper((HttpServletRequest)servletRequest);
+                    filterChain.doFilter(requestWrapper, servletResponse);//requestWrapper中保存着供二次使用的请求数据
+                }, ForceEagerSessionCreationFilter.class);
         return httpSecurity.build();
     }
 
@@ -56,7 +69,8 @@ public class SecurityConfig {
         //todo 继续用MD5？
         /*MessageDigestPasswordEncoder passwordEncoder=new MessageDigestPasswordEncoder("SHA-256");*/
 
-        return new BCryptPasswordEncoder();
+        /*return new BCryptPasswordEncoder();*/
+        return NoOpPasswordEncoder.getInstance();
     }
 
     @Bean
@@ -66,6 +80,7 @@ public class SecurityConfig {
         filter.setAuthenticationManager(new ProviderManager(authenticationProvider(userService())));
         filter.setAuthenticationSuccessHandler(successHandler);
         filter.setAuthenticationFailureHandler(failureHandler);
+        filter.setAuthenticationDetailsSource(new CustomWebAuthenticationDetailsSource());
         return filter;
     }
 
@@ -75,8 +90,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public DaoAuthenticationProvider authenticationProvider(UserService userService) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+    public CustomDaoAuthenticationProvider authenticationProvider(UserService userService) {
+        CustomDaoAuthenticationProvider provider = new CustomDaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder());
         provider.setUserDetailsService(userService);
         return provider;

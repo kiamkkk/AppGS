@@ -1,6 +1,6 @@
 package com.gseek.gs.dao;
 
-import com.gseek.gs.pojo.Money;
+import com.gseek.gs.pojo.data.MoneyDO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -15,11 +15,13 @@ public interface MoneyMapper {
      * 插入新一般用户的余额信息.
      * 注册用户的第四个步骤.
      *
-     * @param money 包含: userId 用户id
-     *                   money 余额
+     * @param moneyDO 包含: userId 用户id
+     *                   moneyDO 余额
      *                   frozen 钱包是否冻结
      *
      * @return row 受影响行数
      * */
-    int insertMoney(@Param("money") Money money);
+    int insertMoney(@Param("moneyDO") MoneyDO moneyDO);
+
+
 }

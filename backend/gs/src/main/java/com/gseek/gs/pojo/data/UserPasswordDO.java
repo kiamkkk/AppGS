@@ -1,4 +1,4 @@
-package com.gseek.gs.pojo;
+package com.gseek.gs.pojo.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -6,18 +6,19 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * user_information实体类
+ * user_password实体类.
  *
  * @author Phak
- * @since 2023/5/2-19:54
+ * @since 2023/5/2-19:32
  */
 
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserInformation {
+public class UserPasswordDO {
     private Integer userId;
-    private String email;
-    private String profilePhoto;
+    private String userName;
+    private String password;
+    private String salt;
 }

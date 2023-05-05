@@ -1,15 +1,19 @@
 package com.gseek.gs.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.common.OrdinaryUser;
 import com.gseek.gs.dao.MoneyMapper;
 import com.gseek.gs.dao.UserIdentificationMapper;
 import com.gseek.gs.dao.UserInformationMapper;
 import com.gseek.gs.dao.UserPasswordMapper;
 import com.gseek.gs.exce.business.ParameterWrong;
-import com.gseek.gs.pojo.Money;
-import com.gseek.gs.pojo.UserIdentification;
-import com.gseek.gs.pojo.UserInformation;
-import com.gseek.gs.pojo.UserPassword;
+import com.gseek.gs.pojo.business.UserIdentificationBO;
+import com.gseek.gs.pojo.business.UserInformationBO;
+import com.gseek.gs.pojo.data.MoneyDO;
+import com.gseek.gs.pojo.data.UserIdentificationDO;
+import com.gseek.gs.pojo.data.UserInformationDO;
+import com.gseek.gs.pojo.data.UserPasswordDO;
 import com.gseek.gs.service.inter.UserService;
 import com.gseek.gs.util.PasswordUtil;
 import com.gseek.gs.util.StrUtil;
@@ -46,6 +50,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     MoneyMapper moneyMapper;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
     /**
      * 一般用户权限
      * */
@@ -53,7 +60,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void register(String userName,String password,String email, long registerTime)
+    public void register(String userName,String rawPassword,String email, long registerTime)
         throws ParameterWrong {
         // 验证参数
         if (!StrUtil.checkUserName(userName)){
@@ -69,29 +76,59 @@ public class UserServiceImpl implements UserService {
             throw new ParameterWrong("email");
         }
 
-        UserPassword userPassword=new UserPassword();
-        userPassword.setUserName(userName);
-        userPassword.setPassword(password);
-        userPassword.setSalt(passwordUtil.gainSalt());
+        UserPasswordDO userPasswordDO =new UserPasswordDO();
+        userPasswordDO.setUserName(userName);
+        userPasswordDO.setPassword(password);
+        userPasswordDO.setSalt(passwordUtil.gainSalt());
 
-        UserInformation userInformation=new UserInformation();
-        userInformation.setEmail(email);
+        UserInformationDO userInformationDO =new UserInformationDO();
+        userInformationDO.setEmail(email);
 
-        userPasswordMapper.insertUserPassword(userPassword);
-        Integer userId=userPassword.getUserId();
+        userPasswordMapper.insertUserPassword(userPasswordDO);
+        Integer userId= userPasswordDO.getUserId();
         assert userId == null : "主键不回显，建议检查mapper中有无配置useGeneratedKeys";
 
-        userInformation.setUserId(userPassword.getUserId());
-        userInformationMapper.insertUserInformation(userInformation);
+        userInformationDO.setUserId(userPasswordDO.getUserId());
+        userInformationMapper.insertUserInformation(userInformationDO);
 
-        UserIdentification userIdentification=new UserIdentification(userPassword.getUserId());
-        userIdentification.setModifiedTime(registerTime);
-        userIdentificationMapper.insertUserIdentification(userIdentification);
+        UserIdentificationDO userIdentificationDO =new UserIdentificationDO(userPasswordDO.getUserId());
+        userIdentificationDO.setModifiedTime(registerTime);
+        userIdentificationMapper.insertUserIdentification(userIdentificationDO);
 
-        Money money=new Money(userPassword.getUserId());
-        moneyMapper.insertMoney(money);
+        MoneyDO moneyDO =new MoneyDO(userPasswordDO.getUserId());
+        moneyMapper.insertMoney(moneyDO);
 
     }
+
+    @Override
+    public String getUserInformation(int userId) throws JsonProcessingException {
+
+        UserInformationBO bo =userInformationMapper.selectUserInformationByUserId(userId);
+        return objectMapper.writeValueAsString(bo);
+
+    }
+
+    @Override
+    public String getRealNameInformation(int userId) throws JsonProcessingException {
+        UserIdentificationBO bo =userIdentificationMapper.selectUserIdentificationByUserId(userId);
+        return objectMapper.writeValueAsString(bo);
+    }
+
+    @Override
+    public String patchUserInformation(int userId, String email, String patchName, String photoPath){
+
+        return  ;
+    }
+
+    @Override
+    public String postRealNameInformation(int userId, String idNumber, long postTime){
+
+    }
+
+
+
+
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -99,13 +136,13 @@ public class UserServiceImpl implements UserService {
         authorities.add(new SimpleGrantedAuthority(AUTHORITIE_ORDINARYUSER));
         OrdinaryUser user=new OrdinaryUser(username,authorities);
 
-        UserPassword userPassword=userPasswordMapper.selectUserPasswordByUsername(username);
-        if (userPassword==null){
+        UserPasswordDO userPasswordDO =userPasswordMapper.selectUserPasswordByUsername(username);
+        if (userPasswordDO ==null){
             log.debug("UsernameNotFound|"+username);
             throw new UsernameNotFoundException("UsernameNotFound:"+username);
         }
-        user.setPassword(userPassword.getPassword());
-        user.setUserId(userPassword.getUserId());
+        user.setPassword(userPasswordDO.getPassword());
+        user.setUserId(userPasswordDO.getUserId());
         return user;
     }
 }
