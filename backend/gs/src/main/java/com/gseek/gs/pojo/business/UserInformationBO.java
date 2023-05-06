@@ -1,4 +1,4 @@
-package com.gseek.gs.pojo;
+package com.gseek.gs.pojo.business;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,23 +8,20 @@ import lombok.Setter;
 import java.math.BigDecimal;
 
 /**
- * money实体类
+ * 封装用户一般信息.
  *
  * @author Phak
- * @since 2023/5/2-20:21
+ * @since 2023/5/5-23:19
  */
-
-@Setter
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Money {
+public class UserInformationBO {
 
     private Integer userId;
-    private BigDecimal money;
-    private Boolean frozen;
+    private String email;
+    private BigDecimal remain;
+    private String headSculpture;
 
-    public Money(Integer userId) {
-        this.userId = userId;
-    }
 }

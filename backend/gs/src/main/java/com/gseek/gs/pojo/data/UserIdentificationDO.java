@@ -1,4 +1,4 @@
-package com.gseek.gs.pojo;
+package com.gseek.gs.pojo.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,13 +16,13 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserIdentification {
+public class UserIdentificationDO {
     private Integer userId;
     private String idNumber;
     private Boolean certified;
     private Long modifiedTime;
 
-    public UserIdentification(Integer userId) {
+    public UserIdentificationDO(Integer userId) {
         this.userId = userId;
     }
 }

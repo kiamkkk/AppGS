@@ -3,7 +3,7 @@ package com.gseek.gs.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.gseek.gs.exce.BaseException;
-import com.gseek.gs.exce.ServerBackendException;
+import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.business.ParameterWrong;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -44,10 +44,10 @@ public class ExceptionController {
         return packageMessage(parameterWrong);
     }
 
-    @ExceptionHandler(ServerBackendException.class)
-    public String serverBackendExceptionHandler(ServerBackendException serverBackendException, HttpServletResponse response){
+    @ExceptionHandler(ServerException.class)
+    public String ServerExceptionHandler(ServerException ServerException, HttpServletResponse response){
         response.setStatus(500);
-        return packageMessage(serverBackendException);
+        return packageMessage(ServerException);
     }
 
 

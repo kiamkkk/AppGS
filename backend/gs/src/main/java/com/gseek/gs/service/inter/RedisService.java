@@ -14,7 +14,14 @@ public interface RedisService {
      *
      * @param token token
      * */
-    void saveToken(String token,int userId) throws RepeatLoginException;
+    void saveToken(String token,String userName,int userId) throws RepeatLoginException;
+    /**
+     * 用户登录后储存token.
+     * redis中过期时间为: token过期时间
+     *
+     * @param token token
+     * */
+    void saveToken(String token, String userName, String userId);
 
     /**
      * 检验token是否有效:
@@ -37,4 +44,21 @@ public interface RedisService {
      * @return 有则返回true
      * */
     boolean isRepeatLogin(String userName);
+
+    boolean isTokenExist(String token);
+
+    /**
+     * 获得储存的值.
+     *
+     * @param key
+     * @return 储存键值对应的数据
+     */
+    String getKey(String key);
+
+    /**
+     * 删除单个值.
+     *
+     * @param key
+     */
+    boolean deleteKey(String key);
 }

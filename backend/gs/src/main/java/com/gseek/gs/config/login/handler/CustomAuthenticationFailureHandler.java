@@ -2,7 +2,6 @@ package com.gseek.gs.config.login.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,7 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
                                         AuthenticationException exception)
-            throws IOException, ServletException{
+            throws IOException {
         ObjectNode objectNode=objectMapper.createObjectNode();
         if (exception instanceof UsernameNotFoundException) {
             response.setStatus(400);
@@ -46,8 +45,6 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
 
         try (PrintWriter printWriter = response.getWriter()){
             printWriter.write(objectNode.toPrettyString());
-        }catch (IOException e){
-            throw e;
         }
     }
 }
