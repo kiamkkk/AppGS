@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.gseek.gs.exce.BaseException;
 import com.gseek.gs.exce.ServerException;
-import com.gseek.gs.exce.business.ParameterWrong;
+import com.gseek.gs.exce.business.ParameterWrongException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +37,8 @@ public class ExceptionController {
         return objectNode.toPrettyString();
     }
 
-    @ExceptionHandler(ParameterWrong.class)
-    public String parameterWrongHandler(ParameterWrong parameterWrong, HttpServletResponse response){
+    @ExceptionHandler(ParameterWrongException.class)
+    public String parameterWrongHandler(ParameterWrongException parameterWrong, HttpServletResponse response){
         log.debug("参数有误");
         response.setStatus(500);
         return packageMessage(parameterWrong);

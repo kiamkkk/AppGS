@@ -31,7 +31,7 @@ public class UserIdentificationBO {
     private String idNumber;
 
     public void setIdNumber(String idNumber) {
-        this.idNumber =passwordUtil.encode(idNumber);
+        this.idNumber =PasswordUtil.encrypt(idNumber);
     }
 
 }

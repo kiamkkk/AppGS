@@ -19,3 +19,9 @@ spring:
 logging:
   level:
     root: debug
+
+# 自定义参数
+custom:
+  # aes加密key值，在PasswordUtil#init中用到
+  encryptKey: "test_encrypt_Key"
+

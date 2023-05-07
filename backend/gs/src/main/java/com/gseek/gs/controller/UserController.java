@@ -7,7 +7,7 @@ import com.gseek.gs.common.Result;
 import com.gseek.gs.config.login.handler.CustomWebAuthenticationDetails;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.business.ForbiddenException;
-import com.gseek.gs.exce.business.ParameterWrong;
+import com.gseek.gs.exce.business.ParameterWrongException;
 import com.gseek.gs.service.inter.UserService;
 import com.gseek.gs.util.MinioUtil;
 import com.gseek.gs.util.PasswordUtil;
@@ -53,7 +53,7 @@ public class UserController {
 
     @PostMapping("/register")
     public String register(@RequestBody String json, HttpServletResponse response)
-            throws JsonProcessingException,ParameterWrong, SQLException {
+            throws JsonProcessingException,ParameterWrongException, SQLException {
         //todo 这个方法要规范，格式参考下面
         JsonNode jsonNode=objectMapper.readTree(json);
         String userName=jsonNode.get("userName").asText();
