@@ -75,8 +75,10 @@ CREATE TABLE `blacklist` (
   `admin_id` int DEFAULT NULL COMMENT '处理申诉的管理员id',
   `black_id` int NOT NULL AUTO_INCREMENT COMMENT '黑名单id',
   `disapprove_reason` varchar(200) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '不通过举报原因',
+  `provePic` varchar(200) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '原因图片',
   KEY `black_id` (`black_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 /*Data for the table `blacklist` */
 
 /*Table structure for table `chat` */
