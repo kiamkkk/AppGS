@@ -7,7 +7,7 @@ import com.gseek.gs.dao.MoneyMapper;
 import com.gseek.gs.dao.UserIdentificationMapper;
 import com.gseek.gs.dao.UserInformationMapper;
 import com.gseek.gs.dao.UserPasswordMapper;
-import com.gseek.gs.exce.business.ParameterWrong;
+import com.gseek.gs.exce.business.ParameterWrongException;
 import com.gseek.gs.pojo.business.UserIdentificationBO;
 import com.gseek.gs.pojo.business.UserInformationBO;
 import com.gseek.gs.pojo.data.MoneyDO;
@@ -61,25 +61,25 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void register(String userName,String rawPassword,String email, long registerTime)
-        throws ParameterWrong {
+        throws ParameterWrongException {
         // 验证参数
         if (!StrUtil.checkUserName(userName)){
-            log.debug("用户名不可用|"+userName);
-            throw new ParameterWrong("username");
+            log.debug("用户名|"+userName+"\n");
+            throw new ParameterWrongException("username");
         }
         if (!StrUtil.checkPassword(password)){
-            log.debug("密码不可用|"+password);
-            throw new ParameterWrong("password");
+            log.debug("密码|"+password+"\n");
+            throw new ParameterWrongException("password");
         }
         if (!StrUtil.checkEmail(email)){
-            log.debug("邮箱不可用|"+email);
-            throw new ParameterWrong("email");
+            log.debug("邮箱|"+email+"\n");
+            throw new ParameterWrongException("email");
         }
 
         UserPasswordDO userPasswordDO =new UserPasswordDO();
         userPasswordDO.setUserName(userName);
         userPasswordDO.setPassword(password);
-        userPasswordDO.setSalt(passwordUtil.gainSalt());
+        userPasswordDO.setSalt(PasswordUtil.gainSalt());
 
         UserInformationDO userInformationDO =new UserInformationDO();
         userInformationDO.setEmail(email);
