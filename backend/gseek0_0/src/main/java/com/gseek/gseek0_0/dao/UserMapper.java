@@ -1,6 +1,6 @@
 package com.gseek.gseek0_0.dao;
 
-import com.gseek.gseek0_0.pojo.User;
+import com.gseek.gseek0_0.pojo.UserPassword;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 @Mapper
 @Repository
 public interface UserMapper {
-     User getUserPassword();
+     UserPassword getUserPassword();
 }
