@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gseek.gseek0_0.dao.UserMapper">
 
-    <select id="getUserPassword" resultType="com.gseek.gseek0_0.pojo.User">
+    <select id="getUserPassword" resultType="com.gseek.gseek0_0.pojo.UserPassword">
         select * from gseek.user_password where `user_id`='1';
     </select>
 

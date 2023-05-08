@@ -1,22 +1,21 @@
 package com.gseek.gseek0_0.service;
 
 import com.gseek.gseek0_0.dao.UserMapper;
-import com.gseek.gseek0_0.pojo.User;
+import com.gseek.gseek0_0.pojo.UserPassword;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-
-import javax.annotation.Resource;
-
 @Service
+@Component
 public class UserServiceImpl implements UserService {
-@Autowired
+    @Autowired
     private UserMapper userMapper;
     public void setUserMapper(UserMapper userMapper) {
         this.userMapper = userMapper;
     }
 
-    public User getUserPassword(){
+    public UserPassword getUserPassword(){
         return userMapper.getUserPassword();}
 
 

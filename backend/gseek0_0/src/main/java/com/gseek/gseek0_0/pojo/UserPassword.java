@@ -1,16 +1,12 @@
 package com.gseek.gseek0_0.pojo;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-
-public class User {
+public class UserPassword {
     private int user_id;
     private String password;
     private String salt;
 
-    public User(int userId, String password, String salt) {
+    public UserPassword(int userId, String password, String salt) {
         this.user_id = userId;
         this.password = password;
         this.salt = salt;
