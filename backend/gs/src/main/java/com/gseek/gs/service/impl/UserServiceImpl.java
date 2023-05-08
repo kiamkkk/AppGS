@@ -14,6 +14,7 @@ import com.gseek.gs.pojo.data.MoneyDO;
 import com.gseek.gs.pojo.data.UserIdentificationDO;
 import com.gseek.gs.pojo.data.UserInformationDO;
 import com.gseek.gs.pojo.data.UserPasswordDO;
+import com.gseek.gs.pojo.dto.RealNameInformationDTO;
 import com.gseek.gs.service.inter.UserService;
 import com.gseek.gs.util.PasswordUtil;
 import com.gseek.gs.util.StrUtil;
@@ -67,8 +68,8 @@ public class UserServiceImpl implements UserService {
             log.debug("用户名|"+userName+"\n");
             throw new ParameterWrongException("username");
         }
-        if (!StrUtil.checkPassword(password)){
-            log.debug("密码|"+password+"\n");
+        if (!StrUtil.checkPassword("password")){
+            log.debug("密码|"+"password"+"\n");
             throw new ParameterWrongException("password");
         }
         if (!StrUtil.checkEmail(email)){
@@ -78,7 +79,7 @@ public class UserServiceImpl implements UserService {
 
         UserPasswordDO userPasswordDO =new UserPasswordDO();
         userPasswordDO.setUserName(userName);
-        userPasswordDO.setPassword(password);
+        userPasswordDO.setPassword("password");
         userPasswordDO.setSalt(PasswordUtil.gainSalt());
 
         UserInformationDO userInformationDO =new UserInformationDO();
@@ -117,17 +118,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public String patchUserInformation(int userId, String email, String patchName, String photoPath){
 
-        return  ;
+        return  "";
     }
 
     @Override
-    public String postRealNameInformation(int userId, String idNumber, long postTime){
-
+    public String postRealNameInformation(int userId, RealNameInformationDTO realNameInformationDTO) {
+        return null;
     }
-
-
-
-
 
 
     @Override

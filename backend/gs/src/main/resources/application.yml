@@ -18,7 +18,7 @@ spring:
 
 logging:
   level:
-    root: debug
+    root: info
 
 # 自定义参数
 custom:

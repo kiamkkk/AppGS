@@ -46,9 +46,10 @@ public class SecurityConfig {
 
         httpSecurity.authorizeHttpRequests()
                 .requestMatchers(HttpMethod.OPTIONS).permitAll()
-                .requestMatchers("/users/register","/users").permitAll()
+                /*.requestMatchers("/users/register","/users").permitAll()
                 .requestMatchers("/users/**").hasAnyAuthority("USER","ADMIN")
-                .anyRequest().anonymous()
+                .anyRequest().anonymous()*/
+                .anyRequest().permitAll()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         ;

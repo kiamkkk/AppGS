@@ -20,6 +20,8 @@ import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import java.sql.SQLException;
 import java.util.Objects;
 
@@ -36,9 +38,6 @@ import java.util.Objects;
 public class UserController {
 
     @Autowired
-    PasswordUtil  passwordUtil;
-
-    @Autowired
     Result result;
 
     @Autowired
@@ -53,12 +52,12 @@ public class UserController {
 
     @PostMapping("/register")
     public String register(@RequestBody String json, HttpServletResponse response)
-            throws JsonProcessingException,ParameterWrongException, SQLException {
+            throws JsonProcessingException, ParameterWrongException, SQLException, IllegalBlockSizeException, BadPaddingException {
         //todo 这个方法要规范，格式参考下面
         JsonNode jsonNode=objectMapper.readTree(json);
         String userName=jsonNode.get("userName").asText();
         //todo 解密放在service里
-        String rawPassword=passwordUtil.decode(jsonNode.get("password").asText());
+        String rawPassword=PasswordUtil.decrypt(jsonNode.get("password").asText());
         log.debug("解密后密码|"+rawPassword);
         String email=jsonNode.get("email").asText();
         long time=jsonNode.get("time").asLong();
@@ -140,12 +139,13 @@ public class UserController {
             throw new ForbiddenException();
         }
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-
+/*
             //todo 把这个json解析到RealNameInformationDTO里
             json;
 
             int userId=details.getUserId();
-            return userService.postRealNameInformation(userId,realNameInformationDTO);
+            return userService.postRealNameInformation(userId,realNameInformationDTO);*/
+            return "";
 
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");

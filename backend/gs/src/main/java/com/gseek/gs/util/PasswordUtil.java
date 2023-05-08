@@ -26,12 +26,14 @@ import java.util.Random;
 @Component
 @Slf4j
 public class PasswordUtil {
+    @Value("${custom.encryptKey}")
+    private String encryptKey;
     
     private static final String KEY_ALGORITHM = "AES";
     /**
      * 默认的加密算法.算法名称/加密模式/数据填充方式
      * */
-    private static final String DEFAULT_CIPHER_ALGORITHM = "AES/ECB/PKCS7Padding";
+    private static final String DEFAULT_CIPHER_ALGORITHM = "AES/ECB/PKCS5Padding";
 
     private static SecretKeySpec keySpec;
 
@@ -40,14 +42,11 @@ public class PasswordUtil {
     /**
      * 初始化加密器.
      * key值放在yml里,用spring注入进来.
-     * 
-     * @param encryptKey 加密key值
      * */
     @PostConstruct
-    @Value("${custom.encryptKey}")
-    private void init(String encryptKey){
+    private void init(){
         // 设置加密秘钥
-        setSecretKey(encryptKey);
+        setSecretKey();
         // 设置密码器
         setCipher();
     }
@@ -131,10 +130,8 @@ public class PasswordUtil {
 
     /**
      * 设置加密秘钥
-     *
-     * @param encryptKey 加密key值
      */
-    private void setSecretKey(final String encryptKey) {
+    private void setSecretKey() {
         // 返回生成指定算法密钥生成器的 KeyGenerator 对象
         KeyGenerator kg;
         try {
