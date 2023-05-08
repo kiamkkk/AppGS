@@ -31,7 +31,7 @@ public class PasswordUtil {
     /**
      * 默认的加密算法.算法名称/加密模式/数据填充方式
      * */
-    private static final String DEFAULT_CIPHER_ALGORITHM = "AES/ECB/PKCS5Padding";
+    private static final String DEFAULT_CIPHER_ALGORITHM = "AES/ECB/PKCS7Padding";
 
     private static SecretKeySpec keySpec;
 

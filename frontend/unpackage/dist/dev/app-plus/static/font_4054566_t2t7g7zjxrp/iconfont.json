@@ -1,0 +1,72 @@
+{
+  "id": "4054566",
+  "name": "gseek",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "201571",
+      "name": "3.1-搜索",
+      "font_class": "31sousuo",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "249173",
+      "name": "like_fill",
+      "font_class": "likefill",
+      "unicode": "e69d",
+      "unicode_decimal": 59037
+    },
+    {
+      "icon_id": "2076374",
+      "name": "对勾小",
+      "font_class": "duigouxiao",
+      "unicode": "e8bd",
+      "unicode_decimal": 59581
+    },
+    {
+      "icon_id": "5207378",
+      "name": "橘猫",
+      "font_class": "jumao",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    },
+    {
+      "icon_id": "7588135",
+      "name": "左箭头",
+      "font_class": "zuojiantou",
+      "unicode": "e626",
+      "unicode_decimal": 58918
+    },
+    {
+      "icon_id": "7588137",
+      "name": "右箭头",
+      "font_class": "youjiantou",
+      "unicode": "e627",
+      "unicode_decimal": 58919
+    },
+    {
+      "icon_id": "11372774",
+      "name": "首页",
+      "font_class": "shouye",
+      "unicode": "e8c6",
+      "unicode_decimal": 59590
+    },
+    {
+      "icon_id": "12097774",
+      "name": "右箭头",
+      "font_class": "youjiantou1",
+      "unicode": "e68c",
+      "unicode_decimal": 59020
+    },
+    {
+      "icon_id": "13644678",
+      "name": "铃声",
+      "font_class": "lingsheng",
+      "unicode": "e60c",
+      "unicode_decimal": 58892
+    }
+  ]
+}
