@@ -54,6 +54,15 @@ public class OrdinaryUser implements UserDetails {
         this.password = password;
     }
 
+    @Override
+    public String toString() {
+        return "OrdinaryUser{" +
+                "userName='" + userName + '\'' +
+                ", userId=" + userId +
+                ", password='" + password + '\'' +
+                ", authorities=" + authorities +
+                '}';
+    }
 
     /**
      * 下面的都用不到

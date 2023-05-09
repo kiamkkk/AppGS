@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.gseek.gs.exce.BaseException;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.business.ParameterWrongException;
+import com.gseek.gs.exce.business.RepeatLoginException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +46,15 @@ public class ExceptionController {
     }
 
     @ExceptionHandler(ServerException.class)
-    public String ServerExceptionHandler(ServerException ServerException, HttpServletResponse response){
+    public String serverExceptionHandler(ServerException ServerException, HttpServletResponse response){
         response.setStatus(500);
         return packageMessage(ServerException);
+    }
+
+    @ExceptionHandler(RepeatLoginException.class)
+    public String repeatLoginExceptionHandler(RepeatLoginException e,HttpServletResponse response){
+        response.setStatus(403);
+        return packageMessage(e);
     }
 
 
@@ -63,5 +70,7 @@ public class ExceptionController {
         objectNode.put("message", e.getMsg());
         return objectNode.toPrettyString();
     }
+
+
 
 }

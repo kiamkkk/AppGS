@@ -11,6 +11,8 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface MoneyMapper {
 
+    //todo 补充注释
+
     /**
      * 插入新一般用户的余额信息.
      * 注册用户的第四个步骤.

@@ -3,6 +3,7 @@ package com.gseek.gs.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.common.OrdinaryUser;
+import com.gseek.gs.common.Result;
 import com.gseek.gs.dao.MoneyMapper;
 import com.gseek.gs.dao.UserIdentificationMapper;
 import com.gseek.gs.dao.UserInformationMapper;
@@ -14,7 +15,8 @@ import com.gseek.gs.pojo.data.MoneyDO;
 import com.gseek.gs.pojo.data.UserIdentificationDO;
 import com.gseek.gs.pojo.data.UserInformationDO;
 import com.gseek.gs.pojo.data.UserPasswordDO;
-import com.gseek.gs.pojo.dto.RealNameInformationDTO;
+import com.gseek.gs.pojo.dto.PatchUserInformationDTO;
+import com.gseek.gs.pojo.dto.PostRealNameInformationDTO;
 import com.gseek.gs.service.inter.UserService;
 import com.gseek.gs.util.PasswordUtil;
 import com.gseek.gs.util.StrUtil;
@@ -42,6 +44,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     PasswordUtil passwordUtil;
+
+    @Autowired
+    Result result;
     @Autowired
     UserPasswordMapper userPasswordMapper;
     @Autowired
@@ -79,6 +84,7 @@ public class UserServiceImpl implements UserService {
 
         UserPasswordDO userPasswordDO =new UserPasswordDO();
         userPasswordDO.setUserName(userName);
+        //todo 记得加密
         userPasswordDO.setPassword("password");
         userPasswordDO.setSalt(PasswordUtil.gainSalt());
 
@@ -116,14 +122,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String patchUserInformation(int userId, String email, String patchName, String photoPath){
+    public String patchUserInformation(int userId, String photoPath, PatchUserInformationDTO dto)
+            throws JsonProcessingException {
+        UserPasswordDO userPasswordDO=new UserPasswordDO(userId);
+        UserInformationDO userInformationDO=new UserInformationDO(userId);
 
-        return  "";
+        if (dto.getEmail()!=null){
+            userInformationDO.setEmail(dto.getEmail());
+        }
+        if (photoPath!=null){
+            userInformationDO.setProfilePhoto(photoPath);
+        }
+        if (dto.getUsername()!=null){
+            userPasswordDO.setUserName(dto.getUsername());
+        }
+        userInformationMapper.updateUserInformation(userInformationDO);
+        userPasswordMapper.updateUserPassword(userPasswordDO);
+
+        return result.gainPatchSuccess();
     }
 
     @Override
-    public String postRealNameInformation(int userId, RealNameInformationDTO realNameInformationDTO) {
-        return null;
+    public String postRealNameInformation(int userId, PostRealNameInformationDTO postRealNameInformationDTO) throws JsonProcessingException {
+        UserIdentificationBO bo = userIdentificationMapper.selectUserIdentificationByUserId(userId);
+        return objectMapper.writeValueAsString(bo);
     }
 
 

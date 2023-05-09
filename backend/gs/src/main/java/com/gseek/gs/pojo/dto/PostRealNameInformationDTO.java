@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -20,7 +19,7 @@ import javax.crypto.IllegalBlockSizeException;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RealNameInformationDTO {
+public class PostRealNameInformationDTO {
     //todo 修改dto，把userId放进去
     //todo 在这把身份证号解密
 
@@ -31,4 +30,6 @@ public class RealNameInformationDTO {
     public void setRawIdNumber(String rawIdNumber) throws IllegalBlockSizeException, BadPaddingException {
         this.rawIdNumber = PasswordUtil.decrypt(rawIdNumber);
     }
+
+
 }

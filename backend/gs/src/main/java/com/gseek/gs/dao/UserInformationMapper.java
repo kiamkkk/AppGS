@@ -33,5 +33,7 @@ public interface UserInformationMapper {
      * */
     UserInformationBO selectUserInformationByUserId(@Param("userId") int userId);
 
+    void updateUserInformation(@Param("userInformationDO") UserInformationDO userInformationDO);
+
 
 }

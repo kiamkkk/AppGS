@@ -17,6 +17,11 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserInformationDO {
+
+    public UserInformationDO(Integer userId) {
+        this.userId = userId;
+    }
+
     private Integer userId;
     private String email;
     private String profilePhoto;

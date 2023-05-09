@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace=绑定一个对应的Dao/Mapper接口-->
+<mapper namespace="com.gseek.gs.dao.GoodMapper">
+
+    <resultMap id="BaseResultMap" type="com.gseek.gs.pojo.data.GoodDO">
+        <id column="good_id" jdbcType="INTEGER" property="goodId" />
+        <result column="good_name" jdbcType="VARCHAR" property="goodName" />
+        <result column="account" jdbcType="VARCHAR" property="account" />
+        <result column="account_password" jdbcType="VARCHAR" property="accountPassword" />
+        <result column="good_text" jdbcType="VARCHAR" property="goodText" />
+        <result column="own_user_name" jdbcType="VARCHAR" property="ownUserName"/>
+        <result column="own_user_id" jdbcType="INTEGER" property="ownUserId" />
+        <result column="good_price" jdbcType="DECIMAL" property="goodPrice" />
+        <result column="create_time" jdbcType="BIGINT" property="createTime" />
+        <result column="modified_time" jdbcType="BIGINT" property="modifiedTime" />
+        <result column="sold" jdbcType="BIT" property="sold" />
+    </resultMap>
+
+    <resultMap id="GoodsWithoutAccountAndSoldBO" type="com.gseek.gs.pojo.business.GoodsWithoutAccountAndSoldBO">
+        <id column="good_id" jdbcType="INTEGER" property="goodId" />
+        <result column="good_name" jdbcType="VARCHAR" property="goodName" />
+        <result column="good_text" jdbcType="VARCHAR" property="goodText" />
+        <result column="own_user_name" jdbcType="VARCHAR" property="ownUserName"/>
+        <result column="own_user_id" jdbcType="INTEGER" property="ownUserId" />
+        <result column="good_price" jdbcType="DECIMAL" property="goodPrice" />
+        <result column="create_time" jdbcType="BIGINT" property="createTime" />
+        <result column="modified_time" jdbcType="BIGINT" property="modifiedTime" />
+    </resultMap>
+
+
+    <select id="selectGoodByGoodIdFully" parameterType="int" resultMap="BaseResultMap">
+        select * from good where good_id=#{goodId};
+    </select>
+
+    <select id="selectGoodByGoodIdWithoutAccount" resultType="int" resultMap="GoodsWithoutAccountAndSoldBO">
+        select good_id,good_name,good_text,own_user_id,own_user_name,good_price,create_time,modified_time
+        from good
+        where good_id=#{goodId};
+    </select>
+
+    <insert id="insertGood" parameterType="com.gseek.gs.pojo.data.GoodDO"
+            useGeneratedKeys="true" keyColumn="good_id" keyProperty="goodId">
+        insert into good(good_name, account, account_password, good_text,
+                         own_user_name, own_user_id, good_price, create_time, modified_time, sold)
+        values
+            (#{goodDO.goodName},#{goodDO.account},#{goodDO.accountPassword},#{goodDO.goodText},
+            #{goodDO.ownUserName},#{goodDO.ownUserId},#{goodDO.goodPrice},#{goodDO.createTime},
+            #{goodDO.modifiedTime},#{goodDO.sold});
+    </insert>
+
+</mapper>

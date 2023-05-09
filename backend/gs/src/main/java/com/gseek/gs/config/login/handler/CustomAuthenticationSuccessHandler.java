@@ -47,7 +47,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             String token=TokenUtil.gainToken(userName);
             if (authenticationToken.getDetails() instanceof CustomWebAuthenticationDetails details){
                 int userId =details.getUserId();
-                redisService.saveToken(token,userName,userId);
+                redisService.saveToken(token,userName,""+userId);
 
                 ObjectNode objectNode=objectMapper.createObjectNode();
                 objectNode.put("token", token);

@@ -13,4 +13,5 @@ public class CustomWebAuthenticationDetailsSource extends WebAuthenticationDetai
     public CustomWebAuthenticationDetails buildDetails(HttpServletRequest context) {
         return new CustomWebAuthenticationDetails(context);
     }
+
 }

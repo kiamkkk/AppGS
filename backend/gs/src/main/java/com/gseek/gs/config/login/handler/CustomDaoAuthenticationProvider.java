@@ -26,7 +26,11 @@ public class CustomDaoAuthenticationProvider extends DaoAuthenticationProvider {
         if (result.getDetails() instanceof CustomWebAuthenticationDetails details){
 
             if (user instanceof OrdinaryUser ordinaryUser){
+
+                log.info("设置用户id|"+ordinaryUser.getUserId());
                 details.setUserId(ordinaryUser.getUserId());
+                log.info(details.toString());
+
             }else {
                 log.error("向下转型失败|不能将user转为OrdinaryUser");
                 throw new ServerException("登录时出错");

@@ -1,6 +1,7 @@
 package com.gseek.gs.config.login.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 import java.util.Objects;
@@ -9,6 +10,7 @@ import java.util.Objects;
  * @author Phak
  * @since 2023/5/5-11:35
  */
+@Slf4j
 public class CustomWebAuthenticationDetails extends WebAuthenticationDetails {
 
     private int userId;
@@ -21,8 +23,9 @@ public class CustomWebAuthenticationDetails extends WebAuthenticationDetails {
         super(remoteAddress, sessionId);
     }
 
-    public void setUserId(int userId) {
+    public CustomWebAuthenticationDetails setUserId(int userId) {
         this.userId = userId;
+        return this;
     }
 
     public int getUserId() {

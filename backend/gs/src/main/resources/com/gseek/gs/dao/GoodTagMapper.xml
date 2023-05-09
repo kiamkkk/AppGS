@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace=绑定一个对应的Dao/Mapper接口-->
+<mapper namespace="com.gseek.gs.dao.GoodTagMapper">
+
+    <resultMap id="BaseResultMap" type="com.gseek.gs.pojo.data.GoodTagDO">
+        <id column="good_id" jdbcType="INTEGER" property="goodId" />
+        <result column="tag_id" jdbcType="INTEGER" property="tagId" />
+    </resultMap>
+
+    <select id="selectGoodIdByTagId" parameterType="int" resultType="integer">
+        select good_id from good_tag where tag_id= #{tagId};
+    </select>
+
+</mapper>
