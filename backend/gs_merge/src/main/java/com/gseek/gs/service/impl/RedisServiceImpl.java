@@ -10,6 +10,9 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -40,18 +43,12 @@ public class RedisServiceImpl implements RedisService {
     private static final long IMMINENT_TIME=10*60*1000;
 
     @Override
-    public void saveToken(String token,String userName,int userId) {
-        if (isRepeatLogin(userName)){
-            throw new RepeatLoginException();
-        }
-        addKey(token, userId+"", TokenUtil.EFFECTIVE_TIME,TimeUnit.MILLISECONDS);
-    }
-    @Override
     public void saveToken(String token,String userName,String userId) {
-        if (isRepeatLogin(userName)){
+        if (isRepeatLogin(token,userName)){
+            log.warn("重复登录|"+token);
             throw new RepeatLoginException();
         }
-        addKey(token, userId, TokenUtil.EFFECTIVE_TIME,TimeUnit.MILLISECONDS);
+        addKey(userName, token, TokenUtil.EFFECTIVE_TIME,TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -60,25 +57,34 @@ public class RedisServiceImpl implements RedisService {
             log.info("token is NULL or empty");
             return TOKEN_INVALID;
         }
-        if (isExist(token)){
-            if (System.currentTimeMillis()>
-                    TokenUtil.extractClaim(token, Claims::getExpiration).getTime()-IMMINENT_TIME){
-                log.debug("token reissue");
-                return TOKEN_REISSUE;
-            }
-            return TOKEN_VALID;
+
+        if (System.currentTimeMillis()>
+                TokenUtil.extractClaim(token, Claims::getExpiration).getTime()-IMMINENT_TIME){
+            log.debug("token reissue");
+            return TOKEN_REISSUE;
         }
-        return TOKEN_INVALID;
+
+        return TOKEN_VALID;
+
     }
 
     @Override
-    public boolean isRepeatLogin(String userName){
-        //todo 需要实现
-        return false;
+    public boolean isRepeatLogin(String token, String userName){
+        if (token.isBlank()){
+            return false;
+        }
+        if (userName.isBlank()){
+            return false;
+        }
+        String localToken=getKey(userName);
+        if (localToken==null){
+            return false;
+        }
+        return !localToken.equals(token);
     }
     @Override
-    public boolean isTokenExist(String token){
-        return isExist(token);
+    public boolean isUserHasToken(String userName){
+        return isExist(userName);
     }
 
     /**
@@ -106,7 +112,6 @@ public class RedisServiceImpl implements RedisService {
      * @return true为存在
      * */
     private boolean isExist(String key){
-        //todo 这个表达式始终为false
         Boolean a=template.hasKey(key);
         return Boolean.TRUE.equals(a);
     }
@@ -114,6 +119,23 @@ public class RedisServiceImpl implements RedisService {
     @Override
     public boolean deleteKey(String key) {
         return Boolean.TRUE.equals(template.delete(key));
+    }
+
+    @Override
+    public boolean fuzzyQuery(String matchKey){
+        Set<String> set=template.keys("*"+matchKey+"*");
+        // 将set转成ArrayList
+        List<String> list=new ArrayList<>(set);
+        if(list.size()!=0){
+            for (String str:list){
+                //通过查到的key值获取value，并放入result
+                if (template.opsForValue().get(str)!=null){
+                    return false;
+                }
+            }
+        }
+        return true;
+
     }
 
 }

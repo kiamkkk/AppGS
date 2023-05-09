@@ -1,7 +1,8 @@
 package com.gseek.gs.service.inter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.gseek.gs.pojo.dto.RealNameInformationDTO;
+import com.gseek.gs.pojo.dto.PatchUserInformationDTO;
+import com.gseek.gs.pojo.dto.PostRealNameInformationDTO;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -51,7 +52,7 @@ public interface UserService extends UserDetailsService {
      * @param photoPath 头像url地址
      * @return 通用响应
      * */
-    String patchUserInformation(int userId, String email, String patchName, String photoPath);
+    String patchUserInformation(int userId, String photoPath,PatchUserInformationDTO dto) throws JsonProcessingException;
 
     /**
      * 修改用户实名认证信息.
@@ -62,7 +63,7 @@ public interface UserService extends UserDetailsService {
      * @return 通用响应
      * */
     //todo 修改dto，把userId放进去
-    String postRealNameInformation(int userId, RealNameInformationDTO realNameInformationDTO);
+    String postRealNameInformation(int userId, PostRealNameInformationDTO postRealNameInformationDTO) throws JsonProcessingException;
 
     /**
      * 从数据库中获取登录信息.

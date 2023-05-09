@@ -58,7 +58,6 @@ public class TokenUtil {
         long issuedAt =System.currentTimeMillis();
         return TOKEN_PREFIX+ Jwts.builder().
                 setSubject(userName).
-                setIssuedAt(new Date(issuedAt)).
                 setExpiration(new Date(issuedAt+EFFECTIVE_TIME)).
                 signWith(getSignInKey()).compact();
     }

@@ -1,6 +1,7 @@
 package com.gseek.gs.config.login.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gseek.gs.common.OrdinaryUser;
 import com.gseek.gs.exce.business.TokenInvalidException;
 import com.gseek.gs.service.inter.RedisService;
 import com.gseek.gs.service.inter.UserService;
@@ -16,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -50,46 +50,52 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
                                     HttpServletResponse response,
                                     FilterChain chain) throws ServletException, IOException {
         String rawToken = request.getHeader("Authorization");
-        log.debug("doFilterInternal开始");
+        log.info("doFilterInternal开始");
 
         if (rawToken==null){
-            log.debug("该请求无token，直接放行");
+            log.info("该请求无token，直接放行");
             chain.doFilter(request, response);
             return;
         }
         if (StrUtil.checkToken(rawToken)) {
             final String token = rawToken.substring(TokenUtil.TOKEN_PREFIX.length());
-            //todo redisService.isTokenExist(token)始终为false
-            if (! token.isBlank() && redisService.isTokenExist(token)) {
-                String username = TokenUtil.extractClaim(token, Claims::getSubject);
-                if (username.isBlank() && SecurityContextHolder.getContext().getAuthentication() == null ) {
+            log.info("token格式正确|"+token);
+            String username = TokenUtil.extractClaim(token, Claims::getSubject);
+            log.info("用户名|"+username);
+            if (! token.isBlank() && redisService.isUserHasToken(username)) {
+                if (! username.isBlank() ) {
                     //验证token是否过期
                     int code=redisService.inspectToken(token);
                     switch (code) {
-                        case TOKEN_VALID -> {}
+                        case TOKEN_VALID -> {
+                            log.info("token可用|"+token);
+                        }
                         case TOKEN_REISSUE -> {
                             String newToken = tokenUtil.reissueToken(token, username);
                             //todo 放响应头里感觉不太好，我是这样想：
                             // 1、要么直接在这放进响应体里，controller里再读一遍响应体来改；
                             // 2、要么想想办法把新token传到controller里，统一写入响应体。
-                            response.setHeader("newToken", token);
+                            response.setHeader("newToken", newToken);
+                            log.info("token重签发|"+token);
                         }
                         case TOKEN_INVALID -> {
+                            log.warn("token不可用|"+token);
                             throw new TokenInvalidException();
                         }
                         default -> {
                             log.error("检查token是否过期时出错：出现异常状态码|" + code);
                         }
                     }
-                    log.debug("状态码|"+code);
+                    log.info("状态码|"+code);
 
-                    UserDetails userDetails = this.userService.loadUserByUsername(username);
+                    OrdinaryUser user =(OrdinaryUser) this.userService.loadUserByUsername(username);
+                    log.info(user.toString());
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
+                            user, user.getPassword(), user.getAuthorities());
                     authentication.setDetails(new CustomWebAuthenticationDetailsSource().buildDetails(
-                            request));
+                            request).setUserId(user.getUserId()));
 
-                    log.info("authenticated user " + username + ", setting security context");
+                    log.info("认证用户" + username + ",设置security context");
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -98,7 +104,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
         }else {
             log.info("token异常");
         }
-        log.debug("doFilterInternal结束");
+        log.info("doFilterInternal结束");
         chain.doFilter(request, response);
     }
 }

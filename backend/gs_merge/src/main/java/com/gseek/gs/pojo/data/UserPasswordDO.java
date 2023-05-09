@@ -11,14 +11,19 @@ import lombok.Setter;
  * @author Phak
  * @since 2023/5/2-19:32
  */
-
-@Setter
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserPasswordDO {
+
+    public UserPasswordDO(Integer userId) {
+        this.userId = userId;
+    }
+
     private Integer userId;
     private String userName;
     private String password;
     private String salt;
+
 }

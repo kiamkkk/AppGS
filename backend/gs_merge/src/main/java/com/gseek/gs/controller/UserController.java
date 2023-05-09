@@ -8,6 +8,8 @@ import com.gseek.gs.config.login.handler.CustomWebAuthenticationDetails;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.business.ForbiddenException;
 import com.gseek.gs.exce.business.ParameterWrongException;
+import com.gseek.gs.pojo.dto.PatchUserInformationDTO;
+import com.gseek.gs.pojo.dto.PostRealNameInformationDTO;
 import com.gseek.gs.service.inter.UserService;
 import com.gseek.gs.util.MinioUtil;
 import com.gseek.gs.util.PasswordUtil;
@@ -18,7 +20,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -110,9 +111,8 @@ public class UserController {
     public String patchUserInformation(@PathVariable("username") String userName,
                                        @CurrentSecurityContext(expression = "authentication")
                                        Authentication authentication,
-                                       @RequestParam(value = "email") String email,
-                                       @RequestParam(value = "username") String patchName,
-                                       @RequestParam(value = "headSculpture") MultipartFile profilePhoto) throws JsonProcessingException {
+                                       PatchUserInformationDTO dto) throws JsonProcessingException {
+        //todo service操作放进service里
 
         if (!Objects.equals(authentication.getName(), userName)){
             throw new ForbiddenException();
@@ -120,8 +120,9 @@ public class UserController {
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
             int userId=details.getUserId();
-            String photoPath=minioUtil.saveProfilePhoto(userId,profilePhoto);
-            return userService.patchUserInformation(userId,email,patchName,photoPath);
+            //todo 不要验空，交给saveProfilePhoto设置默认头像
+            String photoPath=minioUtil.saveProfilePhoto(userId, dto.getPicture());
+            return userService.patchUserInformation(userId,photoPath,dto);
 
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
@@ -139,14 +140,10 @@ public class UserController {
             throw new ForbiddenException();
         }
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-/*
-            //todo 把这个json解析到RealNameInformationDTO里
-            json;
-
+            //todo 直接接收RealNameInformationDTO
+            PostRealNameInformationDTO dto=objectMapper.readValue(json, PostRealNameInformationDTO.class);
             int userId=details.getUserId();
-            return userService.postRealNameInformation(userId,realNameInformationDTO);*/
-            return "";
-
+            return userService.postRealNameInformation(userId,dto);
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
             throw new ServerException("认证时出错");

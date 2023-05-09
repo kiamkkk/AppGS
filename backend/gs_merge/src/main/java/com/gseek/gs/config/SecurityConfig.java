@@ -1,6 +1,5 @@
 package com.gseek.gs.config;
 
-import com.gseek.gs.config.login.handler.*;
 import com.gseek.gs.service.inter.UserService;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,7 +11,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -36,7 +34,6 @@ public class SecurityConfig {
     @Autowired
     JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
 
-    //todo 改造验证流程
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
                                                    CustomAuthenticationSuccessHandler successHandler,
@@ -46,12 +43,11 @@ public class SecurityConfig {
 
         httpSecurity.authorizeHttpRequests()
                 .requestMatchers(HttpMethod.OPTIONS).permitAll()
-                /*.requestMatchers("/users/register","/users").permitAll()
+                .requestMatchers("/users/register","/users").permitAll()
                 .requestMatchers("/users/**").hasAnyAuthority("USER","ADMIN")
-                .anyRequest().anonymous()*/
-                .anyRequest().permitAll()
-                .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .anyRequest().authenticated()
+               /* .and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)*/
         ;
 
 

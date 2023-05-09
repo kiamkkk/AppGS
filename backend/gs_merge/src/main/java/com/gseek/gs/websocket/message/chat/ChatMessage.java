@@ -1,10 +1,5 @@
 package com.gseek.gs.websocket.message.chat;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 /**
  * 消息体格式。
  *

@@ -17,6 +17,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserIdentificationDO {
+
+
     private Integer userId;
     private String idNumber;
     private Boolean certified;
