@@ -12,8 +12,22 @@
 
     <select id="selectTagByTagName" parameterType="string" resultMap="BaseResultMap">
         select * from tag where tag_text=#{tagText};
+    </select>
+
+    <select id="selectTagByTagNameThenAdd" parameterType="string" resultMap="BaseResultMap">
+        select * from tag where tag_text=#{tagText};
         update tag set click=tag.click+1 where tag_id=#{tagId};
     </select>
+
+    <insert id="insertTag" parameterType="list"
+            useGeneratedKeys="true" keyColumn="tag_id" keyProperty="tagId">
+        insert ignore into tag (tag_text)
+        VALUES
+        <foreach collection="tags" item="item" index="index" separator=",">
+            (#{item.tagText})
+        </foreach>
+    </insert>
+
 
 
 </mapper>

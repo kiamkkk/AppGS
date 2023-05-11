@@ -42,7 +42,9 @@ public class TokenUtil {
     //todo 应该使用随机生成的盐，不要偷懒！
     private static final String SALT="586E3272357538782F413F4428472B4B6250645367566B597033733676397924";
 
-
+    /**
+     * 获取token
+     * */
     public static String gainToken(String userName){
         return createToken(userName);
     }

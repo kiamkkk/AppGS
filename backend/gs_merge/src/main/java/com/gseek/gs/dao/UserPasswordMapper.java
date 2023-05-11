@@ -33,4 +33,9 @@ public interface UserPasswordMapper {
 
     int updateUserPassword(@Param("userPasswordDO") UserPasswordDO userPasswordDO);
 
+    /**
+     *
+     * */
+    String selectUserNameByUserId(@Param("userId") int userId);
+
 }

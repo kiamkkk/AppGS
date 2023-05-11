@@ -1,8 +1,8 @@
 package com.gseek.gs.config.login.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gseek.gs.common.OrdinaryUser;
 import com.gseek.gs.exce.business.TokenInvalidException;
+import com.gseek.gs.pojo.bean.OrdinaryUser;
 import com.gseek.gs.service.inter.RedisService;
 import com.gseek.gs.service.inter.UserService;
 import com.gseek.gs.util.StrUtil;

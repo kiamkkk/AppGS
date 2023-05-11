@@ -32,12 +32,14 @@ public class GoodDO {
     private Long createTime;
     private Long modifiedTime;
     private Boolean sold;
+    private Integer typeTagId;
+    private String typeTagName;
 
     public GoodDO(Integer goodId) {
         this.goodId = goodId;
     }
     
-    public GoodDO(int ownUserId, String ownUserName, PostGoodsDTO dto){
+    public GoodDO(int ownUserId, String ownUserName, PostGoodsDTO dto,TagDO type){
 
         this.goodName=dto.getGoodName();
         this.account=dto.getAccount();
@@ -48,6 +50,8 @@ public class GoodDO {
         this.goodPrice= dto.getPrice();
         this.createTime=dto.getTime();
         this.modifiedTime=dto.getTime();
+        this.typeTagId=type.getTagId();
+        this.typeTagName=type.getTagText();
         this.sold=Boolean.FALSE;
 
     }

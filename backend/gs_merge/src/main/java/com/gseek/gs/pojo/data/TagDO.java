@@ -23,4 +23,7 @@ public class TagDO {
 
     private Integer click;
 
+    public TagDO(String tagText) {
+        this.tagText = tagText;
+    }
 }

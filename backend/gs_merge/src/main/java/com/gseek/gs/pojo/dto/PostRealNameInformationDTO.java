@@ -25,7 +25,7 @@ public class PostRealNameInformationDTO {
 
     private String userName;
     private String rawIdNumber;
-    private long time;
+    private Long time;
 
     public void setRawIdNumber(String rawIdNumber) throws IllegalBlockSizeException, BadPaddingException {
         this.rawIdNumber = PasswordUtil.decrypt(rawIdNumber);

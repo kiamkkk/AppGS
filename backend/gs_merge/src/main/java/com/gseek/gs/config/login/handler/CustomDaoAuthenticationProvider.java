@@ -1,7 +1,7 @@
 package com.gseek.gs.config.login.handler;
 
-import com.gseek.gs.common.OrdinaryUser;
 import com.gseek.gs.exce.ServerException;
+import com.gseek.gs.pojo.bean.OrdinaryUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;

@@ -2,6 +2,7 @@ package com.gseek.gs.config.login.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.exce.ContentTypeWrongException;
+import com.gseek.gs.pojo.bean.AuthenticationBean;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;

@@ -19,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 public class GoodPhotoPathBean {
 
-    int goodId;
+    Integer goodId;
     private List<String> coverPaths;
     private List<String> detailPaths;
 

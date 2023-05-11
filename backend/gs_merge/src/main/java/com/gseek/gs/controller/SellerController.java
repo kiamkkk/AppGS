@@ -58,7 +58,7 @@ public class SellerController {
 
     @PatchMapping("/goods")
     public String patchGoods(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
-                             PatchGoodsDTO dto) throws JsonProcessingException {
+                             PatchGoodsDTO dto) throws JsonProcessingException , ForbiddenException{
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             //用户只能对自己的商品操作
             String nowUserName=authentication.getName();
@@ -74,25 +74,58 @@ public class SellerController {
         }
     }
 
-    @DeleteMapping("/goods")
-    public String deleteGoods(){
-        return "";
+    @DeleteMapping("/goods/{good_id}")
+    public String deleteGood(@CurrentSecurityContext(expression = "authentication ") Authentication authentication,
+                             @PathVariable("good_id") int goodId)
+            throws ForbiddenException, JsonProcessingException {
+        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
+
+            return sellerService.deleteGood(details.getUserId(),authentication.getName(),goodId);
+
+        }else {
+            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
+            throw new ServerException("认证时出错");
+        }
     }
 
     @GetMapping("/{username}/goods")
-    public String getAllGoods(){
-        return "";
+    public String getAllGoods(@CurrentSecurityContext(expression = "authentication ") Authentication authentication,
+                              @PathVariable("username") String userName)
+            throws ForbiddenException, JsonProcessingException {
+        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
+            //todo 解决修改用户名后不能正确鉴权的问题
+            if (false){
+                throw new ForbiddenException();
+            }
+            return sellerService.getAllGoods(details.getUserId());
+
+        }else {
+            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
+            throw new ServerException("认证时出错");
+        }
     }
 
     @GetMapping("/{username}/goods/sold")
-    public String getGoodsSold(){
-        return "";
+    public String getGoodsSold(@CurrentSecurityContext(expression = "authentication ") Authentication authentication,
+                               @PathVariable("username") String userName)
+            throws ForbiddenException, JsonProcessingException {
+        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
+            //todo 解决修改用户名后不能正确鉴权的问题
+            if (false){
+                throw new ForbiddenException();
+            }
+            return sellerService.getGoodsSold(details.getUserId());
+
+        }else {
+            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
+            throw new ServerException("认证时出错");
+        }
     }
 
-    @GetMapping("/{goods-id}/offer_price")
-    public String getSingleGoodOfferPrice(){
-        return "";
-
+    @GetMapping("/{good_id}/offer_price")
+    public String getSingleGoodOfferPrice(@PathVariable("good_id") int goodId)
+            throws JsonProcessingException {
+        return sellerService.getSingleGoodOfferPrice(goodId);
     }
 
 }

@@ -1,4 +1,4 @@
-package com.gseek.gs.common;
+package com.gseek.gs.pojo.bean;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -19,7 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 public class OrdinaryUser implements UserDetails {
     private String userName;
-    private int userId;
+    private Integer userId;
     private String password;
     List<GrantedAuthority> authorities= new ArrayList<GrantedAuthority>();
 

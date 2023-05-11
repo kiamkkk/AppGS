@@ -28,6 +28,7 @@ public class GoodsWithoutAccountAndSoldBO {
     private BigDecimal goodPrice;
     private Long createTime;
     private Long modifiedTime;
+    private String typeTagName;
     private List<String> coverPictures;
     private List<String> detailPictures;
 

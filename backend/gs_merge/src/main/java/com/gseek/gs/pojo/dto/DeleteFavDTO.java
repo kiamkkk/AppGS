@@ -1,16 +1,19 @@
 package com.gseek.gs.pojo.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
  * @author Phak
- * @since 2023/5/9-22:31
+ * @since 2023/5/12-0:12
  */
 @Getter
 @Setter
 @NoArgsConstructor
-public class PatchGoodsDTO extends PostGoodsDTO{
+@AllArgsConstructor
+public class DeleteFavDTO {
+
     private Integer goodId;
 }

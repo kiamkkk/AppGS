@@ -14,4 +14,32 @@
         select good_id from good_tag where tag_id= #{tagId};
     </select>
 
+    <update id="updateGoodTag" parameterType="list" >
+        # 删除商品除typeId外的tagId
+        DELETE FROM good_tag WHERE tag_id !=
+        ( SELECT type_tag_id FROM good AS g WHERE g.good_id = #{goodId} ) ;
+
+        # 再添加tagId
+        insert into good_tag (good_id, tag_id)
+        VALUES
+        <foreach collection="tags" item="item" index="index" separator=",">
+            (#{goodId},#{item.tagId})
+        </foreach>
+
+    </update>
+
+
+    <select id="selectTagNamesByGoodId" parameterType="int" resultType="string">
+        SELECT tag_text FROM tag
+        WHERE tag_id= ANY
+              (SELECT tag_id FROM good_tag WHERE good_id = #{good_id});
+    </select>
+
+    <select id="selectTypeTagNamesByGoodId" parameterType="int" resultType="string">
+        SELECT tag_text FROM tag
+        WHERE tag_id= ANY
+              (SELECT tag_id FROM good_tag WHERE good_id = #{good_id});
+    </select>
+
+
 </mapper>

@@ -16,7 +16,7 @@ import java.util.List;
 @Getter
 public class GoodPhotoFileBean {
 
-    int goodId;
+    Integer goodId;
     List<MultipartFile> covers;
     List<MultipartFile> details;
 

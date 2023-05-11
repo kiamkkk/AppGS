@@ -1,6 +1,7 @@
 package com.gseek.gs.service.inter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.gseek.gs.exce.business.ParameterWrongException;
 import com.gseek.gs.pojo.dto.PatchGoodsDTO;
 import com.gseek.gs.pojo.dto.PostGoodsDTO;
 
@@ -19,7 +20,27 @@ public interface SellerService {
     /**
      *
      * */
-    String patchGood(int userId, String userName, PatchGoodsDTO dto) throws JsonProcessingException;
+    String patchGood(int userId, String userName, PatchGoodsDTO dto) throws JsonProcessingException, ParameterWrongException;
+
+    /**
+     *
+     * */
+    String deleteGood(int userId,String userName,int goodId) throws JsonProcessingException;
+
+    /**
+     *
+     *
+     */
+    String getAllGoods(int userId) throws JsonProcessingException;
 
 
+    /**
+     *
+     * */
+    String getGoodsSold(int userId) throws JsonProcessingException;
+
+    /**
+     *
+     * */
+    String getSingleGoodOfferPrice(int goodId) throws JsonProcessingException;
 }

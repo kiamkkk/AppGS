@@ -2,13 +2,13 @@ package com.gseek.gs.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gseek.gs.common.OrdinaryUser;
 import com.gseek.gs.common.Result;
 import com.gseek.gs.dao.MoneyMapper;
 import com.gseek.gs.dao.UserIdentificationMapper;
 import com.gseek.gs.dao.UserInformationMapper;
 import com.gseek.gs.dao.UserPasswordMapper;
 import com.gseek.gs.exce.business.ParameterWrongException;
+import com.gseek.gs.pojo.bean.OrdinaryUser;
 import com.gseek.gs.pojo.business.UserIdentificationBO;
 import com.gseek.gs.pojo.business.UserInformationBO;
 import com.gseek.gs.pojo.data.MoneyDO;

@@ -22,6 +22,8 @@ public class Result {
     private int code;
     private String msg;
     private Result postSuccess;
+    private Result patchSuccess;
+    private Result deleteSuccess;
 
     @Autowired
     @JsonIgnore
@@ -45,5 +47,19 @@ public class Result {
         }
         return objectMapper.writeValueAsString(postSuccess);
     }
+
+    public String gainPatchSuccess() throws JsonProcessingException {
+        if (patchSuccess == null){
+            patchSuccess = new Result(ResultCode.PATCH_SUCCESS);
+        }
+        return objectMapper.writeValueAsString(patchSuccess);
+    }
+    public String gainDeleteSuccess() throws JsonProcessingException {
+        if (deleteSuccess == null){
+            deleteSuccess = new Result(ResultCode.DETECT_SUCCESS);
+        }
+        return objectMapper.writeValueAsString(deleteSuccess);
+    }
+
 
 }

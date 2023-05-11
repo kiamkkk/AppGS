@@ -1,9 +1,13 @@
 package com.gseek.gs.dao;
 
+import com.gseek.gs.pojo.business.GoodBO;
 import com.gseek.gs.pojo.business.GoodsWithoutAccountAndSoldBO;
 import com.gseek.gs.pojo.data.GoodDO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * @author Phak
@@ -31,4 +35,24 @@ public interface GoodMapper {
      *
      * */
     int insertGood(@Param("goodDO") GoodDO goodDO);
+
+    /**
+     *
+     * */
+    int updateGoodSelect(@Param("good") GoodDO goodDO);
+
+    /**
+     * 删除good、good_tag、good_Fav、good_cover_pic、good_detail_pic、bill下的信息
+     *
+     * */
+    @Transactional
+    int deleteGood(@Param("goodId") int goodId);
+
+    Integer selectOwnUserIdByGoodId(@Param("goodId") int goodId);
+
+    //todo list都是null
+    List<GoodBO> selectGoodsByUserIdWithoutTypeTagId(@Param("userId") int userId);
+    //todo list都是null
+    List<GoodBO> selectGoodsSoldByUserIdWithoutTypeTagId(@Param("userId") int userId);
+
 }

@@ -41,4 +41,5 @@ public class PostGoodsDTO {
     public void setAccountPassword(String accountPassword) throws IllegalBlockSizeException, BadPaddingException {
         this.accountPassword=PasswordUtil.decrypt(accountPassword);
     }
+
 }

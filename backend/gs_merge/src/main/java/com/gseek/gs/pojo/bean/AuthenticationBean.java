@@ -1,6 +1,8 @@
-package com.gseek.gs.config.login.handler;
+package com.gseek.gs.pojo.bean;
 
 /**
+ * 封装登录信息.
+ *
  * @author Phak
  * @since 2023/5/3-13:34
  */

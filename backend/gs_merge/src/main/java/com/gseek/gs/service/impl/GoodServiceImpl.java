@@ -56,7 +56,7 @@ public class GoodServiceImpl implements GoodService {
         }
 
         //根据tagName查询goodId,同时tag的点击数加一
-        int tagId=tagMapper.selectTagByTagName(tagName).getTagId();
+        int tagId=tagMapper.selectTagByTagNameThenAdd(tagName).getTagId();
         List<Integer> goodIds=goodTagMapper.selectGoodIdByTagId(tagId);
         //根据goodId获取商品并修改
         List<GoodsWithoutAccountAndSoldBO> goods=new ArrayList<>();
