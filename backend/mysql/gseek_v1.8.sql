@@ -41,7 +41,7 @@ CREATE TABLE `appeal` (
   `chencked` tinyint(1) DEFAULT NULL COMMENT '申诉是否被处理',
   `admin_id` int DEFAULT NULL COMMENT '处理申诉管理员id',
   `provePic` varchar(200) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '证明照片',
-  `good_id` int DEFAULT NULL COMMENT '商品id'
+  `bill_id` int DEFAULT NULL COMMENT '订单id'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `appeal` */
