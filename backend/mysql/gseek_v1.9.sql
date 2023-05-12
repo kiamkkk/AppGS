@@ -30,9 +30,9 @@ CREATE TABLE `admin` (
 
 /*Data for the table `admin` */
 
-/*Table structure for table `appeal_buyer_to_sellers` */
+/*Table structure for table `appeal_buyer_to_seller` */
 
-CREATE TABLE `appeal_buyer_to_sellers` (
+CREATE TABLE `appeal_buyer_to_seller` (
   `appeal_id` int NOT NULL AUTO_INCREMENT COMMENT '申报id',
   `appeal_reason` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '申诉原因',
   `appeal_result` tinyint(1) DEFAULT NULL COMMENT '申诉结果',
@@ -44,11 +44,11 @@ CREATE TABLE `appeal_buyer_to_sellers` (
   KEY `appeal_id` (`appeal_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-/*Data for the table `appeal_buyer_to_sellers` */
+/*Data for the table `appeal_buyer_to_seller` */
 
-/*Table structure for table `appeal_eller_to_buyer` */
+/*Table structure for table `appeal_seller_to_buyer` */
 
-CREATE TABLE `appeal_eller_to_buyer` (
+CREATE TABLE `appeal_seller_to_buyer` (
   `appeal_id` int NOT NULL AUTO_INCREMENT COMMENT '申报id',
   `appeal_reason` varchar(200) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '申报原因',
   `pic_before` varchar(200) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '账号受损前图片',
@@ -61,7 +61,7 @@ CREATE TABLE `appeal_eller_to_buyer` (
   PRIMARY KEY (`appeal_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-/*Data for the table `appeal_eller_to_buyer` */
+/*Data for the table `appeal_seller_to_buyer` */
 
 /*Table structure for table `bill` */
 
