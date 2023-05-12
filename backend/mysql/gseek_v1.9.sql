@@ -40,6 +40,7 @@ CREATE TABLE `appeal_buyer_to_seller` (
   `admin_id` int DEFAULT NULL COMMENT '处理申诉管理员id',
   `provePic` varchar(200) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '证明照片',
   `good_id` int DEFAULT NULL COMMENT '商品id',
+  `my_id` int DEFAULT NULL COMMENT '申诉者id',
   PRIMARY KEY (`appeal_id`),
   KEY `appeal_id` (`appeal_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -58,10 +59,12 @@ CREATE TABLE `appeal_seller_to_buyer` (
   `chencked` tinyint(1) DEFAULT '0' COMMENT '申诉是否被处理',
   `admin_id` int DEFAULT NULL COMMENT '审核管理员id',
   `appeal_result` varchar(200) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '审核结果',
+  `my_id` int DEFAULT NULL COMMENT '申诉者id',
   PRIMARY KEY (`appeal_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `appeal_seller_to_buyer` */
+
 
 /*Table structure for table `bill` */
 
