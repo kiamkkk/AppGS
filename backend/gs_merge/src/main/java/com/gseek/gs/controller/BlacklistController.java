@@ -1,11 +1,14 @@
 package com.gseek.gs.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-
-import com.gseek.gs.pojo.data.Blacklist;
-import com.gseek.gs.service.inter.BlacklistService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.gseek.gs.common.Result;
+import com.gseek.gs.pojo.business.BlacklistBO;
+import com.gseek.gs.pojo.business.BlacklistResultBO;
+import com.gseek.gs.pojo.data.BlacklistDO;
+import com.gseek.gs.pojo.dto.BlacklistDTO;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -26,11 +29,14 @@ import java.util.UUID;
 @Controller
 @RestController
 @RequestMapping("/report")
+@Slf4j
 public class BlacklistController {
     @Autowired
     BlacklistService blacklistService;
+    @Autowired
+    Result result;
     SimpleDateFormat sdf=new SimpleDateFormat("yyyy/MM/dd/");
-    //TODO： 改变存图片的路径，从temp改到其他文件夹
+    //TODO： 改变存图片的路径，从temp改到其他文件夹&&把处理文件的弄到一个工具类里面去
     @PostMapping("/")
     public String addReport(@RequestParam("provePic") MultipartFile provePic, @RequestParam int respondentId,
                             @RequestParam String appealReason, @RequestParam int claimerId,
@@ -55,38 +61,33 @@ public class BlacklistController {
         }
         System.out.println(realPath);
         //保存到数据库
-        Blacklist blacklist=new Blacklist(claimerId,respondentId,appealReason,realPath);
-        System.out.println(blacklist);
-        blacklistService.addReport(blacklist);
+        BlacklistDTO blacklistDTO =new BlacklistDTO(claimerId,respondentId,appealReason,realPath);
+        System.out.println(blacklistDTO);
+        blacklistService.addReport(blacklistDTO);
 
-        return "ok";
+        return result.gainPostSuccess();
     }
     @GetMapping("/query_audit/{blackId}")
-    public String queryResult(@PathVariable int blackId){
-        if(blacklistService.queryChecked(blackId)){
-            System.out.println(blacklistService.queryResult(blackId));
-        }
-        else{System.out.println("未审查");}
-        return "ok";
+    public BlacklistResultBO queryResult(@PathVariable int blackId){
+        return blacklistService.queryResult(blackId);
     }
     @GetMapping("/{blackId}")
-    public String queryReport(@PathVariable int blackId){
-
-        return blacklistService.queryReport(blackId).toString();
+    public BlacklistBO queryReport(@PathVariable int blackId){
+        return blacklistService.queryReport(blackId);
     }
     @DeleteMapping("/{blackId}")
-    public String deleteReport(@PathVariable int blackId){
-        Blacklist blacklist=blacklistService.queryReport(blackId);
+    public String deleteReport(@PathVariable int blackId) throws JsonProcessingException {
+        BlacklistBO blacklistBO =blacklistService.queryReport(blackId);
 //        订单内的举报人是否和想删除订单的人id相同
 //        TODO 思考要不要改成过滤器
-        int reportId=blacklist.getClaimer_id();
+        int reportId= blacklistBO.getClaimer_id();
         //TODO 设user的全局变量，这里的1只是用于接口测试
-        if(reportId==1){
+        if(reportId==1&&blacklistService.queryChecked(blackId)){
             blacklistService.deleteReport(blackId);
         }
-        return "成功删除举报";
+        return result.gainDeleteSuccess();
     }
-    @PutMapping("/{blackId}")
+    @PatchMapping("/{blackId}")
 //    TODO 缺一个验证用户身份的
     public String updateReport(@RequestParam("provePic") MultipartFile provePic,@PathVariable int blackId,
                                @RequestParam String appealReason,
@@ -111,11 +112,11 @@ public class BlacklistController {
         }
         System.out.println(realPath);
         //保存到数据库
-        Blacklist blacklist=new Blacklist(appealReason,blackId,realPath);
-        System.out.println(blacklist);
-        blacklistService.updateReport(blacklist);
+        BlacklistDO blacklistDO =new BlacklistDO(appealReason,blackId,realPath);
+        System.out.println(blacklistDO);
+        blacklistService.updateReport(blacklistDO);
 
-        return "ok";
+        return result.gainPatchSuccess();
     }
 
 }
