@@ -185,7 +185,7 @@ public class SellerServiceImpl implements SellerService {
         }
         goodMapper.deleteGood(goodId);
 
-        return result.gainDetectSuccess();
+        return result.gainDeleteSuccess();
     }
 
     @Override

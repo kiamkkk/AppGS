@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace=绑定一个对应的Dao/Mapper接口-->
+<mapper namespace="com.gseek.gs.dao.GoodTagMapper">
+
+    <resultMap id="BaseResultMap" type="com.gseek.gs.pojo.data.GoodTagDO">
+        <id column="good_id" jdbcType="INTEGER" property="goodId" />
+        <result column="tag_id" jdbcType="INTEGER" property="tagId" />
+    </resultMap>
+
+    <select id="selectGoodIdByTagId" parameterType="int" resultType="integer">
+        select good_id from good_tag where tag_id= #{tagId};
+    </select>
+
+    <update id="updateGoodTag" parameterType="list" >
+        # 删除商品除typeId外的tagId
+        DELETE FROM good_tag WHERE tag_id !=
+        ( SELECT type_tag_id FROM good AS g WHERE g.good_id = #{goodId} ) ;
+
+        # 再添加tagId
+        insert into good_tag (good_id, tag_id)
+        VALUES
+        <foreach collection="tags" item="item" index="index" separator=",">
+            (#{goodId},#{item.tagId})
+        </foreach>
+
+    </update>
+
+
+    <select id="selectTagNamesByGoodId" parameterType="int" resultType="string">
+        SELECT tag_text FROM tag
+        WHERE tag_id= ANY
+              (SELECT tag_id FROM good_tag WHERE good_id = #{good_id});
+    </select>
+
+    <select id="selectTypeTagNamesByGoodId" parameterType="int" resultType="string">
+        SELECT tag_text FROM tag
+        WHERE tag_id= ANY
+              (SELECT tag_id FROM good_tag WHERE good_id = #{good_id});
+    </select>
+
+
+</mapper>

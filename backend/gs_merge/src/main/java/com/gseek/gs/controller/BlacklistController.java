@@ -7,6 +7,7 @@ import com.gseek.gs.pojo.business.BlacklistBO;
 import com.gseek.gs.pojo.business.BlacklistResultBO;
 import com.gseek.gs.pojo.data.BlacklistDO;
 import com.gseek.gs.pojo.dto.BlacklistDTO;
+import com.gseek.gs.service.inter.BlacklistService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
