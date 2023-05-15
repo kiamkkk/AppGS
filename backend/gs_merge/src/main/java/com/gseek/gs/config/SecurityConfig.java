@@ -46,6 +46,8 @@ public class SecurityConfig {
                 /*.requestMatchers(HttpMethod.OPTIONS).permitAll()
                 .requestMatchers("/alipay/**").permitAll()
                 .requestMatchers("/users/register","/users").permitAll()
+                .requestMatchers("/report/**","/report").permitAll()
+                .requestMatchers("/after_sale/**").permitAll()
                 .requestMatchers("/users/**").hasAnyAuthority("USER","ADMIN")
                 .anyRequest().authenticated()*/
                /* .and()

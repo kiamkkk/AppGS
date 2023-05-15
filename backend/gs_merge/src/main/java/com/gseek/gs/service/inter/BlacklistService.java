@@ -1,11 +1,14 @@
 package com.gseek.gs.service.inter;
 
 
-import com.gseek.gs.pojo.data.Blacklist;
-import org.springframework.stereotype.Service;
+import com.gseek.gs.pojo.business.BlacklistBO;
+import com.gseek.gs.pojo.business.BlacklistResultBO;
+import com.gseek.gs.pojo.data.BlacklistDO;
+import com.gseek.gs.pojo.dto.BlacklistDTO;
 
 import java.util.List;
 import java.util.Map;
+
 /**
  * 对应/report/**的操作.
  *
@@ -14,16 +17,16 @@ import java.util.Map;
  */
 
 public interface BlacklistService {
-    int addReport(Blacklist blacklist);
-    boolean queryResult(int blackId);
+    int addReport(BlacklistDTO blacklistDTO);
+    BlacklistResultBO queryResult(int blackId);
     boolean queryChecked(int blackId);
-    Blacklist queryReport(int blackId);
+    BlacklistBO queryReport(int blackId);
     int deleteReport(int blackId);
     //    int userId===claimer_id,int blackId,String appeal_reason
-    int updateReport(Blacklist blacklist);
-    List<Blacklist> queryAllUnchecked();
+    int updateReport(BlacklistDO blacklistDO);
+    List<BlacklistDO> queryAllUnchecked();
     int auditReport(Map map);
     int updateCheck(int blackId);
     //    int adminId,boolean appealResult,int blackId
-    int updateAuditResult(Blacklist blacklist);
+    int updateAuditResult(BlacklistDO blacklistDO);
 }

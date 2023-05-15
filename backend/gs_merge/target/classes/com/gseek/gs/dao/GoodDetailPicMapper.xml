@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace=绑定一个对应的Dao/Mapper接口-->
+<mapper namespace="com.gseek.gs.dao.GoodDetailPicMapper">
+
+    <resultMap id="BaseResultMap" type="com.gseek.gs.pojo.data.GoodDetailPicDO">
+        <result column="good_id" jdbcType="INTEGER" property="goodId" />
+        <result column="detail_picture_url" jdbcType="VARCHAR" property="detailPictureUrl" />
+    </resultMap>
+
+    <select id="selectDetailsByGoodId" parameterType="int" resultType="string">
+        select detail_picture_url
+        from good_detail_pic
+        where good_id=#{goodId};
+    </select>
+    <insert id="insertDetailPic" parameterType="java.util.ArrayList" >
+        insert into good_cover_pic (good_id, cover_picture_url)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{goodId},#{item})
+        </foreach>
+    </insert>
+
+
+</mapper>

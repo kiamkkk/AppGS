@@ -20,6 +20,12 @@ logging:
   level:
     root: info
 
+minio:
+  endpoint: http://127.0.0.1:9000
+  accessKey: testGseek
+  secretKey: 287dba04f2f02025a7a048bc356a78a017e90c7e
+  bucketName: gtest1
+
 # 自定义参数
 custom:
   # aes加密key值，在PasswordUtil#init中用到
