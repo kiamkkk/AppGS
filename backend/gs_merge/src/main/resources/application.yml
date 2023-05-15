@@ -2,12 +2,15 @@ server:
   port: 8080
 
 spring:
+  profiles:
+    include:
+      alipay
+
   datasource:
     url: jdbc:mysql://localhost:3306/gseek?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
     username: gseek
     password: gseek
     driver-class-name: com.mysql.cj.jdbc.Driver
-
 
   data:
     redis:
@@ -15,6 +18,12 @@ spring:
       database: 0
       port: 7000
 
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: gseek
+    password: gseek
+    virtual-host: GseekHost
 
 logging:
   level:
@@ -25,6 +34,10 @@ minio:
   accessKey: testGseek
   secretKey: 287dba04f2f02025a7a048bc356a78a017e90c7e
   bucketName: gtest1
+
+
+
+
 
 # 自定义参数
 custom:

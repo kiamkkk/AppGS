@@ -1,8 +1,11 @@
 package com.gseek.gs.dao;
 
+import com.gseek.gs.pojo.business.MoneyBO;
 import com.gseek.gs.pojo.data.MoneyDO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.math.BigDecimal;
 
 /**
  * @author Phak
@@ -25,5 +28,22 @@ public interface MoneyMapper {
      * */
     int insertMoney(@Param("moneyDO") MoneyDO moneyDO);
 
+    /**
+     *
+     * */
+    BigDecimal selectRemainByUserId(@Param("userId") int userId);
+
+    /**
+     *
+     * */
+    int minusRemainByUserId(@Param("userId") int userId,@Param("price") BigDecimal price);
+
+    int addRemainByUserId(@Param("userId") int userId,@Param("price") BigDecimal price);
+
+    int returnMoney(@Param("billId") int billId);
+
+    int payToSeller(@Param("billId") int billId);
+
+    MoneyBO selectMoneyBOByUserId(@Param("userId") int userId);
 
 }

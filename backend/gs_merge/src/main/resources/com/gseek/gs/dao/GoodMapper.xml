@@ -54,6 +54,13 @@
                     select="com.gseek.gs.dao.GoodDetailPicMapper.selectDetailsByGoodId" column="good.goodId" />
     </resultMap>
 
+    <resultMap id="GoodAccountBO" type="com.gseek.gs.pojo.business.GoodAccountBO">
+        <id column="good_id" jdbcType="INTEGER" property="goodId" />
+        <result column="good_name" jdbcType="VARCHAR" property="goodName"/>
+        <result column="account" jdbcType="VARCHAR" property="account"/>
+        <result column="account_password" jdbcType="VARCHAR" property="accountPassword"/>
+    </resultMap>
+
 
     <select id="selectGoodByGoodIdFully" parameterType="int" resultMap="BaseResultMap">
         select * from good where good_id=#{goodId};
@@ -106,6 +113,9 @@
             <if test="typeTagName != null">
                 type_tag_name=#{good.typeTagName},
             </if>
+            <if test="sold !=null">
+                sold=#{good.sold},
+            </if>
         </set>
         <where>
             good_id = #{good.goodId};
@@ -144,6 +154,18 @@
               sold = true ;
     </select>
 
+    <select id="selectPriceByBillId" resultType="decimal">
+        select good_price from good
+        where good_id=
+            (select good_id from bill where bill_id=#{billId})
+    </select>
 
+    <select id="selectGoodAccountByBillId" resultMap="GoodAccountBO">
+        select g.good_id,g.good_name, g.account ,g.account_password
+        from bill as b
+            left join good as g
+                on g.good_id=b.good_id
+        where b.bill_id=#{billId};
+    </select>
 
 </mapper>

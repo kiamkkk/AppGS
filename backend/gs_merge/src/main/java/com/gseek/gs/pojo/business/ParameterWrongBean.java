@@ -13,12 +13,12 @@ import java.util.Map;
  * @since 2023/5/7-17:18
  */
 @Component()
-public class ParameterWrongBO {
+public class ParameterWrongBean {
 
     private Map<String,String> wrongParameters;
 
 
-    public ParameterWrongBO() {
+    public ParameterWrongBean() {
         wrongParameters=new HashMap<>(16);
     }
 
@@ -29,7 +29,7 @@ public class ParameterWrongBO {
      * @param paraValue 参数值
      * @return 本身,方便连续调用
      *  */
-    public ParameterWrongBO addParameters(String paraName,String paraValue){
+    public ParameterWrongBean addParameters(String paraName,String paraValue){
         //todo 想想看用什么格式，把这两个值塞进wrongParameters里
 
         return this;

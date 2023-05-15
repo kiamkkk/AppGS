@@ -1,7 +1,7 @@
 package com.gseek.gs.util;
 
 import com.gseek.gs.exce.business.ParameterWrongException;
-import com.gseek.gs.pojo.business.ParameterWrongBO;
+import com.gseek.gs.pojo.business.ParameterWrongBean;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -100,7 +100,7 @@ public class PasswordUtil {
             // 判断是否为base64格式
             if (StrUtil.isBase64(toDecrypt)){
                 throw new ParameterWrongException(
-                        new ParameterWrongBO()
+                        new ParameterWrongBean()
                                 .addParameters("待加密字段",toDecrypt)
                 );
             }

@@ -24,6 +24,7 @@ public class Result {
     private Result postSuccess;
     private Result patchSuccess;
     private Result deleteSuccess;
+    private Result putSuccess;
 
     @Autowired
     @JsonIgnore
@@ -59,6 +60,13 @@ public class Result {
             deleteSuccess = new Result(ResultCode.DETECT_SUCCESS);
         }
         return objectMapper.writeValueAsString(deleteSuccess);
+    }
+
+    public String gainPutSuccess() throws JsonProcessingException {
+        if (putSuccess == null){
+            putSuccess = new Result(ResultCode.PUT_SUCCESS);
+        }
+        return objectMapper.writeValueAsString(putSuccess);
     }
 
 

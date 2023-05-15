@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -43,10 +42,12 @@ public class SecurityConfig {
         httpSecurity.csrf().disable();
 
         httpSecurity.authorizeHttpRequests()
-                .requestMatchers(HttpMethod.OPTIONS).permitAll()
+                .anyRequest().permitAll();
+                /*.requestMatchers(HttpMethod.OPTIONS).permitAll()
+                .requestMatchers("/alipay/**").permitAll()
                 .requestMatchers("/users/register","/users").permitAll()
                 .requestMatchers("/users/**").hasAnyAuthority("USER","ADMIN")
-                .anyRequest().authenticated()
+                .anyRequest().authenticated()*/
                /* .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)*/
         ;

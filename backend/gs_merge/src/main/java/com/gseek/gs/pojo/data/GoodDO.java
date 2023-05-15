@@ -35,8 +35,9 @@ public class GoodDO {
     private Integer typeTagId;
     private String typeTagName;
 
-    public GoodDO(Integer goodId) {
+    public GoodDO(Integer goodId,boolean sold) {
         this.goodId = goodId;
+        this.sold=sold;
     }
     
     public GoodDO(int ownUserId, String ownUserName, PostGoodsDTO dto,TagDO type){

@@ -6,3 +6,4 @@
  * @since 2023/5/5-23:16
  */
 package com.gseek.gs.pojo.dto;
+//todo 使用dto接收参数的地方都要在controller里验参

@@ -26,6 +26,12 @@ public interface BuyerService {
      * */
     String getAllFav(int userId) throws JsonProcessingException;
 
+    /**
+     *
+     * */
+    String getBoughtGoods(int userId) throws JsonProcessingException;
+
+
     String postFav(int userId, PostFavDTO dto) throws JsonProcessingException;
 
     String deleteFav(int userId, DeleteFavDTO dto) throws JsonProcessingException;

@@ -32,6 +32,8 @@ public class BuyerController {
     @Qualifier("buyerServiceImpl")
     BuyerService buyerService;
 
+
+
     @PostMapping("/offer_price")
     public String postOfferPrice(@CurrentSecurityContext(expression = "authentication ") Authentication authentication,
                                  PostOfferPriceDTO dto)
@@ -89,8 +91,20 @@ public class BuyerController {
     public String getBoughtGoods(@CurrentSecurityContext(expression = "authentication ") Authentication authentication,
                                  @PathVariable("user_id") int userId)
             throws JsonProcessingException,ForbiddenException  {
-        //todo 缺boughtGoodMapper
-        return "";
+        //todo 缺
+        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
+
+            if (userId!=details.getUserId()){
+                throw new ForbiddenException();
+            }
+
+            return buyerService.getBoughtGoods(userId);
+
+        }else {
+            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
+            throw new ServerException("认证时出错");
+        }
+
     }
 
     @PostMapping("/{user_id}/fav")

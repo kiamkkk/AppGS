@@ -38,4 +38,6 @@ public interface UserPasswordMapper {
      * */
     String selectUserNameByUserId(@Param("userId") int userId);
 
+    Integer selectUserIdByUserName(@Param("userName") String userName);
+
 }

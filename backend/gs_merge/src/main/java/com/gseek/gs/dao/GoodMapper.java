@@ -1,5 +1,6 @@
 package com.gseek.gs.dao;
 
+import com.gseek.gs.pojo.business.GoodAccountBO;
 import com.gseek.gs.pojo.business.GoodBO;
 import com.gseek.gs.pojo.business.GoodsWithoutAccountAndSoldBO;
 import com.gseek.gs.pojo.data.GoodDO;
@@ -7,6 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -48,11 +50,27 @@ public interface GoodMapper {
     @Transactional
     int deleteGood(@Param("goodId") int goodId);
 
+    /**
+     *
+     * */
     Integer selectOwnUserIdByGoodId(@Param("goodId") int goodId);
 
+    /**
+     *
+     * */
     //todo list都是null
     List<GoodBO> selectGoodsByUserIdWithoutTypeTagId(@Param("userId") int userId);
     //todo list都是null
+    /**
+     *
+     * */
     List<GoodBO> selectGoodsSoldByUserIdWithoutTypeTagId(@Param("userId") int userId);
+
+    /**
+     *
+     * */
+    BigDecimal selectPriceByBillId(@Param("billId") int billId);
+
+    GoodAccountBO selectGoodAccountByBillId(@Param("billId") int billId);
 
 }

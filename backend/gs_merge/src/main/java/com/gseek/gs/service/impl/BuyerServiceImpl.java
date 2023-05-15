@@ -3,9 +3,11 @@ package com.gseek.gs.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.common.Result;
+import com.gseek.gs.dao.BoughtGoodMapper;
 import com.gseek.gs.dao.GoodFavMapper;
 import com.gseek.gs.dao.GoodMapper;
 import com.gseek.gs.dao.OfferPriceMapper;
+import com.gseek.gs.pojo.business.BoughtGoodBO;
 import com.gseek.gs.pojo.business.GoodFavBO;
 import com.gseek.gs.pojo.business.GoodOfferPriceBO;
 import com.gseek.gs.pojo.dto.DeleteFavDTO;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
+ *
  * @author Phak
  * @since 2023/5/11-22:22
  */
@@ -35,6 +38,10 @@ public class BuyerServiceImpl implements BuyerService {
     @Autowired
     GoodMapper goodMapper;
 
+    @Autowired
+    BoughtGoodMapper boughtGoodMapper;
+
+
     @Override
     public String postOfferPrice(PostOfferPriceDTO dto) throws JsonProcessingException {
         offerPriceMapper.insertOfferPrice(dto);
@@ -50,6 +57,12 @@ public class BuyerServiceImpl implements BuyerService {
     @Override
     public String getAllFav(int userId) throws JsonProcessingException {
         List<GoodFavBO> bos=goodFavMapper.getAllFav(userId);
+        return objectMapper.writeValueAsString(bos);
+    }
+
+    @Override
+    public String getBoughtGoods(int userId) throws JsonProcessingException {
+        List<BoughtGoodBO> bos=boughtGoodMapper.selectBoughtGoodsByUserId(userId);
         return objectMapper.writeValueAsString(bos);
     }
 

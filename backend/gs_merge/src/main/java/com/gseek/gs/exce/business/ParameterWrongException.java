@@ -1,6 +1,6 @@
 package com.gseek.gs.exce.business;
 
-import com.gseek.gs.pojo.business.ParameterWrongBO;
+import com.gseek.gs.pojo.business.ParameterWrongBean;
 
 import java.util.Arrays;
 
@@ -30,7 +30,7 @@ public class ParameterWrongException extends BusinessException {
      *
      * @param bo 包含参数名与参数值
      * */
-    public ParameterWrongException(ParameterWrongBO bo){
+    public ParameterWrongException(ParameterWrongBean bo){
         //todo 规范化错误信息显示
         super();
         code=400;

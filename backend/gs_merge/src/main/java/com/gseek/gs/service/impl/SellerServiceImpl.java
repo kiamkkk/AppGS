@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.common.Result;
 import com.gseek.gs.dao.*;
+import com.gseek.gs.exce.ServerException;
+import com.gseek.gs.exce.ToBeConstructed;
 import com.gseek.gs.exce.business.ForbiddenException;
 import com.gseek.gs.exce.business.ParameterWrongException;
 import com.gseek.gs.pojo.bean.GoodPhotoFileBean;
@@ -32,7 +34,7 @@ import java.util.List;
 @Service("sellerServiceImpl")
 public class SellerServiceImpl implements SellerService {
     //todo 只能持有人访问这些接口
-
+    //todo 检查有没有商品对应的订单，有则不再接受修改商品的行为
     @Autowired
     ObjectMapper objectMapper;
 
@@ -69,9 +71,8 @@ public class SellerServiceImpl implements SellerService {
         int goodId=goodDO.getGoodId();
 
         if (goodId==0) {
-            throw new RuntimeException("good主键不回显|发生时间"+System.currentTimeMillis());
+            throw new ServerException("good主键不回显|发生时间"+System.currentTimeMillis());
         }
-        //todo 实现这两个
         //修改类型
         String patchType=dto.getType();
         if (patchType !=null){
@@ -178,14 +179,14 @@ public class SellerServiceImpl implements SellerService {
         Integer ownUserId=goodMapper.selectOwnUserIdByGoodId(goodId);
         if (ownUserId==null){
             //todo 补全
-            throw new RuntimeException();
+            throw new ToBeConstructed();
         }
         if (userId != ownUserId){
             throw new ForbiddenException();
         }
         goodMapper.deleteGood(goodId);
 
-        return result.gainDetectSuccess();
+        return result.gainDeleteSuccess();
     }
 
     @Override

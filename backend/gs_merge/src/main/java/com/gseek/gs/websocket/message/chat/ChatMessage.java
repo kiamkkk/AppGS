@@ -1,11 +1,20 @@
 package com.gseek.gs.websocket.message.chat;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 /**
  * 消息体格式。
  *
  * @author Phak
  * @since 2023/5/8-22:19
  */
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public abstract class ChatMessage {
 
     /**
@@ -20,37 +29,16 @@ public abstract class ChatMessage {
      * 信息类型
      * */
     protected String messageType;
-
-    public ChatMessage() {
-    }
-
-    public ChatMessage(String userName, long time, String messageType) {
-        this.userName = userName;
-        this.time = time;
-        this.messageType = messageType;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public long getTime() {
-        return time;
-    }
-
-    public void setTime(long time) {
-        this.time = time;
-    }
-
-    public String getMessageType() {
-        return messageType;
-    }
-
-    public void setMessageType(String messageType) {
-        this.messageType = messageType;
-    }
+    /**
+     * 发送用户id
+     * */
+//    protected int fromUserId;
+    /**
+     * 接收用户id
+     * */
+//    protected int toUserId;
+    /**
+     * 在该商品id的商品下进行的聊天
+     * */
+//    protected int billId;
 }

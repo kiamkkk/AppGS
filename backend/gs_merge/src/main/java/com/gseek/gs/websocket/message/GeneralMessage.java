@@ -1,11 +1,22 @@
 package com.gseek.gs.websocket.message;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.List;
+
 /**
  * 封装系统推送消息.
  *
  * @author Phak
  * @since 2023/5/8-22:46
  */
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class GeneralMessage {
     /**
     * 发布时间
@@ -22,44 +33,6 @@ public class GeneralMessage {
     /**
      * 图片url数组
      * */
-    private String[] urls;
+    private List<String> urls;
 
-    public GeneralMessage(long time, String topic, String text, String[] urls) {
-        this.time = time;
-        this.topic = topic;
-        this.text = text;
-        this.urls = urls;
-    }
-
-    public long getTime() {
-        return time;
-    }
-
-    public void setTime(long time) {
-        this.time = time;
-    }
-
-    public String getTopic() {
-        return topic;
-    }
-
-    public void setTopic(String topic) {
-        this.topic = topic;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public String[] getUrls() {
-        return urls;
-    }
-
-    public void setUrls(String[] urls) {
-        this.urls = urls;
-    }
 }

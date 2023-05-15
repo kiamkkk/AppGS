@@ -24,6 +24,10 @@ public enum ResultCode {
      * detect成功默认响应
      * */
     DETECT_SUCCESS(201,"success"),
+    /**
+     * put成功默认响应
+     * */
+    PUT_SUCCESS(201,"success"),
 
     /**
      * 服务器后端内部错误

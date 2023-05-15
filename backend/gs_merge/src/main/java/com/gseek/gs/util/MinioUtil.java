@@ -49,6 +49,9 @@ public class MinioUtil {
     @Autowired
     private MinioClient minioClient;
 
+    /**
+     * 储存头像.
+     * */
     public String saveProfilePhoto(int userId, MultipartFile profilePhoto){
 
         if (profilePhoto==null) {
@@ -59,7 +62,9 @@ public class MinioUtil {
         }
 
     }
-
+    /**
+     * 储存商品封面详情图片.
+     * */
     public GoodPhotoPathBean saveGoodsPhoto(GoodPhotoFileBean bean){
         //todo 储存图片并返回路径
         Map<Map<String,String>,MultipartFile> covers=new HashMap<>(16);
@@ -91,6 +96,14 @@ public class MinioUtil {
 
         return new GoodPhotoPathBean(goodId,coverPaths,detailPaths);
     }
+    /**
+     * 储存聊天时图片.
+     * */
+    public String saveChatPicture(MultipartFile pic,long time,int goodId,int fromUserId){
+        String[] pathAndFileName=createChatImgPathAndFileName(goodId,fromUserId,time);
+        putFile(pic, pathAndFileName[0],pathAndFileName[1]);
+        return pathAndFileName[0]+pathAndFileName[1];
+    }
 
 
     /**
@@ -114,6 +127,18 @@ public class MinioUtil {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * 构造聊天图片记录路径和文件名
+     *
+     * */
+    private String[] createChatImgPathAndFileName(int goodId,int fromUserId,long time){
+        String[] pathAndFileName=new String[2];
+        pathAndFileName[0]=PATH_CHATS+"/"+goodId+"/";
+        pathAndFileName[1]=fromUserId+"_"+time+SUFFIX_JPG;
+        return pathAndFileName;
+    }
+
 
     /**
      * 储存单个文件

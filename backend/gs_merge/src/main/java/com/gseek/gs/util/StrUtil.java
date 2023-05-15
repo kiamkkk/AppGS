@@ -98,6 +98,19 @@ public class StrUtil {
     }
 
     /**
+     * <code>当前13位时间戳</code>+<code>用户id</code>作为充值提现记录id
+     * <a href="https://opendocs.alipay.com/open/028r8t?scene=22">接口</a>描述如下：
+     * 商户订单号。由商家自定义，64个字符以内，仅支持字母、数字、下划线且需保证在商户端不重复。
+     *
+     * @param userId 用户id
+     * @return outTradeNo 对支付宝的订单id
+     * */
+    //todo 并没有想好要怎么包装。。。
+    public static String alipayOutTradeNoWarp(int userId){
+        return String.valueOf(System.currentTimeMillis()) + userId;
+    }
+
+    /**
      * 根据给定字符串，生成encryptKey.
      *
      * @param str 字符串
@@ -132,5 +145,19 @@ public class StrUtil {
         }
         return sb.toString();
     }
+
+    /**
+     * byte[] 转 int
+     *
+     * */
+    public static int bytesToInt(byte[] a){
+        int ans=0;
+        for(int i=0;i<4;i++){
+            ans<<=8;//左移 8 位
+            ans|=a[3-i];//保存 byte 值到 ans 的最低 8 位上
+        }
+        return ans;
+    }
+
 
 }

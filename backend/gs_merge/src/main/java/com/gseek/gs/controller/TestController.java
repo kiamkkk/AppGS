@@ -18,7 +18,7 @@ public class TestController {
 
     @GetMapping("index")
     public String index(){
-        return "test";
+        return "index";
     }
 
 
