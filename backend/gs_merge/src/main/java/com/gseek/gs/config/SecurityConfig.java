@@ -1,6 +1,8 @@
 package com.gseek.gs.config;
 
 import com.gseek.gs.config.login.handler.*;
+import com.gseek.gs.config.login.handler.admin.*;
+import com.gseek.gs.service.inter.AdminService;
 import com.gseek.gs.service.inter.UserService;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,24 +33,29 @@ public class SecurityConfig {
     @Autowired
     @Qualifier("userServiceImpl")
     UserService userService;
-
+    @Autowired
+    @Qualifier("adminServiceImpl")
+    AdminService adminService;
     @Autowired
     JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
-
+    /** update by Isabella at 2023/5/17-21:20 **/
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
                                                    CustomAuthenticationSuccessHandler successHandler,
-                                                   CustomAuthenticationFailureHandler failureHandler)
+                                                   CustomAuthenticationFailureHandler failureHandler,
+                                                   AdminAuthenticationSuccessHandler adminAuthenticationSuccessHandler,
+                                                   AdminAuthenticationFailureHandler adminAuthenticationFailureHandler)
             throws Exception {
         httpSecurity.csrf().disable();
 
         httpSecurity.authorizeHttpRequests()
-                .anyRequest().permitAll()
+//                .anyRequest().permitAll()
                 .requestMatchers(HttpMethod.OPTIONS).permitAll()
                 .requestMatchers("/alipay/**","/imgs/**","/users/register","/users").permitAll()
                 .requestMatchers("/report/**","/report").permitAll()
                 .requestMatchers("/after_sale/**").permitAll()
                 .requestMatchers("/users/**","/buyer/**","/buyer/**","/goods/**","/seller/**","/trade/**").hasAnyAuthority("USER","ADMIN")
+                .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
                 .anyRequest().authenticated()
                /* .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)*/
@@ -57,9 +64,15 @@ public class SecurityConfig {
 
         httpSecurity
                 .addFilterAt(authenticationFilter(successHandler, failureHandler), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(adminAuthenticationFilter(adminAuthenticationSuccessHandler, adminAuthenticationFailureHandler), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationTokenFilter, CustomAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationTokenFilter, AdminAuthenticationFilter.class)
                 .addFilterBefore((servletRequest, servletResponse, filterChain) -> {
                     ServletRequest requestWrapper = new CustomHttpServletRequestWrapper((HttpServletRequest)servletRequest);
+                    filterChain.doFilter(requestWrapper, servletResponse);//requestWrapper中保存着供二次使用的请求数据
+                }, ForceEagerSessionCreationFilter.class)
+                .addFilterBefore((servletRequest, servletResponse, filterChain) -> {
+                    ServletRequest requestWrapper = new AdminHttpServletRequestWrapper((HttpServletRequest)servletRequest);
                     filterChain.doFilter(requestWrapper, servletResponse);//requestWrapper中保存着供二次使用的请求数据
                 }, ForceEagerSessionCreationFilter.class);
         return httpSecurity.build();
@@ -84,17 +97,39 @@ public class SecurityConfig {
         filter.setAuthenticationDetailsSource(new CustomWebAuthenticationDetailsSource());
         return filter;
     }
+    @Bean
+    public AdminAuthenticationFilter adminAuthenticationFilter(AdminAuthenticationSuccessHandler successHandler,
+                                                               AdminAuthenticationFailureHandler failureHandler) {
+        AdminAuthenticationFilter filter = new AdminAuthenticationFilter();
+        filter.setAuthenticationManager(new ProviderManager(adminAuthenticationProvider(adminService())));
+        filter.setAuthenticationSuccessHandler(successHandler);
+        filter.setAuthenticationFailureHandler(failureHandler);
+        filter.setAuthenticationDetailsSource(new AdminWebAuthenticationDetailsSource());
+        return filter;
+    }
 
     @Bean
     public UserService userService(){
         return userService;
     }
+    @Bean
+    public AdminService adminService(){
+        return adminService;
+    }
+
 
     @Bean
     public CustomDaoAuthenticationProvider authenticationProvider(UserService userService) {
         CustomDaoAuthenticationProvider provider = new CustomDaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder());
         provider.setUserDetailsService(userService);
+        return provider;
+    }
+    @Bean
+    public AdminDaoAuthenticationProvider adminAuthenticationProvider(AdminService adminService) {
+        AdminDaoAuthenticationProvider provider = new AdminDaoAuthenticationProvider();
+        provider.setPasswordEncoder(passwordEncoder());
+        provider.setUserDetailsService(adminService);
         return provider;
     }
 
