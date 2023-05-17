@@ -45,8 +45,8 @@ public class TokenUtil {
     /**
      * 获取token
      * */
-    public static String gainToken(String userName){
-        return createToken(userName);
+    public static String gainToken(String userId){
+        return createToken(userId);
     }
 
     /**
@@ -91,14 +91,13 @@ public class TokenUtil {
      * 删除旧token,储存并返回新token
      *
      * @param oldToken 旧token
-     * @param userName 用户名
+     * @param userId 用户id
      * @return newToken 新token
      * */
-    public String reissueToken(String oldToken, String userName){
-        String userId= redisService.getKey(oldToken);
+    public String reissueToken(String oldToken, String userId){
         redisService.deleteKey(oldToken);
-        String newToken= gainToken(userName);
-        redisService.saveToken(newToken,userName,userId);
+        String newToken= gainToken(userId);
+        redisService.saveToken(newToken, userId);
         return newToken;
     }
 

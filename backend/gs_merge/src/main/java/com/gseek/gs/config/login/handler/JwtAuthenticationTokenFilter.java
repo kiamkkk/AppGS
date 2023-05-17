@@ -71,7 +71,8 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
                             log.info("token可用|"+token);
                         }
                         case TOKEN_REISSUE -> {
-                            String newToken = tokenUtil.reissueToken(token, username);
+                            String userId=TokenUtil.extractClaim(token, Claims::getSubject);
+                            String newToken = tokenUtil.reissueToken(token, userId);
                             //todo 放响应头里感觉不太好，我是这样想：
                             // 1、要么直接在这放进响应体里，controller里再读一遍响应体来改；
                             // 2、要么想想办法把新token传到controller里，统一写入响应体。

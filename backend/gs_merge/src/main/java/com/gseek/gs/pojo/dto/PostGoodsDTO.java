@@ -1,9 +1,9 @@
 package com.gseek.gs.pojo.dto;
 
 import com.gseek.gs.util.PasswordUtil;
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.crypto.BadPaddingException;
@@ -15,9 +15,9 @@ import java.util.List;
  * @author Phak
  * @since 2023/5/9-22:24
  */
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class PostGoodsDTO {
 
     private String goodName;

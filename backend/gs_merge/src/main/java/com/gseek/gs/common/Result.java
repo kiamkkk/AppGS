@@ -21,6 +21,7 @@ public class Result {
     //todo 要不要统一响应???
     private int code;
     private String msg;
+    private Result getSuccess;
     private Result postSuccess;
     private Result patchSuccess;
     private Result deleteSuccess;
@@ -40,6 +41,13 @@ public class Result {
     private Result(ResultCode resultCode) {
         this.code=resultCode.getCode();
         this.msg=resultCode.getMsg();
+    }
+
+    public String gainGetSuccess() throws JsonProcessingException {
+        if (getSuccess == null){
+            getSuccess = new Result(ResultCode.GET_SUCCESS);
+        }
+        return objectMapper.writeValueAsString(getSuccess);
     }
 
     public String gainPostSuccess() throws JsonProcessingException {

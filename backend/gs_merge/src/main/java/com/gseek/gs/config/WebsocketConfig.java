@@ -1,7 +1,8 @@
 package com.gseek.gs.config;
 
-import com.gseek.gs.websocket.handel.GetHeaderParamInterceptor;
+import com.gseek.gs.websocket.handel.TokenInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -19,8 +20,21 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    @Value("${spring.rabbitmq.host}")
+    private String host;
+    @Value("${spring.rabbitmq.port}")
+    private int port;
+    @Value("${spring.rabbitmq.username}")
+    private String username;
+    @Value("${spring.rabbitmq.password}")
+    private String password;
+    @Value("${spring.rabbitmq.virtual-host}")
+    private String virtualHost;
+    @Value("${spring.rabbitmq.relay_host}")
+    private String relayHost;
+
     @Autowired
-    GetHeaderParamInterceptor getHeaderParamInterceptor;
+    TokenInterceptor tokenInterceptor;
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/websocket").setAllowedOrigins("*");
@@ -34,23 +48,18 @@ public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.setApplicationDestinationPrefixes("/app");
         // "STOMP broker relay"处理所有消息将消息发送到外部的消息代理
         registry.enableStompBrokerRelay("/exchange","/topic","/queue","/amq/queue")
-                .setVirtualHost("GseekHost") //对应自己rabbitmq里的虚拟host
-                .setRelayHost("localhost")
-                .setClientLogin("root")
-                .setClientPasscode("root")
-                .setSystemLogin("root")
-                .setSystemPasscode("root")
-                .setSystemHeartbeatSendInterval(5000)
-                .setSystemHeartbeatReceiveInterval(4000);
+                .setVirtualHost(virtualHost)
+                .setClientLogin(username)
+                .setClientPasscode(password)
+                .setSystemLogin(username)
+                .setSystemPasscode(password)
+                .setSystemHeartbeatSendInterval(10000)
+                .setSystemHeartbeatReceiveInterval(10000);
 
     }
-    /**
-     * 采用自定义拦截器，获取connect时候传递的参数
-     *
-     * @param registration
-     */
+
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(getHeaderParamInterceptor);
+        registration.interceptors(tokenInterceptor);
     }
 }

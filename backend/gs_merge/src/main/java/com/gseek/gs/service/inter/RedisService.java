@@ -14,7 +14,7 @@ public interface RedisService {
      *
      * @param token token
      * */
-    void saveToken(String token,String userName,String userId) throws RepeatLoginException;
+    void saveToken(String token, String userId) throws RepeatLoginException;
 
     /**
      * 检验token是否有效:

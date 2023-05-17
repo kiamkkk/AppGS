@@ -3,9 +3,8 @@ package com.gseek.gs.pojo.dto;
 import com.gseek.gs.exce.business.ParameterWrongException;
 import com.gseek.gs.pojo.business.ParameterWrongBean;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.math.BigDecimal;
 
@@ -13,8 +12,7 @@ import java.math.BigDecimal;
  * @author Phak
  * @since 2023/5/12-20:53
  */
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostBillsDTO implements DTOPerService{

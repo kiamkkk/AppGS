@@ -13,6 +13,10 @@ import lombok.Getter;
 public enum ResultCode {
     //todo 多来点状态码
     /**
+     * get成功默认响应
+     * */
+    GET_SUCCESS(200,"success"),
+    /**
      * post成功默认响应
      * */
     POST_SUCCESS(201,"success"),

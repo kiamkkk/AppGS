@@ -43,12 +43,12 @@ public class RedisServiceImpl implements RedisService {
     private static final long IMMINENT_TIME=10*60*1000;
 
     @Override
-    public void saveToken(String token,String userName,String userId) {
-        if (isRepeatLogin(token,userName)){
+    public void saveToken(String token,String userId) {
+        if (isRepeatLogin(token,userId)){
             log.warn("重复登录|"+token);
             throw new RepeatLoginException();
         }
-        addKey(userName, token, TokenUtil.EFFECTIVE_TIME,TimeUnit.MILLISECONDS);
+        addKey(userId, token, TokenUtil.EFFECTIVE_TIME,TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -69,14 +69,14 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
-    public boolean isRepeatLogin(String token, String userName){
+    public boolean isRepeatLogin(String token, String userId){
         if (token.isBlank()){
             return false;
         }
-        if (userName.isBlank()){
+        if (userId.isBlank()){
             return false;
         }
-        String localToken=getKey(userName);
+        String localToken=getKey(userId);
         if (localToken==null){
             return false;
         }

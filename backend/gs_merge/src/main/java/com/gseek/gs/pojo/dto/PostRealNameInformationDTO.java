@@ -2,9 +2,8 @@ package com.gseek.gs.pojo.dto;
 
 import com.gseek.gs.util.PasswordUtil;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -15,8 +14,7 @@ import javax.crypto.IllegalBlockSizeException;
  * @author Phak
  * @since 2023/5/6-0:37
  */
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostRealNameInformationDTO {
