@@ -23,6 +23,7 @@ CREATE TABLE `good_checked` (
   `admin_id` int DEFAULT NULL COMMENT '审核管理员id',
   `checked` tinyint(1) DEFAULT '0' COMMENT '是否被审核',
   `check_time` bigint DEFAULT NULL COMMENT '被审核日期',
+  `result` tinyint(1) DEFAULT NULL COMMENT '审核结果',
   PRIMARY KEY (`good_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
