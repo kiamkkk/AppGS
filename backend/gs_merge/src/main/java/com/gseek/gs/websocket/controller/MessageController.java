@@ -3,30 +3,29 @@ package com.gseek.gs.websocket.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.common.Result;
-import com.gseek.gs.config.RabbitMQConfig;
 import com.gseek.gs.config.login.handler.CustomWebAuthenticationDetails;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.business.ForbiddenException;
 import com.gseek.gs.exce.business.ParameterWrongException;
 import com.gseek.gs.pojo.business.GoodAccountBO;
 import com.gseek.gs.pojo.business.ParameterWrongBean;
+import com.gseek.gs.pojo.dto.ChatBlockDTO;
+import com.gseek.gs.service.inter.ChatRecordService;
 import com.gseek.gs.util.MinioUtil;
-import com.gseek.gs.websocket.message.DeliveryMessage;
-import com.gseek.gs.websocket.message.GeneralMessage;
-import com.gseek.gs.websocket.message.chat.ChatMessage;
-import com.gseek.gs.websocket.message.chat.ChatPicMessage;
-import com.gseek.gs.websocket.message.chat.ChatTextMessage;
+import com.gseek.gs.websocket.message.AnnounceMessage;
+import com.gseek.gs.websocket.message.BaseMessage;
+import com.gseek.gs.websocket.message.ChatPicMessage;
+import com.gseek.gs.websocket.message.NoticeMessage;
+import com.gseek.gs.websocket.service.MessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -49,67 +48,57 @@ public class MessageController {
     @Autowired
     MinioUtil minioUtil;
 
+    @Autowired
+    MessageService messageService;
+    @Autowired
+    @Qualifier("chatRecordServiceImpl")
+    ChatRecordService chatRecordService;
+
     /**
      * 广播
      *
      *
      * */
-    public void announce(GeneralMessage message) throws JsonProcessingException {
-        template.convertAndSend(RabbitMQConfig.EXCHANGE_TOPIC,RabbitMQConfig.KEY_ANNOUNCE,
-                objectMapper.writeValueAsString(message));
+    public void announce(AnnounceMessage message) {
+        messageService.sendMessage(message);
     }
 
     /**
      * 交货消息
      *
      * */
-    public void delivery(GoodAccountBO bo) throws JsonProcessingException {
-        DeliveryMessage message=new DeliveryMessage(bo);
-        template.convertAndSend(RabbitMQConfig.EXCHANGE_TOPIC,RabbitMQConfig.KEY_DELIVERY,
-                objectMapper.writeValueAsString(message));
+    public void delivery(long time, GoodAccountBO bo) {
+        NoticeMessage message=new NoticeMessage(time,bo,objectMapper);
+        messageService.sendMessage(message);
     }
 
     /**
      * 一般通知
      *
      * */
-    public void general(GeneralMessage message) throws JsonProcessingException {
-        template.convertAndSend(RabbitMQConfig.EXCHANGE_TOPIC,RabbitMQConfig.KEY_GENERAL,
-                objectMapper.writeValueAsString(message));
+    public void general(NoticeMessage message) {
+        messageService.sendMessage(message);
     }
 
     /**
      * 用户聊天
      *
      * */
-    public void chat(@Payload ChatMessage message) throws JsonProcessingException {
-        if (message instanceof ChatTextMessage textMessage){
-            template.convertAndSend(RabbitMQConfig.EXCHANGE_TOPIC,RabbitMQConfig.KEY_CHAT,
-                    objectMapper.writeValueAsString(textMessage));
-        }
-        if (message instanceof ChatPicMessage picMessage){
-            template.convertAndSend(RabbitMQConfig.EXCHANGE_TOPIC,RabbitMQConfig.KEY_CHAT,
-                    objectMapper.writeValueAsString(picMessage));
-        }
-
+    @MessageMapping("/user/chat")
+    public void chat(@Payload BaseMessage message) {
+       messageService.sendMessage(message);
         //todo 用另一个线程储存聊天记录
+        chatRecordService.insertMessage(message);
     }
-
-    @MessageMapping("/topic/aaa")
-    @SendTo("/topic/bbb")
-    public String aaa(@Payload ChatMessage message) {
-        return message.getUserName()+" hello! it's aaa here";
-    }
-
 
     /**
      * 用户聊天时发送图片
      *
      * */
-    @PostMapping("/chats/imgs/{user_id}/{user_id}")
+    @PostMapping("/chats/imgs/{good_id}/{user_id}")
     public String postChatImg(@CurrentSecurityContext(expression = "authentication ") Authentication authentication,
-                              MultipartFile picture,Long time,
-                              @PathVariable("user_id") int goodId,@PathVariable("user_id") int userId)
+                              MultipartFile picture,Long time,int toUserId,
+                              @PathVariable("good_id") int goodId,@PathVariable("user_id") int userId)
             throws JsonProcessingException {
         // 验参
         ParameterWrongBean bean =new ParameterWrongBean();
@@ -139,7 +128,7 @@ public class MessageController {
             //todo 在另一个线程储存聊天记录
 
             // 推送消息
-            ChatPicMessage message=new ChatPicMessage(authentication.getName(),time,url);
+            ChatPicMessage message=new ChatPicMessage(userId, toUserId, goodId, authentication.getName(), url, time);
             chat(message);
 
             return result.gainPostSuccess();
@@ -149,5 +138,32 @@ public class MessageController {
         }
 
     }
+
+    @GetMapping("/chats/records/{good_id}/{user_id}")
+    public String getChatRecords(@PathVariable("good_id") int goodId,@PathVariable("user_id") int userId)
+            throws JsonProcessingException {
+        // todo 获取聊天记录
+        return chatRecordService.getChatRecords(goodId,userId);
+    }
+
+    @PatchMapping("/chats/block")
+    public String getChatBlock(@CurrentSecurityContext(expression = "authentication ") Authentication authentication,
+                               ChatBlockDTO dto)
+            throws JsonProcessingException {
+
+        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
+            if (dto.getFromUserId() != details.getUserId()){
+                throw new ForbiddenException();
+            }
+            // 拉黑
+            messageService.blockOrUnblock(dto);
+            return result.gainPatchSuccess();
+        }else {
+            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
+            throw new ServerException("认证时出错");
+        }
+
+    }
+
 
 }

@@ -10,6 +10,10 @@ public class ToBeConstructed extends BaseException{
 
 
     public ToBeConstructed() {
-        super("");
+        super("info");
+    }
+
+    public ToBeConstructed(Throwable cause) {
+        super(cause, "info");
     }
 }

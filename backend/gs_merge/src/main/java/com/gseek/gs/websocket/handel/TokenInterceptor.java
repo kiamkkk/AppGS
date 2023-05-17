@@ -1,5 +1,8 @@
 package com.gseek.gs.websocket.handel;
 
+import com.gseek.gs.util.TokenUtil;
+import io.jsonwebtoken.Claims;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -17,7 +20,8 @@ import java.util.Map;
  * @since 2023/5/15-17:13
  */
 @Component
-public class GetHeaderParamInterceptor implements ChannelInterceptor {
+@Slf4j
+public class TokenInterceptor implements ChannelInterceptor {
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -26,11 +30,12 @@ public class GetHeaderParamInterceptor implements ChannelInterceptor {
             Object raw = message.getHeaders().get(SimpMessageHeaderAccessor.NATIVE_HEADERS);
             if (raw instanceof Map) {
                 //取出客户端携带的参数
-                Object userId = ((Map) raw).get("userId");
-                System.out.println(userId);
-                if (userId instanceof LinkedList) {
+                Object header = ((Map) raw).get("token");
+                log.debug("header: {}",header);
+                if (header instanceof LinkedList) {
                     // 设置当前访问的认证用户
-                    accessor.setUser(new UserPrincipal(((LinkedList) userId).get(0).toString()));
+                    String userId= TokenUtil.extractClaim((String) ((LinkedList<?>) header).get(0), Claims::getSubject);
+                    accessor.setUser( new UserPrincipal(userId) );
                 }
             }
         }

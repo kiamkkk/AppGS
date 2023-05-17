@@ -7,6 +7,8 @@ import io.minio.*;
 import io.minio.http.Method;
 import io.minio.messages.DeleteError;
 import io.minio.messages.DeleteObject;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,7 +35,14 @@ public class MinioUtil {
      * 头像储存路径
      * */
     public static final String PATH_HEAD_SCULPTURES="/imgs/profile_photos/";
+    /**
+     * 默认头像
+     * */
     public static final String DEFAULT_PROFILE_PHOTO="/imgs/profile_photos/default_profile_photo.jpg";
+    /**
+     * 黑名单头像
+     * */
+    public static final String BLACKLIST_PROFILE_PHOTO="/imgs/profile_photos/blacklist_profile_photo.jpg";
     /**
      * 商品图片总储存路径
      * */
@@ -61,6 +70,10 @@ public class MinioUtil {
             return PATH_HEAD_SCULPTURES+userId+SUFFIX_JPG;
         }
 
+    }
+    //todo 修改头像：先删除后存入
+    public String changeProfilePhoto(){
+        return "";
     }
     /**
      * 储存商品封面详情图片.
@@ -104,7 +117,25 @@ public class MinioUtil {
         putFile(pic, pathAndFileName[0],pathAndFileName[1]);
         return pathAndFileName[0]+pathAndFileName[1];
     }
+    /**
+     * 下载文件
+     * */
+    public void downloadFile(HttpServletResponse response,String path,String filename){
+        InputStream file = getFile(path,filename);
+        response.setHeader("Content-Disposition", "attachment;filename=" + filename);
 
+        try(ServletOutputStream servletOutputStream = response.getOutputStream(); ) {
+            int len;
+            byte[] buffer = new byte[1024];
+            while((len=file.read(buffer)) > 0){
+                servletOutputStream.write(buffer, 0, len);
+            }
+            servletOutputStream.flush();
+            file.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * 预览图片.
@@ -113,6 +144,7 @@ public class MinioUtil {
      * @param fileName 文件名
      * @return url 预览文件url
      */
+    //todo 好像没用？？？
     public String previewFile(String path,String fileName){
         // 查看文件地址
         GetPresignedObjectUrlArgs build =
@@ -139,7 +171,6 @@ public class MinioUtil {
         return pathAndFileName;
     }
 
-
     /**
      * 储存单个文件
      *
@@ -147,7 +178,7 @@ public class MinioUtil {
      * @param path 储存路径
      * @param fileName 储存为文件名
      * */
-    public void putFile(MultipartFile file,String path,String fileName) {
+    private void putFile(MultipartFile file,String path,String fileName) {
         try {
             minioClient.putObject(
                     PutObjectArgs.builder()
@@ -168,7 +199,7 @@ public class MinioUtil {
      * @param files 文件名,储存路径与文件:
      *              <code>Map(Map(储存路径,文件名),文件)</code>
      * */
-    public void putFile(Map<Map<String,String>,MultipartFile> files) {
+    private void putFile(Map<Map<String,String>,MultipartFile> files) {
         //todo 用bean传参！！！！！！！！！！！！！！！！！！！
         List<SnowballObject> objects = new ArrayList<>();
         for (Map.Entry<Map<String,String>,MultipartFile> outEntry : files.entrySet()){
@@ -203,7 +234,7 @@ public class MinioUtil {
      * @param filename 文件名
      * @param path 储存路径
      * */
-    public void removeFile(String filename,String path) {
+    private void removeFile(String filename,String path) {
         try {
             minioClient.removeObject(
                     RemoveObjectArgs.builder()
@@ -222,7 +253,7 @@ public class MinioUtil {
      *              <code>Map(文件路径,文件名)</code>
      *
      * */
-    public void removeFile(Map<String,String> files) {
+    private void removeFile(Map<String,String> files) {
         //todo 用bean传参！！！！！！！！！！！！！！！！！！！
         List<DeleteObject> objects = new LinkedList<>();
         for (Map.Entry<String,String> entry:files.entrySet()){
@@ -250,7 +281,7 @@ public class MinioUtil {
      * @param path 储存路径
      * @param fileName 文件名
      * */
-    public InputStream getFile(String path, String fileName) {
+    private InputStream getFile(String path, String fileName) {
         try (
                 InputStream inputStream=minioClient.getObject(
                         GetObjectArgs.builder()

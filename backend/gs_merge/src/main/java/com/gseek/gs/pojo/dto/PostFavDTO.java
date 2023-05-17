@@ -1,16 +1,14 @@
 package com.gseek.gs.pojo.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * @author Phak
  * @since 2023/5/11-23:43
  */
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostFavDTO {

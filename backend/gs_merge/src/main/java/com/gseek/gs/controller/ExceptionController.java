@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.gseek.gs.exce.BaseException;
 import com.gseek.gs.exce.ServerException;
+import com.gseek.gs.exce.ToBeConstructed;
 import com.gseek.gs.exce.business.ParameterWrongException;
 import com.gseek.gs.exce.business.RepeatLoginException;
 import jakarta.servlet.http.HttpServletResponse;
@@ -57,6 +58,11 @@ public class ExceptionController {
         return packageMessage(e);
     }
 
+    @ExceptionHandler(ToBeConstructed.class)
+    public String toBeConstructedExceptionHandler(ToBeConstructed e,HttpServletResponse response){
+        response.setStatus(500);
+        return "后端竟然还有没写的异常！！！带着以下消息火速前去拷打廖俊煜！！！\n"+e.getMessage();
+    }
 
     /**
      * 以json包装自定义异常

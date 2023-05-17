@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -42,14 +43,13 @@ public class SecurityConfig {
         httpSecurity.csrf().disable();
 
         httpSecurity.authorizeHttpRequests()
-                .anyRequest().permitAll();
-                /*.requestMatchers(HttpMethod.OPTIONS).permitAll()
-                .requestMatchers("/alipay/**").permitAll()
-                .requestMatchers("/users/register","/users").permitAll()
+                .anyRequest().permitAll()
+                .requestMatchers(HttpMethod.OPTIONS).permitAll()
+                .requestMatchers("/alipay/**","/imgs/**","/users/register","/users").permitAll()
                 .requestMatchers("/report/**","/report").permitAll()
                 .requestMatchers("/after_sale/**").permitAll()
-                .requestMatchers("/users/**").hasAnyAuthority("USER","ADMIN")
-                .anyRequest().authenticated()*/
+                .requestMatchers("/users/**","/buyer/**","/buyer/**","/goods/**","/seller/**","/trade/**").hasAnyAuthority("USER","ADMIN")
+                .anyRequest().authenticated()
                /* .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)*/
         ;

@@ -1,16 +1,14 @@
 package com.gseek.gs.pojo.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * @author Phak
  * @since 2023/5/9-22:31
  */
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PatchGoodsDTO extends PostGoodsDTO{

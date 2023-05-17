@@ -127,7 +127,7 @@ public class BillServiceImpl implements BillService {
             // 确认交货,商品信息推送给买方
             GoodAccountBO bo =goodMapper.selectGoodAccountByBillId(Integer.parseInt(dto.getBillId()));
             bo.postService();
-            messageController.delivery(bo);
+            messageController.delivery(dto.getTime(),bo);
         }else {
             // 不交货,取消交易,取消信息推送给买方
             //todo 取消信息推送给买方

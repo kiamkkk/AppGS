@@ -4,9 +4,8 @@ import com.gseek.gs.exce.business.ParameterWrongException;
 import com.gseek.gs.pojo.business.ParameterWrongBean;
 import com.gseek.gs.util.PasswordUtil;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -15,8 +14,7 @@ import javax.crypto.IllegalBlockSizeException;
  * @author Phak
  * @since 2023/5/13-17:34
  */
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PatchDeliveryBillDTO implements DTOPerService{

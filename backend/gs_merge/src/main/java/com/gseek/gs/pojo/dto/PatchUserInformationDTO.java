@@ -3,17 +3,15 @@ package com.gseek.gs.pojo.dto;
 import com.gseek.gs.exce.business.ParameterWrongException;
 import com.gseek.gs.util.StrUtil;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author Phak
  * @since 2023/5/9-11:40
  */
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PatchUserInformationDTO {

@@ -56,6 +56,7 @@
 
     <resultMap id="GoodAccountBO" type="com.gseek.gs.pojo.business.GoodAccountBO">
         <id column="good_id" jdbcType="INTEGER" property="goodId" />
+        <result column="buyer_id" jdbcType="INTEGER" property="buyerId"/>
         <result column="good_name" jdbcType="VARCHAR" property="goodName"/>
         <result column="account" jdbcType="VARCHAR" property="account"/>
         <result column="account_password" jdbcType="VARCHAR" property="accountPassword"/>
@@ -161,7 +162,7 @@
     </select>
 
     <select id="selectGoodAccountByBillId" resultMap="GoodAccountBO">
-        select g.good_id,g.good_name, g.account ,g.account_password
+        select g.good_id,g.good_name, g.account ,g.account_password ,b.buyer_id
         from bill as b
             left join good as g
                 on g.good_id=b.good_id

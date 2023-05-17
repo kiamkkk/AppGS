@@ -42,12 +42,12 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             throws RepeatLoginException,IOException,ServerException {
         log.debug("onAuthenticationSuccess开始");
         if (authentication instanceof UsernamePasswordAuthenticationToken authenticationToken){
-            //根据userName来构建token
-            String userName = authenticationToken.getName();
-            String token=TokenUtil.gainToken(userName);
             if (authenticationToken.getDetails() instanceof CustomWebAuthenticationDetails details){
-                int userId =details.getUserId();
-                redisService.saveToken(token,userName,""+userId);
+                String userId =details.getUserId()+"";
+                //todo 应该根据userId来构建，因为userName是可变的
+                //根据userName来构建token
+                String token=TokenUtil.gainToken(userId);
+                redisService.saveToken(token, userId);
 
                 ObjectNode objectNode=objectMapper.createObjectNode();
                 objectNode.put("token", token);
