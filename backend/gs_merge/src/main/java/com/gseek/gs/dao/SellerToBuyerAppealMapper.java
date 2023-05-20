@@ -17,11 +17,10 @@ public interface SellerToBuyerAppealMapper {
     //TODO 和其他表的交互
     //TODO 检测输入信息是否是有效信息（？
     int addSellerToBuyerAppeal(SellerToBuyerAppealDTO sellerToBuyerAppealDTO);
-    //TODO 怎么查不出来？
     SellerToBuyerAppealBO queryAppeal(int appealId);
     int deleteAppeal(int appealId);
     SellerToBuyerAppealResultBO queryResult(int appealId);
-    int updateAppeal(Map map);
+    int updateAppeal(SellerToBuyerAppealDTO sellerToBuyerAppealDTO);
     int queryMyId(int appealId);
 
 }

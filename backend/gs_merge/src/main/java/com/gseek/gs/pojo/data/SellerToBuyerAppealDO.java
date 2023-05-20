@@ -20,7 +20,7 @@ public class SellerToBuyerAppealDO {
     private int billId;
     private boolean checked;
     private int adminId;
-    private String appealResult;
+    private boolean appealResult;
     private int myId;
     private int damageDegree;
 }

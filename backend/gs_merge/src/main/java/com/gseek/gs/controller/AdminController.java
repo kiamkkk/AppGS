@@ -2,8 +2,11 @@ package com.gseek.gs.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gseek.gs.common.Result;
+import com.gseek.gs.pojo.business.*;
 import com.gseek.gs.pojo.data.BlacklistDO;
+import com.gseek.gs.pojo.data.GoodCheckedDO;
 import com.gseek.gs.pojo.dto.AdminBlacklistDTO;
+import com.gseek.gs.service.inter.AdminService;
 import com.gseek.gs.service.inter.BlacklistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,6 +26,8 @@ import java.util.List;
 @RequestMapping("/admin")
 public class AdminController {
     @Autowired
+    AdminService adminService;
+    @Autowired
     BlacklistService blacklistService;
     @Autowired
     Result result;
@@ -31,21 +36,53 @@ public class AdminController {
     public List<BlacklistDO> queryAllUnchecked(){
         return blacklistService.queryAllUnchecked();
     }
-//TODO 外面的值传不进来（？&&要不要用patch
-    @PutMapping("/audit/report/{blackId}")
+//TODO 外面的值传不进来（？
+    @PatchMapping("/audit/report/{blackId}")
     public String auditReport(@PathVariable int blackId, @RequestBody AdminBlacklistDTO adminBlacklistDTO) throws JsonProcessingException {
-        HashMap map = new HashMap();
-        int adminId= adminBlacklistDTO.getAdmin_id();
-        System.out.println(adminId);
-        boolean appealResult= adminBlacklistDTO.isAppeal_result();
-        String disapproveReason= adminBlacklistDTO.getDisapprove_reason();
-        map.put("admin_id",adminId);
-        map.put("appeal_result",appealResult);
-        map.put("disapprove_reason",disapproveReason);
-        map.put("black_id",blackId);
-        blacklistService.auditReport(map);
+        blacklistService.auditReport(adminBlacklistDTO);
         blacklistService.updateCheck(blackId);
         return result.gainPatchSuccess();
+    }
+    @PutMapping("/audit/product/{goodId}")
+    public String auditGood(@PathVariable int goodId, @RequestBody GoodCheckedDO goodCheckedDO) throws JsonProcessingException {
+        goodCheckedDO.setGoodId(goodId);
+        adminService.auditGood(goodCheckedDO);
+        return result.gainPutSuccess();
+    }
+    @PatchMapping("audit/after_sale/buyer_complain/{appealId}")
+    public String auditBuyerAppeal(@PathVariable int appealId, @RequestBody BuyerToSellerAppealResultBO buyerToSellerAppealResultBO){
+        buyerToSellerAppealResultBO.setAppeal_id(appealId);
+        if (buyerToSellerAppealResultBO.isAppeal_result()){
+
+        }
+        adminService.auditBuyerAppeal(buyerToSellerAppealResultBO);
+        return "ok";
+    }
+    @PatchMapping("/audit/after_sale/seller_complain/{appealId}")
+    public String auditSellerAppeal(@PathVariable int appealId, @RequestBody SellerToBuyerAppealResultBO sellerToBuyerAppealResultBO){
+        sellerToBuyerAppealResultBO.setAdmin_id(appealId);
+        adminService.auditSellerAppeal(sellerToBuyerAppealResultBO);
+        return "ok";
+    }
+    @GetMapping("/audit/product/all")
+    public List<GoodBO> queryUnCheckedProduct(){
+        return adminService.queryUnCheckedProduct();
+    }
+    @GetMapping("/after_sale/seller_complain/all")
+    public List<SellerToBuyerAppealBO> queryUnCheckedSellerAppeal(){
+        return adminService.queryUnCheckedSellerAppeal();
+    }
+    @GetMapping("/after_sale/buyer_complain/all")
+    public List<BuyerToSellerAppealBO> queryUnCheckedBuyerAppeal(){
+        return adminService.queryUnCheckedBuyerAppeal();
+    }
+    @GetMapping("/after_sale/seller_complain/{appealId}")
+    public SellerToBuyerAppealBO querySellerAppealById(@PathVariable int appealId){
+        return adminService.querySellerAppealById(appealId);
+    }
+    @GetMapping("/after_sale/buyer_complain/{appealId}")
+    public BuyerToSellerAppealBO queryBuyerAppealById(@PathVariable int appealId){
+        return adminService.queryBuyerAppealById(appealId);
     }
 
 }

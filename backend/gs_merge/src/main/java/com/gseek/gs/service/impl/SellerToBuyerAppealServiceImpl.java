@@ -37,10 +37,8 @@ public class SellerToBuyerAppealServiceImpl implements SellerToBuyerAppealServic
 
 
 
-    public int deleteAppeal(int appealId, int myId) {
-        if(myId==sellerToBuyerAppealMapper.queryMyId(appealId)){
-            return sellerToBuyerAppealMapper.deleteAppeal(appealId);}
-        return 0;
+    public int deleteAppeal(int appealId) {
+            return sellerToBuyerAppealMapper.deleteAppeal(appealId);
     }
 
 
@@ -49,8 +47,8 @@ public class SellerToBuyerAppealServiceImpl implements SellerToBuyerAppealServic
     }
 
 
-    public int updateAppeal(Map map) {
-        return sellerToBuyerAppealMapper.updateAppeal(map);
+    public int updateAppeal(SellerToBuyerAppealDTO sellerToBuyerAppealDTO) {
+        return sellerToBuyerAppealMapper.updateAppeal(sellerToBuyerAppealDTO);
     }
 
 

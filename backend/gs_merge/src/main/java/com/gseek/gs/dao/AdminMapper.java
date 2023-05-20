@@ -1,9 +1,11 @@
 package com.gseek.gs.dao;
 
+import com.gseek.gs.pojo.business.*;
 import com.gseek.gs.pojo.data.AdminDO;
-import com.gseek.gs.pojo.data.UserPasswordDO;
+import com.gseek.gs.pojo.data.GoodCheckedDO;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * @author: Isabella
@@ -18,4 +20,20 @@ public interface AdminMapper {
 
     int updateAdmin(AdminDO adminDO);
     String selectAdminNameByAdminId( int adminId);
+//TODO 这里以下的都是还没写的
+    List<GoodBO> queryUnCheckedProduct();
+    List<SellerToBuyerAppealBO> queryUnCheckedSellerAppeal();
+    List<BuyerToSellerAppealBO> queryUnCheckedBuyerAppeal();
+    SellerToBuyerAppealBO querySellerAppealById(int appealId);
+    BuyerToSellerAppealBO queryBuyerAppealById(int appealId);
+    //TODO 这里应该用patch但是我不确定（（
+    //TODO 缺少把商品加入未审核表的SQL
+    //todo long和date的转换（？
+//    todo 其他权限的控制和查看
+    int auditGood(GoodCheckedDO goodChecked);
+    int auditSellerAppeal(SellerToBuyerAppealResultBO sellerToBuyerAppealResultBO);
+    int auditBuyerAppeal(BuyerToSellerAppealResultBO buyerToSellerAppealResultBO);
+    int setGoodCheck(int goodId);
+    int setSellerCheck(int appealId);
+    int setBuyerCheck(int appealId);
 }
