@@ -29,7 +29,7 @@ public class TokenUtil {
     /**
      * token前缀
      * */
-    public static final String TOKEN_PREFIX="Bearer:";
+    public static final String TOKEN_PREFIX="Bearer ";
 
     @Autowired
     @Qualifier("redisServiceImpl")

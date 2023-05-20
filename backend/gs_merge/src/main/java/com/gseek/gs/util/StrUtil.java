@@ -17,19 +17,19 @@ public class StrUtil {
     /**
      * 密码格式：只有英文大小写、数字
      * */
-    private static final String PASSWORD_FORMAT="[0-9][a-z][A-Z]";
+    private static final String PASSWORD_FORMAT="^[A-Za-z0-9]+$";
     /**
      * 用户名格式：只有英文大小写、中文、数字
      * */
-    private static final String USERNAME_FORMAT="[0-9][a-z][A-Z][]\\u4e00-\\u9fa5]";
+    private static final String USERNAME_FORMAT="^[\\u4E00-\\u9FA5A-Za-z0-9]+$";
     /**
      * 邮箱格式：xxx@xxx.xxx
      * */
-    private static final String EMAIL_FORMAT="\\\\w+@\\\\w+\\\\.a-z+(\\\\.a-z+)?";
+    private static final String EMAIL_FORMAT="^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$";
     /**
      * token：Bearer +xxx
      * */
-    private static final String TOKEN_FORMAT="^Bearer:\\S+";
+    private static final String TOKEN_FORMAT="^Bearer \\S+";
 
     /**
      * base64格式：
