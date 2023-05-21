@@ -53,6 +53,9 @@
     <update id="updateCheck" parameterType="int" >
         update gseek.blacklist set checked=1 where black_id=#{black_id};
     </update>
+    <select id="queryByRespondentId" resultType="boolean">
+        select appeal_result from gseek.blacklist where respondent_id=#{respondentId};
+    </select>
 <!--    <update id="updateAuditResult" parameterType="com.gseek.gs.pojo.data.BlacklistDODO" >-->
 <!--        update gseek.blacklistDO set appeal_result=#{appeal_result} where black_id=#{black_id};-->
 <!--    </update>-->

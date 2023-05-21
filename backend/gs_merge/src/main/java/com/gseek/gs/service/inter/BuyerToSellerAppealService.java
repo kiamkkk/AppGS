@@ -15,8 +15,8 @@ import java.util.Map;
 public interface BuyerToSellerAppealService {
     int addBuyerToSellerAppeal(BuyerToSellerAppealDTO buyerToSellerAppealDTO);
     BuyerToSellerAppealBO queryAppeal(int appealId);
-    int deleteAppeal(int appealId,int myId);
+    int deleteAppeal(int appealId);
     BuyerToSellerAppealResultBO queryResult(int appealId);
-    int updateAppeal(Map map);
+    int updateAppeal(BuyerToSellerAppealDTO buyerToSellerAppealDTO);
     int queryMyId(int appealId);
 }

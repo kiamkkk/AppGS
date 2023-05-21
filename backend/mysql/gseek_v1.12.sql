@@ -39,7 +39,7 @@ CREATE TABLE `admin` (
   `admin_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '账号名',
   `salt` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '盐值',
   PRIMARY KEY (`admin_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `admin` */
 
@@ -51,14 +51,14 @@ CREATE TABLE `appeal_buyer_to_seller` (
   `appeal_id` int NOT NULL AUTO_INCREMENT COMMENT '申报id',
   `appeal_reason` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '申诉原因',
   `appeal_result` tinyint(1) DEFAULT NULL COMMENT '申诉结果',
-  `chencked` tinyint(1) DEFAULT NULL COMMENT '申诉是否被处理',
+  `checked` tinyint(1) DEFAULT NULL COMMENT '申诉是否被处理',
   `admin_id` int DEFAULT NULL COMMENT '处理申诉管理员id',
-  `provePic` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '证明照片',
+  `provePic` varchar(200) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '证明照片',
   `bill_id` int DEFAULT NULL COMMENT '商品id',
   `my_id` int DEFAULT NULL COMMENT '申诉者id',
   PRIMARY KEY (`appeal_id`),
   KEY `appeal_id` (`appeal_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `appeal_buyer_to_seller` */
 
@@ -68,20 +68,29 @@ DROP TABLE IF EXISTS `appeal_seller_to_buyer`;
 
 CREATE TABLE `appeal_seller_to_buyer` (
   `appeal_id` int NOT NULL AUTO_INCREMENT COMMENT '申报id',
-  `appeal_reason` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '申报原因',
-  `pic_before` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '账号受损前图片',
-  `pic_after` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '账号受损后图片',
+  `appeal_reason` varchar(200) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '申报原因',
+  `pic_before` varchar(200) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '账号受损前图片',
+  `pic_after` varchar(200) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '账号受损后图片',
   `accept` tinyint(1) DEFAULT '1' COMMENT '卖家是否接受调解',
   `bill_id` int DEFAULT NULL COMMENT '订单id',
-  `chencked` tinyint(1) DEFAULT '0' COMMENT '申诉是否被处理',
+  `checked` tinyint(1) DEFAULT '0' COMMENT '申诉是否被处理',
   `admin_id` int DEFAULT NULL COMMENT '审核管理员id',
-  `appeal_result` tinyint(1)  DEFAULT NULL COMMENT '审核结果',
+  `appeal_result` tinyint(1) DEFAULT NULL COMMENT '审核结果',
   `my_id` int DEFAULT NULL COMMENT '申诉者id',
+  `damage_degree` int DEFAULT NULL COMMENT '判定账号受损程度',
   PRIMARY KEY (`appeal_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `appeal_seller_to_buyer` */
 
+/*Table structure for table `debt` */
+
+CREATE TABLE `debt` (
+  `money` decimal(13,2) DEFAULT '0.00',
+  `respondent_id` int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+/*Data for the table `debt` */
 /*Table structure for table `bill` */
 
 DROP TABLE IF EXISTS `bill`;

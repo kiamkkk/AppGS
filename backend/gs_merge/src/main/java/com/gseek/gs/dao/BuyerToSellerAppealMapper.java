@@ -16,10 +16,12 @@ import java.util.Map;
 public interface BuyerToSellerAppealMapper {
     //TODO 检测输入信息是否是有效信息（？
     int addBuyerToSellerAppeal(BuyerToSellerAppealDTO buyerToSellerAppealDTO);
+
     BuyerToSellerAppealBO queryAppeal(int appealId);
+
     int deleteAppeal(int appealId);
     BuyerToSellerAppealResultBO queryResult(int appealId);
-    int updateAppeal(Map map);
+    int updateAppeal(BuyerToSellerAppealDTO buyerToSellerAppealDTO);
     int queryMyId(int appealId);
 
 

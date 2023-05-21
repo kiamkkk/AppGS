@@ -17,7 +17,7 @@
     <select id="queryResult" resultType="com.gseek.gs.pojo.business.BuyerToSellerAppealResultBO">
         select checked,admin_id,appeal_result from gseek.appeal_buyer_to_seller where `appeal_id`=#{appealId};
     </select>
-    <update id="updateAppeal" parameterType="map">
+    <update id="updateAppeal" parameterType="com.gseek.gs.pojo.dto.BuyerToSellerAppealDTO">
         update gseek.appeal_buyer_to_seller
         <set>
             <if test="appealReason != null">
