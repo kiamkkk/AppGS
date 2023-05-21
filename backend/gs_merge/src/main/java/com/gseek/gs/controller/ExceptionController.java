@@ -6,7 +6,7 @@ import com.gseek.gs.exce.BaseException;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.ToBeConstructed;
 import com.gseek.gs.exce.business.ParameterWrongException;
-import com.gseek.gs.exce.business.RepeatLoginException;
+import com.gseek.gs.exce.business.login.RepeatLoginException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

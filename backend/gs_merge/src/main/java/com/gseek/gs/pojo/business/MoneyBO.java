@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class MoneyBO {
+public class MoneyBO implements BOPostService{
 
     private BigDecimal remain;
     private Boolean frozen;

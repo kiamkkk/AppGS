@@ -107,7 +107,7 @@ public class UserController {
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
             int userId=details.getUserId();
-            String photoPath=minioUtil.saveProfilePhoto(userId, dto.getPicture());
+            String photoPath=minioUtil.changeProfilePhoto(userId, dto.getPicture());
             return userService.patchUserInformation(userId,photoPath,dto);
 
         }else {

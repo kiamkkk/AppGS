@@ -6,7 +6,7 @@ import com.gseek.gs.config.login.handler.CustomWebAuthenticationDetails;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.business.ForbiddenException;
 import com.gseek.gs.exce.business.ParameterWrongException;
-import com.gseek.gs.pojo.business.ParameterWrongBean;
+import com.gseek.gs.pojo.bean.ParameterWrongBean;
 import com.gseek.gs.pojo.dto.*;
 import com.gseek.gs.service.inter.BillService;
 import com.gseek.gs.util.PasswordUtil;

@@ -26,11 +26,11 @@ public interface MoneyService {
      *  根据订单对应的商品价格还给买家钱
      *
      */
-    void returnMoney(int billId);
+    void returnMoney(int billId, int sellerId);
     /**
      *
      * */
-    void payToSeller(int billId);
+    void payToSeller(int billId, int buyerId);
 
     /**
      * 充值

@@ -36,8 +36,7 @@ public interface TagMapper {
      * 主键回显
      *
      */
-    int insertTag(@Param("tags") List<TagDO> tags);
+    int insertTags(@Param("tags") List<TagDO> tags);
 
-
-
+    int insertTag(@Param("tag") TagDO tagDO);
 }

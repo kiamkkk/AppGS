@@ -6,9 +6,13 @@ package com.gseek.gs.exce.business;
  */
 public class ForbiddenException extends BusinessException{
 
+    public ForbiddenException() {
+        super();
+        code=403;
+    }
+
     public ForbiddenException(String... info) {
         super(info);
         code=403;
-        msg="Forbidden";
     }
 }

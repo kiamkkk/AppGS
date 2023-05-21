@@ -64,7 +64,7 @@
 
 
     <select id="selectGoodByGoodIdFully" parameterType="int" resultMap="BaseResultMap">
-        select * from good where good_id=#{goodId};
+        select * from good where good_id=#{goodId} ;
     </select>
 
     <select id="selectGoodByGoodIdWithoutAccount" resultType="int" resultMap="GoodsWithoutAccountAndSoldBO">

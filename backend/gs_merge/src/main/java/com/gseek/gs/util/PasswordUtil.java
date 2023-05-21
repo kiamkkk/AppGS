@@ -2,7 +2,7 @@ package com.gseek.gs.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gseek.gs.exce.business.ParameterWrongException;
-import com.gseek.gs.pojo.business.ParameterWrongBean;
+import com.gseek.gs.pojo.bean.ParameterWrongBean;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -73,21 +73,17 @@ public class PasswordUtil {
      *
      * @param toEncrypt 待加密字段
      * @return result Base64转码后加密结果
+     * @throws IllegalBlockSizeException 加密时出错
+     * @throws BadPaddingException 加密时出错
      * */
-    public static String encrypt(String toEncrypt){
-        //todo 实现加密
-        try {
-            // 设置为UTF-8编码
-            final byte[] byteContent = toEncrypt.getBytes(StandardCharsets.UTF_8);
-            // 加密
-            final byte[] result = cipher.doFinal(byteContent);
-            // 通过Base64转码返回
-            return Base64.encodeBase64String(result);
-        } catch (Exception e) {
-            log.error("加密时出错：\n"+e.getMessage(), e);
-        }
-        return "";
-
+    public static String encrypt(String toEncrypt)
+            throws IllegalBlockSizeException, BadPaddingException {
+        // 设置为UTF-8编码
+        final byte[] byteContent = toEncrypt.getBytes(StandardCharsets.UTF_8);
+        // 加密
+        final byte[] result = cipher.doFinal(byteContent);
+        // 通过Base64转码返回
+        return Base64.encodeBase64String(result);
     }
 
     /**
@@ -97,7 +93,7 @@ public class PasswordUtil {
      * @return result 解密结果,格式为UTF-8
      * */
     public static String decrypt(String toDecrypt)
-            throws IllegalBlockSizeException, BadPaddingException, JsonProcessingException {
+            throws BadPaddingException, JsonProcessingException, IllegalBlockSizeException {
         try {
             // 判断是否为base64格式
             if (StrUtil.checkBase64(toDecrypt)){

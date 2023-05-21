@@ -29,7 +29,16 @@
                 select="com.gseek.gs.dao.GoodDetailPicMapper.selectDetailsByGoodId"
                 column="good_id=goodId"/>
     </resultMap>
-    
+
+    <insert id="insertBoughtGoods" >
+        insert into bought_good (good_id, bought_time, bought_price, buyer_id)
+        VALUES (#{goodId}, #{time}, (select good_price from good where good_id=#{goodId}), #{buyerId});
+    </insert>
+
+    <delete id="deleteBoughtGoods">
+        delete from bought_good where good_id=#{goodId};
+    </delete>
+
     <select id="selectBoughtGoodsByUserId" parameterType="int" resultMap="BoughtGoodBO">
         select bg.good_id, bg.bought_price, bg.bought_time, g.good_name, g.good_text,g.own_user_name, g.type_tag_name
         from bought_good as bg

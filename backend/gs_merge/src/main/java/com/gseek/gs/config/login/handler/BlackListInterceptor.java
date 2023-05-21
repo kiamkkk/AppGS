@@ -3,7 +3,7 @@ package com.gseek.gs.config.login.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.common.ResultCode;
 import com.gseek.gs.exce.ServerException;
-import com.gseek.gs.exce.ToBeConstructed;
+import com.gseek.gs.exce.business.ForbiddenException;
 import com.gseek.gs.pojo.business.BlacklistResultBO;
 import com.gseek.gs.service.inter.BlacklistService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,7 +34,7 @@ public class BlackListInterceptor implements HandlerInterceptor {
     ObjectMapper objectMapper;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             int userId=details.getUserId();
@@ -43,7 +43,7 @@ public class BlackListInterceptor implements HandlerInterceptor {
                 if (Boolean.TRUE==bo.isAppeal_result()){
                     ResultCode.User_BLACKLISTED;
                     //todo 用户被拉入黑名单，禁止访问该项目
-                    throw new ToBeConstructed();
+                    throw new ForbiddenException("用户已经被加入黑名单，禁止访问");
                     return false;
                 }
             }else {

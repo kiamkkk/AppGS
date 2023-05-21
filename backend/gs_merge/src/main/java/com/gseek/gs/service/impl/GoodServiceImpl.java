@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.dao.*;
 import com.gseek.gs.exce.business.ParameterWrongException;
+import com.gseek.gs.pojo.bean.ParameterWrongBean;
 import com.gseek.gs.pojo.business.GoodsWithoutAccountAndSoldBO;
-import com.gseek.gs.pojo.business.ParameterWrongBean;
 import com.gseek.gs.pojo.data.GoodDO;
 import com.gseek.gs.service.inter.GoodService;
 import lombok.extern.slf4j.Slf4j;
@@ -46,14 +46,7 @@ public class GoodServiceImpl implements GoodService {
 
     @Override
     public String getGoodsByTag(String tagName) throws JsonProcessingException {
-        //入参检验
-        if (tagName==null){
-            //todo 补齐
-            throw new ParameterWrongException(
-                    new ParameterWrongBean()
-                            .addParameters("","")
-            );
-        }
+
         //根据tagName查询goodId,同时tag的点击数加一
         int tagId=tagMapper.selectTagByTagNameThenAdd(tagName).getTagId();
         List<Integer> goodIds=goodTagMapper.selectGoodIdByTagId(tagId);
@@ -74,10 +67,9 @@ public class GoodServiceImpl implements GoodService {
     public String getGoodByGoodId(int goodId) throws JsonProcessingException {
         //入参检验
         if (goodId==0){
-            //todo 补齐
             throw new ParameterWrongException(
                     new ParameterWrongBean()
-                            .addParameters("","")
+                            .addParameters("goodId",goodId+"")
             );
         }
 

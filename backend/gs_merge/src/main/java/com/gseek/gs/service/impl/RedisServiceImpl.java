@@ -1,6 +1,6 @@
 package com.gseek.gs.service.impl;
 
-import com.gseek.gs.exce.business.RepeatLoginException;
+import com.gseek.gs.exce.business.login.RepeatLoginException;
 import com.gseek.gs.service.inter.RedisService;
 import com.gseek.gs.util.TokenUtil;
 import io.jsonwebtoken.Claims;

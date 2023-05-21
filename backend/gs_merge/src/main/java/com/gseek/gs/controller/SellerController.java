@@ -27,8 +27,6 @@ import javax.crypto.IllegalBlockSizeException;
 @Slf4j
 public class SellerController {
     //todo 补充注释
-    //todo 只能持有人访问这些接口
-
 
     @Autowired
     ObjectMapper objectMapper;
@@ -39,7 +37,8 @@ public class SellerController {
 
     @PostMapping("/goods")
     public String postGoods(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
-                            PostGoodsDTO dto) throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
+                            PostGoodsDTO dto)
+            throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
         dto.perService();
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             
@@ -54,7 +53,8 @@ public class SellerController {
 
     @PatchMapping("/goods")
     public String patchGoods(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
-                             PatchGoodsDTO dto) throws JsonProcessingException, ForbiddenException, IllegalBlockSizeException, BadPaddingException {
+                             PatchGoodsDTO dto)
+            throws JsonProcessingException, ForbiddenException, IllegalBlockSizeException, BadPaddingException {
         dto.perService();
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
@@ -80,7 +80,7 @@ public class SellerController {
         }
     }
 
-    @GetMapping("/{username}/goods")
+    @GetMapping("/{user_id}/goods")
     public String getAllGoods(@CurrentSecurityContext(expression = "Authentication") Authentication authentication)
             throws ForbiddenException, JsonProcessingException {
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
@@ -93,7 +93,7 @@ public class SellerController {
         }
     }
 
-    @GetMapping("/{username}/goods/sold")
+    @GetMapping("/{user_id}/goods/sold")
     public String getGoodsSold(@CurrentSecurityContext(expression = "Authentication") Authentication authentication)
             throws ForbiddenException, JsonProcessingException {
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){

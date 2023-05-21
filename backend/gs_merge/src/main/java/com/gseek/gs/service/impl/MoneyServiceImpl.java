@@ -8,7 +8,8 @@ import com.gseek.gs.dao.BillMapper;
 import com.gseek.gs.dao.GoodMapper;
 import com.gseek.gs.dao.MoneyMapper;
 import com.gseek.gs.dao.RechargeWithdrawMapper;
-import com.gseek.gs.exce.ToBeConstructed;
+import com.gseek.gs.exce.business.money.RemainNotEnoughException;
+import com.gseek.gs.exce.business.money.WalletFrozenException;
 import com.gseek.gs.pojo.business.MoneyBO;
 import com.gseek.gs.pojo.data.RechargeWithdrawDO;
 import com.gseek.gs.pojo.dto.RechargeDTO;
@@ -17,7 +18,9 @@ import com.gseek.gs.service.inter.MoneyService;
 import com.gseek.gs.util.AlipayUtil;
 import com.gseek.gs.util.StrUtil;
 import com.gseek.gs.util.TimeoutUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,8 +32,13 @@ import java.math.BigDecimal;
  * @since 2023/5/13-17:08
  */
 @Service("moneyServiceImpl")
+@Slf4j
 public class MoneyServiceImpl implements MoneyService {
-
+    /**
+     * 平台抽成后卖家获得多少钱
+     * */
+    @Value("${custom.agreementFee}")
+    public BigDecimal agreementFee;
     @Autowired
     ObjectMapper objectMapper;
     @Autowired
@@ -49,25 +57,37 @@ public class MoneyServiceImpl implements MoneyService {
     RechargeWithdrawMapper rwMapper;
 
     @Override
-    public void payBill(int buyerId, int billId) {
+    public void payBill(int buyerId, int billId)
+            throws RemainNotEnoughException {
         BigDecimal remain=moneyMapper.selectRemainByUserId(buyerId);
-        BigDecimal price=goodMapper.selectPriceByBillId(billId);
+        BigDecimal price=remainAvailable(buyerId);
         if ( remain.compareTo(price) <= 0 ){
-            //todo 余额不足，新建异常
-            throw new ToBeConstructed();
+            throw new RemainNotEnoughException();
         }
         moneyMapper.minusRemainByUserId(buyerId,price);
     }
 
     @Override
-    public void returnMoney(int billId) {
-        // todo 判断余额是否充足
+    public void returnMoney(int billId, int sellerId)
+            throws RemainNotEnoughException {
+        // 判断卖家余额是否充足
+        BigDecimal goodPrice=goodMapper.selectPriceByBillId(billId);
+        BigDecimal sellerIdRemain=moneyMapper.selectRemainByUserId(sellerId);
+        if (goodPrice.compareTo(sellerIdRemain.multiply(agreementFee)) < 0){
+            throw new RemainNotEnoughException();
+        }
         moneyMapper.returnMoney(billId);
     }
 
     @Override
-    public void payToSeller(int billId) {
-        // todo 判断余额是否充足
+    public void payToSeller(int billId, int buyerId)
+        throws RemainNotEnoughException{
+        // 判断买家余额是否充足
+        BigDecimal goodPrice=goodMapper.selectPriceByBillId(billId);
+        BigDecimal buyerIdRemain=remainAvailable(buyerId);
+        if (goodPrice.compareTo(buyerIdRemain.multiply(agreementFee)) < 0){
+            throw new RemainNotEnoughException();
+        }
         moneyMapper.payToSeller(billId);
     }
 
@@ -75,7 +95,6 @@ public class MoneyServiceImpl implements MoneyService {
     @Override
     public String recharge(int userId, RechargeDTO dto)
             throws JsonProcessingException, AlipayApiException {
-        // todo 鉴权！！！
 
         String rwId= StrUtil.alipayOutTradeNoWarp(userId);
         RechargeWithdrawDO rwdo=new RechargeWithdrawDO(rwId,userId,dto);
@@ -90,13 +109,11 @@ public class MoneyServiceImpl implements MoneyService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public String withdrawal(int userId, WithdrawalDTO dto)
-            throws JsonProcessingException, AlipayApiException, FileNotFoundException {
-        // todo 鉴权！！！
+            throws JsonProcessingException, AlipayApiException, FileNotFoundException, RemainNotEnoughException {
 
-        BigDecimal accountRemain = moneyMapper.selectRemainByUserId(userId);
+        BigDecimal accountRemain = remainAvailable(userId);
         if (accountRemain.compareTo(dto.getWithdrawalAmount()) >= 1){
-            //todo 账户余额不足
-            throw new ToBeConstructed();
+            throw new RemainNotEnoughException();
         }
 
         String rwId= StrUtil.alipayOutTradeNoWarp(userId);
@@ -114,5 +131,19 @@ public class MoneyServiceImpl implements MoneyService {
             throws JsonProcessingException {
         MoneyBO bo=moneyMapper.selectMoneyBOByUserId(userId);
         return objectMapper.writeValueAsString(bo);
+    }
+
+    /**
+     *
+     *
+     * */
+    //todo 补充注释
+    private BigDecimal remainAvailable(int userId){
+        MoneyBO moneyBO=moneyMapper.selectMoneyBOByUserId(userId);
+        if (moneyBO.getFrozen()){
+            log.info("用户id{}的钱包已经被冻结",userId);
+            throw new WalletFrozenException();
+        }
+        return  moneyBO.getRemain();
     }
 }

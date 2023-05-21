@@ -18,9 +18,8 @@ public interface BOPostService {
      * BO传出service前必须要执行的操作放在这里.
      * 现在包括：加密.
      *
-     * //todo 这几个干什么用的？？？
-     * @throws IllegalBlockSizeException 这干嘛的我不到啊
-     * @throws BadPaddingException 这干嘛的我不到啊
+     * @throws IllegalBlockSizeException 解密时异常
+     * @throws BadPaddingException 解密时异常
      * */
     default void postService() throws IllegalBlockSizeException, BadPaddingException, JsonProcessingException {
         autoEncrypt();
@@ -36,9 +35,8 @@ public interface BOPostService {
      *     ......
      * </code>
      *
-     * //todo 这几个干什么用的？？？
-     * @throws IllegalBlockSizeException 这干嘛的我不到啊
-     * @throws BadPaddingException 这干嘛的我不到啊
+     * @throws IllegalBlockSizeException 解密时异常
+     * @throws BadPaddingException 解密时异常
      * */
     default void autoEncrypt() throws IllegalBlockSizeException, BadPaddingException, JsonProcessingException {}
 

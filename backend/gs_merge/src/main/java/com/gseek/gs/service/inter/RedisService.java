@@ -1,6 +1,6 @@
 package com.gseek.gs.service.inter;
 
-import com.gseek.gs.exce.business.RepeatLoginException;
+import com.gseek.gs.exce.business.login.RepeatLoginException;
 
 /**
  * @author Phak

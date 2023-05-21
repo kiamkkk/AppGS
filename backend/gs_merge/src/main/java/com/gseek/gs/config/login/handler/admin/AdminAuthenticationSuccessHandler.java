@@ -2,9 +2,8 @@ package com.gseek.gs.config.login.handler.admin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.gseek.gs.config.login.handler.CustomWebAuthenticationDetails;
 import com.gseek.gs.exce.ServerException;
-import com.gseek.gs.exce.business.RepeatLoginException;
+import com.gseek.gs.exce.business.login.RepeatLoginException;
 import com.gseek.gs.service.inter.RedisService;
 import com.gseek.gs.util.TokenUtil;
 import jakarta.servlet.http.HttpServletRequest;

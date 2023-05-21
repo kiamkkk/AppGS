@@ -2,7 +2,7 @@ package com.gseek.gs.exce.business;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gseek.gs.pojo.business.ParameterWrongBean;
+import com.gseek.gs.pojo.bean.ParameterWrongBean;
 
 /**
  * 参数异常.

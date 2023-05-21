@@ -7,11 +7,14 @@ import com.gseek.gs.common.BillState;
 import com.gseek.gs.common.Result;
 import com.gseek.gs.config.TimeoutConfig;
 import com.gseek.gs.dao.BillMapper;
+import com.gseek.gs.dao.BoughtGoodMapper;
 import com.gseek.gs.dao.GoodMapper;
 import com.gseek.gs.dao.UserPasswordMapper;
 import com.gseek.gs.exce.ServerException;
-import com.gseek.gs.exce.ToBeConstructed;
 import com.gseek.gs.exce.business.ForbiddenException;
+import com.gseek.gs.exce.business.trade.BillStateNotAllowException;
+import com.gseek.gs.exce.business.trade.GoodSoldException;
+import com.gseek.gs.exce.business.trade.NoNeedToPayException;
 import com.gseek.gs.pojo.business.BillStateBO;
 import com.gseek.gs.pojo.business.GoodAccountBO;
 import com.gseek.gs.pojo.data.BillDO;
@@ -61,6 +64,8 @@ public class BillServiceImpl implements BillService {
     GoodMapper goodMapper;
     @Autowired
     Result result;
+    @Autowired
+    BoughtGoodMapper boughtGoodMapper;
 
     private static final String ROLE_SELLER="seller";
     private static final String ROLE_BUYER="buyer";
@@ -108,9 +113,9 @@ public class BillServiceImpl implements BillService {
 
         } catch (Exception e) {
             if(e.getCause() instanceof SQLIntegrityConstraintViolationException) {
-                //todo 对一个商品建立多个订单，应该抛出一个业务异常
+                // 商品已经被卖出
                 log.info("对一个商品建立多个订单|goodId={},billId={}",billDO.getGoodId(),billDO.getBillId());
-                throw new ToBeConstructed();
+                throw new GoodSoldException();
             }else {
                 throw e;
             }
@@ -132,8 +137,11 @@ public class BillServiceImpl implements BillService {
         // 修改bill、good的状态
         BillDO patchBillDO=new BillDO(dto);
         billMapper.updateBillState(patchBillDO);
-        int goodId = billMapper.selectGoodIdByBillId(patchBillDO.getBillId());
+        Integer goodId = billMapper.selectGoodIdByBillId(patchBillDO.getBillId());
         goodMapper.updateGoodSelect(new GoodDO(goodId,true));
+        // 添加已购买记录
+        boughtGoodMapper.insertBoughtGoods(goodId, dto.getTime(), dto.getBuyerId());
+
         // 修改买家余额
         moneyService.payBill(dto.getBuyerId(), dto.getIntBillId());
         // 通知双方
@@ -148,6 +156,7 @@ public class BillServiceImpl implements BillService {
         return result.gainPutSuccess();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public String deliveryBill(PatchDeliveryBillDTO dto, int userId)
             throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
@@ -168,7 +177,7 @@ public class BillServiceImpl implements BillService {
         }else {
             // 不交货,取消交易
             // 返还交易金
-            moneyService.returnMoney(Integer.parseInt(dto.getBillId()));
+            moneyService.returnMoney(dto.getIntBillId(), billDO.getSellerId());
             // 取消信息推送给买方
             NoticeMessage messageToBuyer=new NoticeMessage("订单号"+dto.getBillId()+"被卖家取消，余额已退回账户",
                     System.currentTimeMillis() , billDO.getBuyerId());
@@ -186,6 +195,7 @@ public class BillServiceImpl implements BillService {
         return objectMapper.writeValueAsString(bo);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public String patchBillCancel(PatchBillCancelDTO dto, int userId) throws JsonProcessingException {
         // 非该订单买家或卖家，则拒绝操作
@@ -197,8 +207,7 @@ public class BillServiceImpl implements BillService {
         if (dto.getCancel()){
             if (BillState.TRADE_END==state || BillState.TRADE_CANCEL==state || BillState.TRADE_ANOMALY==state) {
                 //交易已经结束
-                //todo 交易结束异常
-                throw new ToBeConstructed();
+                throw new BillStateNotAllowException(state);
             } else {
                     //买家没支付，直接取消交易
                     //修改订单状态
@@ -206,12 +215,14 @@ public class BillServiceImpl implements BillService {
                     // 取消订单待支付倒计时
                     try {
                         timeoutUtil.popBill(dto.getBillId());
-                    } catch (ToBeConstructed toBeConstructed){
+                    } catch (NoNeedToPayException e){
                         //订单已经支付，将钱还给买家
-                        moneyService.returnMoney(dto.getIntBillId());
+                        moneyService.returnMoney(dto.getIntBillId(), billDO.getSellerId());
                         // 商品改为未售出
                         int goodId= billMapper.selectGoodIdByBillId(dto.getIntBillId());
                         goodMapper.updateGoodSelect(new GoodDO(goodId,false));
+                        // 删除购买记录
+                        boughtGoodMapper.deleteBoughtGoods(goodId);
                     }
                 }
             } else {
@@ -225,6 +236,7 @@ public class BillServiceImpl implements BillService {
         return result.gainPatchSuccess();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public String patchBillInspect(PatchBillInspectDTO dto, int userId) throws JsonProcessingException {
         // 非该订单买家，则拒绝操作
@@ -236,7 +248,7 @@ public class BillServiceImpl implements BillService {
             // 修改bill状态
             billMapper.updateBillState(new BillDO(dto));
             // 支付卖家
-            moneyService.payToSeller(dto.getIntBillId());
+            moneyService.payToSeller(dto.getIntBillId(), billDO.getBuyerId());
         }else {
             // 验货不通过,通知卖家
             NoticeMessage noticeMessage=new NoticeMessage("订单号"+dto.getBillId()+"买家验货结果不通过，请检查商品情况",
@@ -279,13 +291,13 @@ public class BillServiceImpl implements BillService {
      * @param rightState 操作该订单的正确状态
      * @param billId 订单id,用来打日志
      *
-     * @throws ToBeConstructed 订单状态异常
+     * @throws BillStateNotAllowException 订单状态异常
      * */
     private void billHasState(String nowState, BillState rightState, int billId){
         BillState state=BillState.gainEnumByState(nowState);
         if (state != rightState){
             log.info("订单号{}状态为{}, 需要状态为{}, 拒绝操作",billId, nowState, rightState);
-            throw new ToBeConstructed();
+            throw new BillStateNotAllowException(state);
         }
     }
 }

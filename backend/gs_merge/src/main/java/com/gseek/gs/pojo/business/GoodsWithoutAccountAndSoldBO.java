@@ -19,7 +19,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GoodsWithoutAccountAndSoldBO {
+public class GoodsWithoutAccountAndSoldBO implements BOPostService{
     private Integer goodId;
     private String goodName;
     private String goodText;

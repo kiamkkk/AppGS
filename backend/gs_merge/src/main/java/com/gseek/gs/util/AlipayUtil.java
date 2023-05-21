@@ -17,19 +17,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.config.AlipayConfig;
 import com.gseek.gs.exce.ServerException;
-import com.gseek.gs.exce.ToBeConstructed;
 import com.gseek.gs.pojo.data.RechargeWithdrawDO;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
-
-//todo 要实现：充值、提现
 
 /**
  * 封装支付宝操作.
@@ -86,12 +82,10 @@ public class AlipayUtil {
         if (response.isSuccess()){
             log.debug("充值成功");
         }else {
-            //todo 处理一大堆支付宝传来的异常状态码
+            // 充值失败
             String subCode=response.getSubCode();
             log.warn("充值失败，电脑网站支付状态码为:\n{}\n状态信息为:\n{}",subCode,response.getSubMsg());
-
-            //todo 充值失败异常
-            throw new ToBeConstructed();
+            throw new ServerException("支付宝支付时出错");
         }
     }
 
@@ -104,12 +98,12 @@ public class AlipayUtil {
      * @throws
      */
     public void alipayFundTransUniTransfer(String outBizNo, BigDecimal amount, String identity)
-            throws ServerException, FileNotFoundException, AlipayApiException, JsonProcessingException {
-        //todo 见https://blog.csdn.net/weixin_45626288/article/details/119579104
+            throws ServerException, AlipayApiException {
         //查询商家账户余额够不够提现
         if (amount.compareTo(alipayFundAccountQuery()) < 0){
-            //todo 商家余额不足异常
-            throw new ToBeConstructed();
+            // 商家余额不足
+            log.error("商家余额不足，登录支付宝查看商家余额");
+            throw new ServerException("支付宝支付时出错");
         }
         AlipayFundTransUniTransferModel model=new AlipayFundTransUniTransferModel();
         model.setOutBizNo(outBizNo);
@@ -132,11 +126,10 @@ public class AlipayUtil {
         if (response.isSuccess()){
             log.debug("提现成功");
         }else {
-            //todo 处理一大堆支付宝传来的异常状态码
+            //充值失败
             String subCode=response.getSubCode();
             log.warn("提现失败，电脑网站支付状态码为:\n{}\n状态信息为:\n{}",subCode,response.getSubMsg());
-            //todo 充值失败异常
-            throw new ToBeConstructed();
+            throw new ServerException("支付宝支付时出错");
         }
 
     }
@@ -147,7 +140,7 @@ public class AlipayUtil {
      *
      * */
     public BigDecimal alipayFundAccountQuery()
-            throws AlipayApiException, JsonProcessingException {
+            throws AlipayApiException {
         AlipayFundAccountQueryModel model = new AlipayFundAccountQueryModel();
         model.setAlipayUserId(AlipayConfig.PID);
         model.setAccountType("ACCTRANS_ACCOUNT");
@@ -159,13 +152,9 @@ public class AlipayUtil {
         if (response.isSuccess()) {
             return new BigDecimal(response.getAvailableAmount());
         } else {
-            //todo 处理一大堆支付宝传来的异常状态码
-            String subCode=response.getSubCode();
-
+            // 查询商家余额异常
             log.error("查询支付宝商家余额时出错，状态码为:\n{}\n状态信息为:\n{}",response.getSubCode(),response.getSubMsg());
-
-            //todo 查询商家余额异常
-            throw new ToBeConstructed();
+            throw new ServerException("支付宝支付时出错");
         }
     }
 

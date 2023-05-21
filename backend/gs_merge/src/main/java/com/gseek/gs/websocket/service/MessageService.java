@@ -2,7 +2,6 @@ package com.gseek.gs.websocket.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gseek.gs.exce.ToBeConstructed;
 import com.gseek.gs.pojo.dto.ChatBlockDTO;
 import com.gseek.gs.websocket.message.BaseMessage;
 import com.gseek.gs.websocket.message.ChatTextMessage;
@@ -37,13 +36,7 @@ public class MessageService {
 
     public void receiveMsg(String msg) throws JsonProcessingException {
         BaseMessage bm=objectMapper.readValue(msg, BaseMessage.class);
-        try {
-            sendMessage(bm,msg);
-        }catch (Exception e){
-            log.error("处理消息时报错,错误信息:\n{}",e.getMessage());
-            //todo 抛出消息处理异常
-            throw new ToBeConstructed(e);
-        }
+        sendMessage(bm,msg);
     }
 
     public void sendMessage(BaseMessage bm,String msg){
@@ -79,8 +72,6 @@ public class MessageService {
             }
             default -> {
                 log.error("无法从json中识别消息类别，消息内容为:\n{}", msg);
-                //todo 死信操作
-
             }
         }
     }
@@ -102,8 +93,6 @@ public class MessageService {
             }
             default -> {
                 log.error("无法识别消息类别，消息内容为:\n{}", bm);
-                //todo 死信操作
-
             }
         }
     }

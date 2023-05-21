@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserInformationBO {
+public class UserInformationBO implements BOPostService{
 
     private Integer userId;
     private String email;

@@ -3,7 +3,7 @@ package com.gseek.gs.config.login.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.gseek.gs.exce.ServerException;
-import com.gseek.gs.exce.business.RepeatLoginException;
+import com.gseek.gs.exce.business.login.RepeatLoginException;
 import com.gseek.gs.service.inter.RedisService;
 import com.gseek.gs.util.TokenUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,8 +44,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         if (authentication instanceof UsernamePasswordAuthenticationToken authenticationToken){
             if (authenticationToken.getDetails() instanceof CustomWebAuthenticationDetails details){
                 String userId =details.getUserId()+"";
-                //todo 应该根据userId来构建，因为userName是可变的
-                //根据userName来构建token
+                //根据userId来构建token
                 String token=TokenUtil.gainToken(userId);
                 redisService.saveToken(token, userId);
 

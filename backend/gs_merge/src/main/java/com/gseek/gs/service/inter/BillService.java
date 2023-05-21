@@ -2,6 +2,7 @@ package com.gseek.gs.service.inter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gseek.gs.pojo.dto.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -28,6 +29,7 @@ public interface BillService {
      * 商品信息通知买方
      *
      * */
+    @Transactional(rollbackFor = Exception.class)
     String deliveryBill(PatchDeliveryBillDTO dto, int userId) throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException;
 
     /**
@@ -38,8 +40,10 @@ public interface BillService {
     /**
      *
      * */
+    @Transactional(rollbackFor = Exception.class)
     String patchBillCancel(PatchBillCancelDTO dto, int userId) throws JsonProcessingException;
 
+    @Transactional(rollbackFor = Exception.class)
     String patchBillInspect(PatchBillInspectDTO dto, int userId) throws JsonProcessingException;
 
 

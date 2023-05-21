@@ -1,7 +1,7 @@
 package com.gseek.gs.util;
 
 import com.gseek.gs.config.TimeoutConfig;
-import com.gseek.gs.exce.ToBeConstructed;
+import com.gseek.gs.exce.business.trade.NoNeedToPayException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -48,14 +48,14 @@ public class TimeoutUtil {
     /**
      * 订单支付后修改
      * */
-    public void popBill(String billId){
+    public void popBill(String billId)
+        throws NoNeedToPayException{
         if ( billPayState.containsKey(billId) ){
-
-
+            //todo
             billPayState.remove(billId);
         }else {
-            //todo 添加异常
-            throw new ToBeConstructed();
+            // 该订单不需要支付
+            throw new NoNeedToPayException();
         }
     }
 

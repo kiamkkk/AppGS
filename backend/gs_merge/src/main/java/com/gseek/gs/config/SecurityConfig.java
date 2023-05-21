@@ -80,10 +80,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        //todo 继续用MD5？
-        /*MessageDigestPasswordEncoder passwordEncoder=new MessageDigestPasswordEncoder("SHA-256");*/
-
-        /*return new BCryptPasswordEncoder();*/
+        /*MessageDigestPasswordEncoder passwordEncoder=new MessageDigestPasswordEncoder("MD5");*/
         return NoOpPasswordEncoder.getInstance();
     }
 

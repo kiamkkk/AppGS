@@ -35,11 +35,11 @@ public class TokenUtil {
     @Qualifier("redisServiceImpl")
     RedisService redisService;
 
+    //todo 应该使用随机生成的盐，不要偷懒！
     /**
      *
      * 密匙盐，来自https://allkeysgenerator.com/(Encryption key 256bit)
      * */
-    //todo 应该使用随机生成的盐，不要偷懒！
     private static final String SALT="586E3272357538782F413F4428472B4B6250645367566B597033733676397924";
 
     /**

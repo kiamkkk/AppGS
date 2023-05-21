@@ -17,4 +17,14 @@ public interface BoughtGoodMapper {
      *
      * */
     List<BoughtGoodBO> selectBoughtGoodsByUserId(@Param("userId") int userId);
+
+    /**
+     *
+     * */
+    int insertBoughtGoods(@Param("goodId") int goodId, @Param("time") long time,@Param("buyerId") int buyerId);
+
+    /**
+     *
+     * */
+    int deleteBoughtGoods(@Param("goodId") int goodId);
 }

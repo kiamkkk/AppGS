@@ -140,6 +140,7 @@ public class UserServiceImpl implements UserService {
             log.debug("UsernameNotFound|"+username);
             throw new UsernameNotFoundException("UsernameNotFound:"+username);
         }
+        //todo 密码盐怎么加入？
         user.setPassword(userPasswordDO.getPassword());
         user.setUserId(userPasswordDO.getUserId());
         return user;

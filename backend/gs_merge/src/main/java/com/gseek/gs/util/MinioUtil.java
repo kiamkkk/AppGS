@@ -26,7 +26,6 @@ import java.util.*;
 public class MinioUtil {
     //todo 增、删、改、根据路径获取文件流。要有批量操作。
 
-
     /**
      * jpg文件后缀
      * */
@@ -71,15 +70,22 @@ public class MinioUtil {
         }
 
     }
-    //todo 修改头像：先删除后存入
-    public String changeProfilePhoto(){
-        return "";
+    /**
+     * 修改头像.
+     * 先删除原有头像，后存入新头像.
+     *
+     * @param userId 用户id
+     * @param file 新头像
+     * @return 图片路径
+     */
+    public String changeProfilePhoto(int userId, MultipartFile file){
+        removeFile(userId+SUFFIX_JPG, PATH_HEAD_SCULPTURES);
+        return saveProfilePhoto(userId, file);
     }
     /**
      * 储存商品封面详情图片.
      * */
     public GoodPhotoPathBean saveGoodsPhoto(GoodPhotoFileBean bean){
-        //todo 储存图片并返回路径
         Map<Map<String,String>,MultipartFile> covers=new HashMap<>(16);
         Map<Map<String,String>,MultipartFile> details=new HashMap<>(16);
         Map<String,String> coverPathAndName=new HashMap<>(16);

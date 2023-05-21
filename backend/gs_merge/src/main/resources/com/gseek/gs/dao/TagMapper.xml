@@ -19,7 +19,7 @@
         update tag set click=tag.click+1 where tag_id=#{tagId};
     </select>
 
-    <insert id="insertTag" parameterType="list"
+    <insert id="insertTags" parameterType="list"
             useGeneratedKeys="true" keyColumn="tag_id" keyProperty="tagId">
         insert ignore into tag (tag_text)
         VALUES
@@ -27,6 +27,12 @@
             (#{item.tagText})
         </foreach>
     </insert>
+
+    <insert id="insertTag" useGeneratedKeys="true" keyColumn="tag_id" keyProperty="tagId">
+        insert ignore into tag (tag_text)
+        VALUES #{tag.tagText};
+    </insert>
+
 
 
 

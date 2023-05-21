@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class OfferPriceBO {
+public class OfferPriceBO implements BOPostService{
 
     private String offerUserName;
     private BigDecimal price;

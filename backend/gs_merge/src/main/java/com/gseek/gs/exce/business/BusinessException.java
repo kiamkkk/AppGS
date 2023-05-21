@@ -11,6 +11,10 @@ import com.gseek.gs.exce.BaseException;
  */
 public class BusinessException extends BaseException {
 
+    public BusinessException() {
+        super();
+    }
+
     public BusinessException(String... info) {
         super(info);
     }

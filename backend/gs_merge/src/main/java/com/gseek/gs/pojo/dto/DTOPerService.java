@@ -20,9 +20,8 @@ public interface DTOPerService {
      * 现在包括：验参、解密.
      *
      * @throws ParameterWrongException 参数异常被封装在这里,具体格式查看ParameterWrongBean
-     * //todo 这几个干什么用的？？？
-     * @throws IllegalBlockSizeException 这干嘛的我不到啊
-     * @throws BadPaddingException 这干嘛的我不到啊
+     * @throws IllegalBlockSizeException 解密时异常
+     * @throws BadPaddingException 解密时异常
      * */
     default void perService()
             throws IllegalBlockSizeException, BadPaddingException, ParameterWrongException, JsonProcessingException {
@@ -66,9 +65,8 @@ public interface DTOPerService {
      *     ......
      * </code>
      *
-     * //todo 这几个干什么用的？？？
-     * @throws IllegalBlockSizeException 这干嘛的我不到啊
-     * @throws BadPaddingException 这干嘛的我不到啊
+     * @throws IllegalBlockSizeException 解密时异常
+     * @throws BadPaddingException 解密时异常
      * */
     default void autoDecrypt() throws IllegalBlockSizeException, BadPaddingException, JsonProcessingException {}
 }

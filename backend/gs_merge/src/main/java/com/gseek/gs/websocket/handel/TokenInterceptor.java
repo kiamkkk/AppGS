@@ -30,7 +30,7 @@ public class TokenInterceptor implements ChannelInterceptor {
             Object raw = message.getHeaders().get(SimpMessageHeaderAccessor.NATIVE_HEADERS);
             if (raw instanceof Map) {
                 //取出客户端携带的参数
-                Object header = ((Map) raw).get("token");
+                Object header = ((Map) raw).get("Authentication");
                 log.debug("header: {}",header);
                 if (header instanceof LinkedList) {
                     // 设置当前访问的认证用户

@@ -16,7 +16,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class GoodOfferPriceBO {
+public class GoodOfferPriceBO implements BOPostService{
 
     private Integer goodId;
     private String goodName;

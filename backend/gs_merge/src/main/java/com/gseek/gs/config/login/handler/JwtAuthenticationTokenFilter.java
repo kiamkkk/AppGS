@@ -2,7 +2,7 @@ package com.gseek.gs.config.login.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.config.login.handler.admin.AdminWebAuthenticationDetailsSource;
-import com.gseek.gs.exce.business.TokenInvalidException;
+import com.gseek.gs.exce.business.login.TokenInvalidException;
 import com.gseek.gs.pojo.bean.OrdinaryAdmin;
 import com.gseek.gs.pojo.bean.OrdinaryUser;
 import com.gseek.gs.service.inter.AdminService;
@@ -92,10 +92,10 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
                             log.error("检查token是否过期时出错：出现异常状态码|" + code);
                         }
                     }
-                    log.info("状态码|"+code);
+                    log.info("状态码{}",code);
 
                     OrdinaryUser user =(OrdinaryUser) this.userService.loadUserByUsername(username);
-                    log.info(user.toString());
+
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             user, user.getPassword(), user.getAuthorities());
                     authentication.setDetails(new CustomWebAuthenticationDetailsSource().buildDetails(

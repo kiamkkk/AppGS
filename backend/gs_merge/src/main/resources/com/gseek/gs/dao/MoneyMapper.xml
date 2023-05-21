@@ -2,6 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="com.gseek.gs.dao.MoneyMapper">
 
     <resultMap id="BaseResultMap" type="com.gseek.gs.pojo.data.MoneyDO">
@@ -41,12 +42,18 @@
             set money = money +
                         (select good_price from good where good_id =
                               (select good_id from bill where bill_id=#{billId})
-                        )
+                        )*0.7
         where user_id=
               (select buyer_id from bill where bill_id=#{billId}) ;
-        /*todo */
 
-dasdas
+        update money
+        set money = money -
+                    (select good_price from good where good_id =
+                                                       (select good_id from bill where bill_id=#{billId})
+                    )
+        where user_id=
+              (select seller_id from bill where bill_id=#{billId}) ;
+
     </update>
 
     <update id="payToSeller">
@@ -54,11 +61,18 @@ dasdas
         set money = money +
                     (select good_price from good where good_id =
                              (select good_id from bill where bill_id=#{billId})
-                    )
+                    )*0.7
         where user_id=
               (select seller_id from bill where bill_id=#{billId}) ;
-        /*todo */
-        dasdas
+
+        update money
+        set money = money -
+                    (select good_price from good where good_id =
+                                                       (select good_id from bill where bill_id=#{billId})
+                    )
+        where user_id=
+              (select buyer_id from bill where bill_id=#{billId}) ;
+
     </update>
 
     <select id="selectMoneyBOByUserId" resultMap="MoneyBO">

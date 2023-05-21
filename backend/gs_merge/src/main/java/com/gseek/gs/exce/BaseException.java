@@ -12,6 +12,11 @@ public class BaseException extends RuntimeException {
     protected int code;
     protected String msg;
 
+
+    public BaseException() {
+        super();
+    }
+
     public BaseException(String... info) {
         super();
     }

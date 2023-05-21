@@ -3,7 +3,7 @@ package com.gseek.gs.pojo.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gseek.gs.exce.business.ParameterWrongException;
-import com.gseek.gs.pojo.business.ParameterWrongBean;
+import com.gseek.gs.pojo.bean.ParameterWrongBean;
 import com.gseek.gs.util.PasswordUtil;
 import com.gseek.gs.util.StrUtil;
 import lombok.AllArgsConstructor;
