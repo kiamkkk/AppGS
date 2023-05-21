@@ -33,4 +33,6 @@ public interface BillMapper {
      * */
     Integer selectGoodIdByBillId(@Param("billId") int billId);
 
+
+    BillDO selectBillByBillId(@Param("billId")int billId);
 }

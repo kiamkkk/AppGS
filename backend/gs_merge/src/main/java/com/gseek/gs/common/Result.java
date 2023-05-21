@@ -21,10 +21,15 @@ public class Result {
     //todo 要不要统一响应???
     private int code;
     private String msg;
+    @JsonIgnore
     private Result getSuccess;
+    @JsonIgnore
     private Result postSuccess;
+    @JsonIgnore
     private Result patchSuccess;
+    @JsonIgnore
     private Result deleteSuccess;
+    @JsonIgnore
     private Result putSuccess;
 
     @Autowired

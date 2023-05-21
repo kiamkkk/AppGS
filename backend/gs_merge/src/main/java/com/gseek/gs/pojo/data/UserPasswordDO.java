@@ -1,5 +1,6 @@
 package com.gseek.gs.pojo.data;
 
+import com.gseek.gs.pojo.dto.RegisterDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,14 +17,18 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserPasswordDO {
+    private Integer userId;
+    private String userName;
+    private String password;
+    private String salt;
 
     public UserPasswordDO(Integer userId) {
         this.userId = userId;
     }
 
-    private Integer userId;
-    private String userName;
-    private String password;
-    private String salt;
+    public UserPasswordDO(RegisterDTO dto){
+        userName=dto.getUserName();
+        password=dto.getPassword();
+    }
 
 }

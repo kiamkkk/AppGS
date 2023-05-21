@@ -41,11 +41,14 @@ public class StrUtil {
      * */
     private static final String BASE64_FORMAT = "^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$";
 
+    private static final String BILLID_FORMAT = "^[0-9]+$";
+
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(PASSWORD_FORMAT);
     private static final Pattern USER_NAME_PATTERN = Pattern.compile(USERNAME_FORMAT);
     private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_FORMAT);
     private static final Pattern TOKEN_PATTEN =Pattern.compile(TOKEN_FORMAT);
     private static  final Pattern BASE64_PATTEN=Pattern.compile(BASE64_FORMAT);
+    private static final Pattern BILLID_PATTEN=Pattern.compile(BILLID_FORMAT);
 
     /**
      * 检验密码格式是否正确
@@ -92,9 +95,18 @@ public class StrUtil {
      *
      * @param str 待检验字符串
     * */
-    public static boolean isBase64(String str) {
+    public static boolean checkBase64(String str) {
         Matcher matcher=BASE64_PATTEN.matcher(str);
         return matcher.matches();
+    }
+
+    public static boolean checkBillId(String billId){
+        Matcher matcher=BILLID_PATTEN.matcher(billId);
+        return matcher.matches();
+    }
+
+    public static String desensitizeIdNumber(String idNumber){
+        return idNumber.replaceAll("(\\w{6})\\w*(\\w{4})", "$1********$2");
     }
 
     /**

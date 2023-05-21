@@ -5,13 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.common.Result;
 import com.gseek.gs.dao.*;
 import com.gseek.gs.exce.ServerException;
-import com.gseek.gs.exce.ToBeConstructed;
 import com.gseek.gs.exce.business.ForbiddenException;
 import com.gseek.gs.exce.business.ParameterWrongException;
 import com.gseek.gs.pojo.bean.GoodPhotoFileBean;
 import com.gseek.gs.pojo.bean.GoodPhotoPathBean;
 import com.gseek.gs.pojo.business.GoodBO;
 import com.gseek.gs.pojo.business.OfferPriceBO;
+import com.gseek.gs.pojo.business.ParameterWrongBean;
 import com.gseek.gs.pojo.data.GoodDO;
 import com.gseek.gs.pojo.data.TagDO;
 import com.gseek.gs.pojo.dto.PatchGoodsDTO;
@@ -79,7 +79,7 @@ public class SellerServiceImpl implements SellerService {
             TagDO localType=tagMapper.selectTagByTagName(patchType);
             if (localType == null ){
                 //todo 补齐这个
-                throw new ParameterWrongException();
+                throw new ParameterWrongException(new ParameterWrongBean());
             }
             goodDO.setTypeTagId(localType.getTagId());
             goodDO.setTypeTagName(localType.getTagText());
@@ -107,12 +107,12 @@ public class SellerServiceImpl implements SellerService {
         }
 
         //储存图片
-        GoodPhotoPathBean coverAnddetailPath=minioUtil.saveGoodsPhoto(new GoodPhotoFileBean(
+        GoodPhotoPathBean coverAndDetailPath=minioUtil.saveGoodsPhoto(new GoodPhotoFileBean(
                 goodId,dto.getCoverPicture(),dto.getDetailPictures())
         );
 
-        goodCoverPicMapper.insertCoverPic(goodId,coverAnddetailPath.getCoverPaths());
-        goodDetailPicMapper.insertDetailPic(goodId,coverAnddetailPath.getDetailPaths());
+        goodCoverPicMapper.insertCoverPic(goodId,coverAndDetailPath.getCoverPaths());
+        goodDetailPicMapper.insertDetailPic(goodId,coverAndDetailPath.getDetailPaths());
 
         return result.gainPostSuccess();
     }
@@ -121,6 +121,11 @@ public class SellerServiceImpl implements SellerService {
     @Transactional(rollbackFor = Exception.class)
     public String patchGood(int userId, String userName, PatchGoodsDTO dto)
             throws JsonProcessingException, ParameterWrongException {
+        // 鉴权
+        int ownUserId=goodMapper.selectOwnUserIdByGoodId(dto.getGoodId());
+        if (ownUserId != userId){
+            throw new ForbiddenException();
+        }
         //todo 感觉最好所有的update语句都放进一个sql中
         GoodDO goodDO=new GoodDO(userName,dto);
         int goodId=dto.getGoodId();
@@ -131,7 +136,7 @@ public class SellerServiceImpl implements SellerService {
             TagDO localType=tagMapper.selectTagByTagName(patchType);
             if (localType == null ){
                 //todo 补齐这个
-                throw new ParameterWrongException();
+                throw new ParameterWrongException(new ParameterWrongBean());
             }
             goodDO.setTypeTagId(localType.getTagId());
             goodDO.setTypeTagName(localType.getTagText());
@@ -173,14 +178,10 @@ public class SellerServiceImpl implements SellerService {
     }
 
     @Override
-    public String deleteGood(int userId, String userName, int goodId) throws JsonProcessingException {
+    public String deleteGood(int userId, int goodId) throws JsonProcessingException {
 
         //todo 对比持有人id和userId
         Integer ownUserId=goodMapper.selectOwnUserIdByGoodId(goodId);
-        if (ownUserId==null){
-            //todo 补全
-            throw new ToBeConstructed();
-        }
         if (userId != ownUserId){
             throw new ForbiddenException();
         }

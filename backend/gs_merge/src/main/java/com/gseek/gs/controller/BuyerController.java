@@ -16,6 +16,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+
 /**
  * @author Phak
  * @since 2023/5/11-22:17
@@ -35,9 +38,10 @@ public class BuyerController {
 
 
     @PostMapping("/offer_price")
-    public String postOfferPrice(@CurrentSecurityContext(expression = "authentication ") Authentication authentication,
+    public String postOfferPrice(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                                  PostOfferPriceDTO dto)
-            throws JsonProcessingException,ForbiddenException {
+            throws JsonProcessingException, ForbiddenException, IllegalBlockSizeException, BadPaddingException {
+        dto.perService();
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
             if (dto.getOfferUserId()!=details.getUserId()){
@@ -52,7 +56,7 @@ public class BuyerController {
     }
 
     @GetMapping("/{user_id}/offer_price")
-    public String getAllOfferPrice(@CurrentSecurityContext(expression = "authentication ") Authentication authentication,
+    public String getAllOfferPrice(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                                    @PathVariable("user_id") int userId)
             throws JsonProcessingException,ForbiddenException  {
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
@@ -70,7 +74,7 @@ public class BuyerController {
     }
 
     @GetMapping("/{user_id}/fav")
-    public String getAllFav(@CurrentSecurityContext(expression = "authentication ") Authentication authentication,
+    public String getAllFav(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                             @PathVariable("user_id") int userId)
             throws JsonProcessingException,ForbiddenException  {
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
@@ -88,7 +92,7 @@ public class BuyerController {
     }
 
     @GetMapping("/{user_id}/bought")
-    public String getBoughtGoods(@CurrentSecurityContext(expression = "authentication ") Authentication authentication,
+    public String getBoughtGoods(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                                  @PathVariable("user_id") int userId)
             throws JsonProcessingException,ForbiddenException  {
         //todo 缺
@@ -108,9 +112,10 @@ public class BuyerController {
     }
 
     @PostMapping("/{user_id}/fav")
-    public String postFav(@CurrentSecurityContext(expression = "authentication ") Authentication authentication,
+    public String postFav(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                           @PathVariable("user_id") int userId, PostFavDTO dto)
-            throws JsonProcessingException,ForbiddenException  {
+            throws JsonProcessingException, ForbiddenException, IllegalBlockSizeException, BadPaddingException {
+        dto.perService();
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
             if (userId!=details.getUserId()){
@@ -127,9 +132,10 @@ public class BuyerController {
     }
 
     @DeleteMapping("/{user_id}/fav")
-    public String deleteFav(@CurrentSecurityContext(expression = "authentication ") Authentication authentication,
+    public String deleteFav(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                             @PathVariable("user_id") int userId, DeleteFavDTO dto)
-            throws JsonProcessingException,ForbiddenException  {
+            throws JsonProcessingException, ForbiddenException, IllegalBlockSizeException, BadPaddingException {
+        dto.perService();
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
             if (userId!=details.getUserId()){

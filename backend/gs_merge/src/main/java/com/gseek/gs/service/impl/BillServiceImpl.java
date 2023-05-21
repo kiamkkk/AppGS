@@ -11,6 +11,7 @@ import com.gseek.gs.dao.GoodMapper;
 import com.gseek.gs.dao.UserPasswordMapper;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.ToBeConstructed;
+import com.gseek.gs.exce.business.ForbiddenException;
 import com.gseek.gs.pojo.business.BillStateBO;
 import com.gseek.gs.pojo.business.GoodAccountBO;
 import com.gseek.gs.pojo.data.BillDO;
@@ -22,7 +23,7 @@ import com.gseek.gs.util.PasswordUtil;
 import com.gseek.gs.util.StrUtil;
 import com.gseek.gs.util.TimeoutUtil;
 import com.gseek.gs.websocket.controller.MessageController;
-import com.rabbitmq.client.impl.AMQImpl;
+import com.gseek.gs.websocket.message.NoticeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -33,8 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
-import java.io.IOException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.Objects;
 
 /**
  * @author Phak
@@ -56,12 +57,38 @@ public class BillServiceImpl implements BillService {
     @Autowired
     @Qualifier("moneyServiceImpl")
     MoneyService moneyService;
-
     @Autowired
     GoodMapper goodMapper;
-
     @Autowired
     Result result;
+
+    private static final String ROLE_SELLER="seller";
+    private static final String ROLE_BUYER="buyer";
+
+    @RabbitListener(queues = TimeoutConfig.QUEUE_TIMEOUT)
+    public void receiveTimeout(Message message) {
+
+        int billId = StrUtil.bytesToInt(message.getBody());
+        log.info("订单过期，订单号为:\n{}",billId);
+        // 改变过期订单状态
+        BillDO billDO=new BillDO();
+        billDO.setBillId(billId);
+        billDO.setState(BillState.PAYt_TIMEOUT.name());
+        billDO.setStateModifiedTime(System.currentTimeMillis());
+        billMapper.updateBillState(billDO);
+        log.info("订单号{}过期",billId);
+
+        //通知双方
+        BillDO billDO1=billMapper.selectBillByBillId(billId);
+        NoticeMessage messageToSeller=new NoticeMessage("订单号"+billId+"过期，交易取消",
+                System.currentTimeMillis() , billDO1.getSellerId());
+        NoticeMessage messageToBuyer=new NoticeMessage("订单号"+billId+"过期，交易取消",
+                System.currentTimeMillis() , billDO1.getBuyerId());
+
+        messageController.general(messageToSeller);
+        messageController.general(messageToBuyer);
+
+    }
 
     @Override
     public String postBill(PostBillsDTO dto) {
@@ -90,37 +117,47 @@ public class BillServiceImpl implements BillService {
         }
     }
 
-    @RabbitListener(queues = TimeoutConfig.QUEUE_TIMEOUT)
-    public void receiveTimeout(Message message, AMQImpl.Channel channel)
-            throws IOException {
-
-        int billId = StrUtil.bytesToInt(message.getBody());
-        log.info("订单过期，订单号为:\n{}",billId);
-        //todo 处理过期订单.
-    }
-
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public String payBill(PayBillDTO dto) throws JsonProcessingException {
-        // 修改bill、good的状态
-        BillDO billDO=new BillDO(dto);
-        billMapper.updateBillState(billDO);
-        int goodId= billMapper.selectGoodIdByBillId(billDO.getBillId());
-        goodMapper.updateGoodSelect(new GoodDO(goodId,true));
-        // 修改买家余额
-        moneyService.payBill(dto.getBuyerId(), Integer.parseInt(dto.getBillId()));
+    public String payBill(PayBillDTO dto,int userId)
+            throws JsonProcessingException, ForbiddenException {
+        int billId= dto.getIntBillId();
+        // 非该订单买家，则拒绝操作
+        BillDO billDO = userHasRight(billId, userId, ROLE_BUYER);
+        // 订单不处于待支付状态，则拒绝操作
+        billHasState(billDO.getState(), BillState.PENDING_PAY, billId);
+
         // 取消订单待支付倒计时
         timeoutUtil.popBill(dto.getBillId());
-        //todo  通知双方
+        // 修改bill、good的状态
+        BillDO patchBillDO=new BillDO(dto);
+        billMapper.updateBillState(patchBillDO);
+        int goodId = billMapper.selectGoodIdByBillId(patchBillDO.getBillId());
+        goodMapper.updateGoodSelect(new GoodDO(goodId,true));
+        // 修改买家余额
+        moneyService.payBill(dto.getBuyerId(), dto.getIntBillId());
+        // 通知双方
+        NoticeMessage messageToSeller=new NoticeMessage("订单号"+billId+"已支付，请及时交货",
+                System.currentTimeMillis() , billDO.getSellerId());
+        NoticeMessage messageToBuyer=new NoticeMessage("订单号"+billId+"已支付",
+                System.currentTimeMillis() , billDO.getBuyerId());
 
+        messageController.general(messageToSeller);
+        messageController.general(messageToBuyer);
 
         return result.gainPutSuccess();
     }
 
     @Override
-    public String deliveryBill(PatchDeliveryBillDTO dto) throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
-        BillDO patchBillDO=new BillDO(dto);
+    public String deliveryBill(PatchDeliveryBillDTO dto, int userId)
+            throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
+        int billId=dto.getIntBillId();
+        // 非该订单卖家，则拒绝操作
+        BillDO billDO=userHasRight(billId, userId, ROLE_SELLER);
+        // 订单不处于待交货状态，则拒绝操作
+        billHasState(billDO.getState(), BillState.PENDING_DELIVER, dto.getIntBillId());
         //修改订单状态
+        BillDO patchBillDO=new BillDO(dto);
         billMapper.updateBillState(patchBillDO);
 
         if (dto.getDelivered()){
@@ -129,9 +166,13 @@ public class BillServiceImpl implements BillService {
             bo.postService();
             messageController.delivery(dto.getTime(),bo);
         }else {
-            // 不交货,取消交易,取消信息推送给买方
-            //todo 取消信息推送给买方
-
+            // 不交货,取消交易
+            // 返还交易金
+            moneyService.returnMoney(Integer.parseInt(dto.getBillId()));
+            // 取消信息推送给买方
+            NoticeMessage messageToBuyer=new NoticeMessage("订单号"+dto.getBillId()+"被卖家取消，余额已退回账户",
+                    System.currentTimeMillis() , billDO.getBuyerId());
+            messageController.general(messageToBuyer);
         }
          return result.gainPatchSuccess();
     }
@@ -146,12 +187,11 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
-    public String patchBillCancel(PatchBillCancelDTO dto) throws JsonProcessingException {
-        BillDO patchBillDO=new BillDO(dto);
-        //获取订单状态
-        BillState state=BillState.gainEnumByState(
-                billMapper.selectBillStateBOByBillId(patchBillDO.getBillId()).getState()
-        );
+    public String patchBillCancel(PatchBillCancelDTO dto, int userId) throws JsonProcessingException {
+        // 非该订单买家或卖家，则拒绝操作
+        BillDO billDO=userHasRight(dto.getIntBillId(), userId, ROLE_BUYER,ROLE_SELLER);
+        // 获取订单状态
+        BillState state=BillState.gainEnumByState(billDO.getState());
 
         //卖家选择取消交易
         if (dto.getCancel()){
@@ -160,43 +200,92 @@ public class BillServiceImpl implements BillService {
                 //todo 交易结束异常
                 throw new ToBeConstructed();
             } else {
-                    //买家没验货，直接取消交易
+                    //买家没支付，直接取消交易
                     //修改订单状态
-                    billMapper.updateBillState(patchBillDO);
-
+                    billMapper.updateBillState(new BillDO(dto));
                     // 取消订单待支付倒计时
                     try {
                         timeoutUtil.popBill(dto.getBillId());
                     } catch (ToBeConstructed toBeConstructed){
                         //订单已经支付，将钱还给买家
-                        moneyService.returnMoney(Integer.parseInt(dto.getBillId()));
-                        int goodId= billMapper.selectGoodIdByBillId(Integer.parseInt(dto.getBillId()));
+                        moneyService.returnMoney(dto.getIntBillId());
+                        // 商品改为未售出
+                        int goodId= billMapper.selectGoodIdByBillId(dto.getIntBillId());
                         goodMapper.updateGoodSelect(new GoodDO(goodId,false));
                     }
-            }
+                }
             } else {
                 //卖家选择不取消交易
                 if (BillState.WRONG_INSPECT==state){
                    //买家否定验货结果
-                    //todo 不同意：投诉
+                    // todo 卖家怎么提交账户问题？？
+                    //todo 重定向吗??
                 }
-        }
+            }
         return result.gainPatchSuccess();
     }
 
     @Override
-    public String patchBillInspect(PatchBillInspectDTO dto) throws JsonProcessingException {
-        BillDO patchBillDO=new BillDO(dto);
+    public String patchBillInspect(PatchBillInspectDTO dto, int userId) throws JsonProcessingException {
+        // 非该订单买家，则拒绝操作
+        BillDO billDO = userHasRight(dto.getIntBillId(), userId, ROLE_BUYER);
+        // 订单不处于待验货状态，则拒绝操作
+        billHasState(billDO.getState(), BillState.PENDING_INSPECT, dto.getIntBillId());
         if (dto.getInspected()){
             // 验货通过
             // 修改bill状态
-            billMapper.updateBillState(patchBillDO);
+            billMapper.updateBillState(new BillDO(dto));
             // 支付卖家
-            moneyService.payToSeller(patchBillDO.getBillId());
+            moneyService.payToSeller(dto.getIntBillId());
         }else {
-            // 验货不通过
-            //todo 通知卖家
+            // 验货不通过,通知卖家
+            NoticeMessage noticeMessage=new NoticeMessage("订单号"+dto.getBillId()+"买家验货结果不通过，请检查商品情况",
+                    System.currentTimeMillis(),billDO.getSellerId());
+            messageController.general(noticeMessage);
         }
         return result.gainPatchSuccess();
+    }
+
+    /**
+     * 确定用户是否有权操作订单.
+     *
+     * @param billId 订单号
+     * @param userId 当前用户
+     * @param roles 有权操作的用户角色,为买家、卖家,使用ROLE_BUYER、ROLE_SELLER
+     *
+     * @return billDO 订单信息,避免进一步操作时重复获取
+     *
+     * @throws ForbiddenException 无权操作
+     * */
+    private BillDO userHasRight(int billId, int userId, String... roles)
+            throws ForbiddenException{
+        BillDO billDO=billMapper.selectBillByBillId(billId);
+        for (String role:roles){
+            if (Objects.equals(role, ROLE_SELLER) && userId == billDO.getSellerId()){
+                return billDO;
+            }
+            if (Objects.equals(role, ROLE_BUYER) && userId == billDO.getBuyerId()){
+                return billDO;
+            }
+        }
+
+        log.info("用户id{}非订单号{}的卖家或买家，拒绝操作",userId,billId);
+        throw new ForbiddenException();
+    }
+
+    /**
+     * 确定订单状态是否正确.
+     * @param nowState 订单当前状态
+     * @param rightState 操作该订单的正确状态
+     * @param billId 订单id,用来打日志
+     *
+     * @throws ToBeConstructed 订单状态异常
+     * */
+    private void billHasState(String nowState, BillState rightState, int billId){
+        BillState state=BillState.gainEnumByState(nowState);
+        if (state != rightState){
+            log.info("订单号{}状态为{}, 需要状态为{}, 拒绝操作",billId, nowState, rightState);
+            throw new ToBeConstructed();
+        }
     }
 }

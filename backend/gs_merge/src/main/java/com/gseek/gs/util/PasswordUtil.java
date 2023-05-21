@@ -1,5 +1,6 @@
 package com.gseek.gs.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gseek.gs.exce.business.ParameterWrongException;
 import com.gseek.gs.pojo.business.ParameterWrongBean;
 import jakarta.annotation.PostConstruct;
@@ -95,10 +96,11 @@ public class PasswordUtil {
      * @param toDecrypt 待加密字段,格式为base64
      * @return result 解密结果,格式为UTF-8
      * */
-    public static String decrypt(String toDecrypt) throws IllegalBlockSizeException, BadPaddingException {
+    public static String decrypt(String toDecrypt)
+            throws IllegalBlockSizeException, BadPaddingException, JsonProcessingException {
         try {
             // 判断是否为base64格式
-            if (StrUtil.isBase64(toDecrypt)){
+            if (StrUtil.checkBase64(toDecrypt)){
                 throw new ParameterWrongException(
                         new ParameterWrongBean()
                                 .addParameters("待加密字段",toDecrypt)

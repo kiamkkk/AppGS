@@ -25,7 +25,7 @@ public interface SellerService {
     /**
      *
      * */
-    String deleteGood(int userId,String userName,int goodId) throws JsonProcessingException;
+    String deleteGood(int userId, int goodId) throws JsonProcessingException;
 
     /**
      *

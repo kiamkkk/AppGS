@@ -35,6 +35,10 @@ public enum BillState {
      * */
     TRADE_CANCEL("交易取消"),
     /**
+     * 支付超时
+     * */
+    PAYt_TIMEOUT("支付超时"),
+    /**
      * 交易异常
      * */
     TRADE_ANOMALY("交易异常");

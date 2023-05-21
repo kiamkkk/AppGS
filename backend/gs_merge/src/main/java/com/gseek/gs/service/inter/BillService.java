@@ -22,13 +22,13 @@ public interface BillService {
      *  买家交钱暂存平台，通知双方
      *
      * */
-    String payBill(PayBillDTO dto) throws JsonProcessingException;
+    String payBill(PayBillDTO dto, int userId) throws JsonProcessingException;
 
     /**
      * 商品信息通知买方
      *
      * */
-    String deliveryBill(PatchDeliveryBillDTO dto) throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException;
+    String deliveryBill(PatchDeliveryBillDTO dto, int userId) throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException;
 
     /**
      *
@@ -38,9 +38,9 @@ public interface BillService {
     /**
      *
      * */
-    String patchBillCancel(PatchBillCancelDTO dto) throws JsonProcessingException;
+    String patchBillCancel(PatchBillCancelDTO dto, int userId) throws JsonProcessingException;
 
-    String patchBillInspect(PatchBillInspectDTO dto) throws JsonProcessingException;
+    String patchBillInspect(PatchBillInspectDTO dto, int userId) throws JsonProcessingException;
 
 
 }

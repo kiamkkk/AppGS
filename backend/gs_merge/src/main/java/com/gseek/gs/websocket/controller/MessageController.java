@@ -28,6 +28,9 @@ import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+
 /**
  * @author Phak
  * @since 2023/5/8-23:11
@@ -149,8 +152,9 @@ public class MessageController {
     @PatchMapping("/chats/block")
     public String getChatBlock(@CurrentSecurityContext(expression = "authentication ") Authentication authentication,
                                ChatBlockDTO dto)
-            throws JsonProcessingException {
+            throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
 
+        dto.perService();
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             if (dto.getFromUserId() != details.getUserId()){
                 throw new ForbiddenException();

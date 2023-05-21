@@ -40,10 +40,10 @@ public class AccountController {
      *
      * */
     @PostMapping
-    public String recharge(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+    public String recharge(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                            RechargeDTO dto)
             throws IllegalBlockSizeException, BadPaddingException, AlipayApiException, JsonProcessingException {
-
+        dto.perService();
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             dto.perService();
             return moneyService.recharge(details.getUserId(),dto);
@@ -60,12 +60,14 @@ public class AccountController {
      *
      * */
     @PatchMapping
-    public String withdrawals(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
+    public String withdrawals(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                               WithdrawalDTO dto)
             throws IllegalBlockSizeException, BadPaddingException, AlipayApiException, JsonProcessingException, FileNotFoundException {
 
+        dto.perService();
+
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-            dto.perService();
+
             return moneyService.withdrawal(details.getUserId(),dto);
 
         }else {
@@ -82,7 +84,7 @@ public class AccountController {
      *
      * */
     @GetMapping
-    public String getWalletInformation(@CurrentSecurityContext(expression = "authentication") Authentication authentication)
+    public String getWalletInformation(@CurrentSecurityContext(expression = "Authentication") Authentication authentication)
             throws JsonProcessingException {
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 

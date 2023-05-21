@@ -1,16 +1,19 @@
 package com.gseek.gs.pojo.dto;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gseek.gs.exce.business.ParameterWrongException;
 import com.gseek.gs.pojo.business.ParameterWrongBean;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * @author Phak
  * @since 2023/5/17-9:33
  */
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatBlockDTO implements DTOPerService{
@@ -22,7 +25,7 @@ public class ChatBlockDTO implements DTOPerService{
 
 
     @Override
-    public void validateParameters() throws ParameterWrongException {
+    public void validateParameters() throws ParameterWrongException, JsonProcessingException {
         ParameterWrongBean bean=new ParameterWrongBean();
 
         if (toUserId==null || toUserId <= 0){

@@ -1,5 +1,7 @@
 package com.gseek.gs.pojo.data;
 
+import com.gseek.gs.pojo.dto.PostRealNameInformationDTO;
+import com.gseek.gs.pojo.dto.RegisterDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,7 +26,14 @@ public class UserIdentificationDO {
     private Boolean certified;
     private Long modifiedTime;
 
-    public UserIdentificationDO(Integer userId) {
+    public UserIdentificationDO(RegisterDTO dto, Integer userId) {
         this.userId = userId;
+        this.modifiedTime=dto.getTime();
+    }
+
+    public UserIdentificationDO(PostRealNameInformationDTO dto, Integer userId) {
+        this.userId = userId;
+        this.modifiedTime=dto.getTime();
+        this.idNumber=dto.getIdNumber();
     }
 }

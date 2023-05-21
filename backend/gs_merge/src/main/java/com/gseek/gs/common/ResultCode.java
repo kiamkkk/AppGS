@@ -32,11 +32,15 @@ public enum ResultCode {
      * put成功默认响应
      * */
     PUT_SUCCESS(201,"success"),
-
     /**
      * 服务器后端内部错误
      * */
-    INTERNAL_SERVER_BACKEND_ERROR(50001,"INTERNAL_SERVER_ERROR");
+    INTERNAL_SERVER_BACKEND_ERROR(50001,"INTERNAL_SERVER_ERROR"),
+    /**
+     * 用户被拉黑
+     * */
+    User_BLACKLISTED(403,"User_BLACKLISTED");
+
 
     /**
      * 状态码

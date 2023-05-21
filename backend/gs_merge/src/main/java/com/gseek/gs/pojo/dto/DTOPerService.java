@@ -1,5 +1,6 @@
 package com.gseek.gs.pojo.dto;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gseek.gs.exce.business.ParameterWrongException;
 
 import javax.crypto.BadPaddingException;
@@ -24,7 +25,7 @@ public interface DTOPerService {
      * @throws BadPaddingException 这干嘛的我不到啊
      * */
     default void perService()
-            throws IllegalBlockSizeException, BadPaddingException, ParameterWrongException {
+            throws IllegalBlockSizeException, BadPaddingException, ParameterWrongException, JsonProcessingException {
         validateParameters();
         autoDecrypt();
     }
@@ -53,7 +54,7 @@ public interface DTOPerService {
      *
      * @throw ParameterWrongException 参数异常被封装在这里,具体格式查看ParameterWrongBean.
      * */
-    void validateParameters() throws ParameterWrongException;
+    void validateParameters() throws ParameterWrongException, JsonProcessingException;
 
     /**
      * 验参结束后调用这个方法对有需要的字段进行解密.
@@ -69,5 +70,5 @@ public interface DTOPerService {
      * @throws IllegalBlockSizeException 这干嘛的我不到啊
      * @throws BadPaddingException 这干嘛的我不到啊
      * */
-    default void autoDecrypt() throws IllegalBlockSizeException, BadPaddingException{}
+    default void autoDecrypt() throws IllegalBlockSizeException, BadPaddingException, JsonProcessingException {}
 }

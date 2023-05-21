@@ -1,37 +1,42 @@
 package com.gseek.gs.pojo.dto;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gseek.gs.exce.business.ParameterWrongException;
+import com.gseek.gs.pojo.business.ParameterWrongBean;
 import com.gseek.gs.util.StrUtil;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author Phak
  * @since 2023/5/9-11:40
  */
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PatchUserInformationDTO {
+public class PatchUserInformationDTO implements DTOPerService{
     private String email;
     private String username;
     private MultipartFile picture;
 
-    public void setEmail(String email) {
-        if (StrUtil.checkEmail(email)){
-            //todo 写入错误信息
-            throw new ParameterWrongException();
-        }
-        this.email = email;
-    }
+    @Override
+    public void validateParameters() throws ParameterWrongException, JsonProcessingException {
+        ParameterWrongBean bean =new ParameterWrongBean();
 
-    public void setUsername(String username) {
-        if (StrUtil.checkUserName(username)){
-            //todo 写入错误信息
-            throw new ParameterWrongException();
+        if ( email!=null && StrUtil.checkEmail(email)){
+            bean.addParameters("email",email);
         }
-        this.username = username;
+        if (username!=null && StrUtil.checkUserName(username)){
+            bean.addParameters("username", username);
+        }
+
+        if (! bean.getWrongParameters().isEmpty() ){
+            throw new ParameterWrongException(bean);
+        }
+
     }
 }

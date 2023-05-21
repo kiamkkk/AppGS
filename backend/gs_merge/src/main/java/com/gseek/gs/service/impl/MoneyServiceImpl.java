@@ -61,11 +61,13 @@ public class MoneyServiceImpl implements MoneyService {
 
     @Override
     public void returnMoney(int billId) {
+        // todo 判断余额是否充足
         moneyMapper.returnMoney(billId);
     }
 
     @Override
     public void payToSeller(int billId) {
+        // todo 判断余额是否充足
         moneyMapper.payToSeller(billId);
     }
 

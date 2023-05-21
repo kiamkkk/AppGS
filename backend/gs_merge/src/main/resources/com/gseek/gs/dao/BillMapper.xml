@@ -57,5 +57,8 @@
         select good_id from bill where bill_id=#{billId};
     </select>
 
+    <select id="selectBillByBillId" resultMap="BaseResultMap">
+        select * from bill where bill_id=#{billId};
+    </select>
 
 </mapper>

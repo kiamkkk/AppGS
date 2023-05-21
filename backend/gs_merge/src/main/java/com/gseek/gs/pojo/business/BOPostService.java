@@ -1,14 +1,12 @@
 package com.gseek.gs.pojo.business;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 
 /**
  * 包含BO传出service前要执行的操作.
- * //todo 这是不是每个BO都必须实现的？？
  *
  * @author Phak
  * @since 2023/5/13-18:41
@@ -24,7 +22,7 @@ public interface BOPostService {
      * @throws IllegalBlockSizeException 这干嘛的我不到啊
      * @throws BadPaddingException 这干嘛的我不到啊
      * */
-    default void postService() throws IllegalBlockSizeException, BadPaddingException{
+    default void postService() throws IllegalBlockSizeException, BadPaddingException, JsonProcessingException {
         autoEncrypt();
     }
 
@@ -42,15 +40,6 @@ public interface BOPostService {
      * @throws IllegalBlockSizeException 这干嘛的我不到啊
      * @throws BadPaddingException 这干嘛的我不到啊
      * */
-    default void autoEncrypt() throws IllegalBlockSizeException, BadPaddingException{}
+    default void autoEncrypt() throws IllegalBlockSizeException, BadPaddingException, JsonProcessingException {}
 
-    /**
-     * 将对象本身包装成json返回.
-     *
-     * @param objectMapper 在service里自动注入一个objectMapper,然后传入这里
-     * @return json
-     */
-    default String autoJson(ObjectMapper objectMapper) throws JsonProcessingException {
-        return objectMapper.writeValueAsString(this);
-    }
 }

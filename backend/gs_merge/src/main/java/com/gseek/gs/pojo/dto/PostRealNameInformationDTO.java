@@ -1,9 +1,13 @@
 package com.gseek.gs.pojo.dto;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.gseek.gs.exce.business.ParameterWrongException;
+import com.gseek.gs.pojo.business.ParameterWrongBean;
 import com.gseek.gs.util.PasswordUtil;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -14,20 +18,38 @@ import javax.crypto.IllegalBlockSizeException;
  * @author Phak
  * @since 2023/5/6-0:37
  */
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostRealNameInformationDTO {
-    //todo 修改dto，把userId放进去
-    //todo 在这把身份证号解密
+public class PostRealNameInformationDTO implements DTOPerService{
 
     private String userName;
-    private String rawIdNumber;
+    private String idNumber;
     private Long time;
 
-    public void setRawIdNumber(String rawIdNumber) throws IllegalBlockSizeException, BadPaddingException {
-        this.rawIdNumber = PasswordUtil.decrypt(rawIdNumber);
+    @Override
+    public void validateParameters() throws ParameterWrongException, JsonProcessingException {
+        ParameterWrongBean bean =new ParameterWrongBean();
+
+        if (userName.isBlank()){
+            bean.addParameters("userName",userName);
+        }
+        if (idNumber.isBlank()){
+            bean.addParameters("idNumber", idNumber);
+        }
+        if (time == null || time <= 0){
+            bean.addParameters("time", time+"");
+        }
+
+        if (! bean.getWrongParameters().isEmpty() ){
+            throw new ParameterWrongException(bean);
+        }
+
     }
 
-
+    @Override
+    public void autoDecrypt() throws IllegalBlockSizeException, BadPaddingException, JsonProcessingException {
+        idNumber=PasswordUtil.decrypt(idNumber);
+    }
 }

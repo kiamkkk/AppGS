@@ -33,4 +33,6 @@ public interface UserIdentificationMapper {
      * */
     UserIdentificationBO selectUserIdentificationByUserId(@Param("userId") int userId);
 
+    int updateUserIdentification(@Param("userIdentificationDO") UserIdentificationDO userIdentificationDO);
+
 }

@@ -1,10 +1,12 @@
 package com.gseek.gs.pojo.dto;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gseek.gs.exce.business.ParameterWrongException;
 import com.gseek.gs.pojo.business.ParameterWrongBean;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
@@ -12,7 +14,8 @@ import java.math.BigDecimal;
  * @author Phak
  * @since 2023/5/15-11:35
  */
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class RechargeDTO implements DTOPerService{
@@ -21,7 +24,7 @@ public class RechargeDTO implements DTOPerService{
     private Long time;
 
     @Override
-    public void validateParameters() throws ParameterWrongException {
+    public void validateParameters() throws ParameterWrongException, JsonProcessingException {
         ParameterWrongBean bean=new ParameterWrongBean();
         //充值金额大于0.01元小于1亿元
         if (chargeAmount == null ||

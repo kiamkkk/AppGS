@@ -1,16 +1,19 @@
 package com.gseek.gs.pojo.dto;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gseek.gs.exce.business.ParameterWrongException;
 import com.gseek.gs.pojo.business.ParameterWrongBean;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * @author Phak
  * @since 2023/5/12-0:12
  */
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class DeleteFavDTO implements DTOPerService{
@@ -18,11 +21,11 @@ public class DeleteFavDTO implements DTOPerService{
     private Integer goodId;
 
     @Override
-    public void validateParameters() throws ParameterWrongException {
+    public void validateParameters() throws ParameterWrongException, JsonProcessingException {
         ParameterWrongBean bean=new ParameterWrongBean();
 
         if (goodId==null || goodId <= 0){
-            bean.addParameters("商品id", goodId+"");
+            bean.addParameters("goodId", goodId+"");
         }
 
         if(! bean.getWrongParameters().isEmpty()){

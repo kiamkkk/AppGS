@@ -1,5 +1,6 @@
 package com.gseek.gs.pojo.data;
 
+import com.gseek.gs.pojo.dto.RegisterDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,11 +19,12 @@ import lombok.Setter;
 @NoArgsConstructor
 public class UserInformationDO {
 
-    public UserInformationDO(Integer userId) {
-        this.userId = userId;
-    }
-
     private Integer userId;
     private String email;
     private String profilePhoto;
+
+    public UserInformationDO(RegisterDTO dto, Integer userId) {
+        this.userId = userId;
+        this.email=dto.getEmail();
+    }
 }

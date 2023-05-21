@@ -25,8 +25,9 @@
 
     <select id="selectUserInformationByUserId" parameterType="int" resultMap="UserInformationBO">
         select ui.user_id,ui.email, ui.profile_photo, m.money
-        from user_information as ui left join money as m
-        on ui.user_id=m.user_id
+        from user_information as ui
+            left join money as m
+                on ui.user_id=m.user_id
         where ui.user_id=#{userId};
     </select>
 

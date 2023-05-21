@@ -3,10 +3,14 @@ package com.gseek.gs.service.inter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gseek.gs.pojo.dto.PatchUserInformationDTO;
 import com.gseek.gs.pojo.dto.PostRealNameInformationDTO;
+import com.gseek.gs.pojo.dto.RegisterDTO;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 
 /**
  * 对应/user/**的操作.
@@ -25,7 +29,7 @@ public interface UserService extends UserDetailsService {
      * @param registerTime 注册时间
      * */
     @Transactional(rollbackFor = Exception.class)
-    void register(String userName,String rawPassword,String email,long registerTime);
+    String register(RegisterDTO dto) throws JsonProcessingException;
 
     /**
      * 获取用户一般信息.
@@ -41,7 +45,7 @@ public interface UserService extends UserDetailsService {
      * @param userId 用户id
      * @return json,含有idNumber（身份证号,加密）
      * */
-    String getRealNameInformation(int userId) throws JsonProcessingException;
+    String getRealNameInformation(int userId) throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException;
 
     /**
      * 修改用户一般信息.
@@ -63,7 +67,7 @@ public interface UserService extends UserDetailsService {
      * @return 通用响应
      * */
     //todo 修改dto，把userId放进去
-    String postRealNameInformation(int userId, PostRealNameInformationDTO postRealNameInformationDTO) throws JsonProcessingException;
+    String postRealNameInformation(int userId, PostRealNameInformationDTO dto) throws JsonProcessingException;
 
     /**
      * 从数据库中获取登录信息.
