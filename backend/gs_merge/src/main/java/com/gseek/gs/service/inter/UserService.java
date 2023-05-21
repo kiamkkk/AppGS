@@ -19,7 +19,9 @@ import javax.crypto.IllegalBlockSizeException;
  * @since 2023/5/2-19:05
  */
 public interface UserService extends UserDetailsService {
-
+//todo 补充注释
+    String PREFIX="[";
+    String SUFFIX="]";
     /**
      * 注册一般用户.
      *

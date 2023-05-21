@@ -47,11 +47,11 @@
         <result column="sold" jdbcType="BIT" property="sold" />
         <result column="type_tag_name" jdbcType="VARCHAR" property="typeTagName"/>
         <collection property="tagNames" ofType="String"
-                    select="com.gseek.gs.dao.GoodTagMapper.selectTagNamesByGoodId" column="goodId" />
+                    select="com.gseek.gs.dao.GoodTagMapper.selectTagNamesByGoodId" column="{goodId=good_id}" />
         <collection property="coverPictures" ofType="String"
-                    select="com.gseek.gs.dao.GoodCoverPicMapper.selectCoversByGoodId" column="good.goodId" />
+                    select="com.gseek.gs.dao.GoodCoverPicMapper.selectCoversByGoodId" column="{goodId=good_id}" />
         <collection property="detailPictures" ofType="String"
-                    select="com.gseek.gs.dao.GoodDetailPicMapper.selectDetailsByGoodId" column="good.goodId" />
+                    select="com.gseek.gs.dao.GoodDetailPicMapper.selectDetailsByGoodId" column="{goodId=good_id}" />
     </resultMap>
 
     <resultMap id="GoodAccountBO" type="com.gseek.gs.pojo.business.GoodAccountBO">
@@ -64,7 +64,8 @@
 
 
     <select id="selectGoodByGoodIdFully" parameterType="int" resultMap="BaseResultMap">
-        select * from good where good_id=#{goodId} ;
+        select * from good where good_id=#{goodId}
+                             and true=(select result from good_checked where good_id=#{goodId});
     </select>
 
     <select id="selectGoodByGoodIdWithoutAccount" resultType="int" resultMap="GoodsWithoutAccountAndSoldBO">

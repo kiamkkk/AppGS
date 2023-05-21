@@ -2,6 +2,7 @@ package com.gseek.gs.service.inter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gseek.gs.websocket.message.BaseMessage;
+import org.springframework.scheduling.annotation.Async;
 
 /**
  * @author Phak
@@ -16,5 +17,6 @@ public interface ChatRecordService {
      * */
     String getChatRecords(int goodId,int userId) throws JsonProcessingException;
 
+    @Async("async")
     void insertMessage(BaseMessage message);
 }

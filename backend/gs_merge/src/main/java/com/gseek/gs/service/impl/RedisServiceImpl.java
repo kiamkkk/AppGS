@@ -1,11 +1,17 @@
 package com.gseek.gs.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.exce.business.login.RepeatLoginException;
+import com.gseek.gs.pojo.data.ChatDO;
 import com.gseek.gs.service.inter.RedisService;
 import com.gseek.gs.util.TokenUtil;
+import com.gseek.gs.websocket.message.BaseMessage;
 import io.jsonwebtoken.Claims;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
@@ -24,7 +30,12 @@ import java.util.concurrent.TimeUnit;
 public class RedisServiceImpl implements RedisService {
 
     @Autowired
-    StringRedisTemplate template;
+    @Qualifier("template0")
+    StringRedisTemplate template0;
+    @Resource
+    RedisTemplate<String, ChatDO> template1;
+    @Autowired
+    ObjectMapper objectMapper;
 
     //todo 最好不要用状态码
     /**
@@ -87,21 +98,14 @@ public class RedisServiceImpl implements RedisService {
         return isExist(userName);
     }
 
-    /**
-     * 储存String.
-     *
-     * @param key      储存的键值
-     * @param value    储存的值
-     * @param timeout  时间
-     * @param timeUnit 时间单位
-     */
-    private void addKey(String key, String value, long timeout, TimeUnit timeUnit) {
-        template.opsForValue().set(key, value, timeout, timeUnit);
+
+    public void addKey(String key, String value, long timeout, TimeUnit timeUnit) {
+        template0.opsForValue().set(key, value, timeout, timeUnit);
     }
 
     @Override
     public String getKey(String key) {
-        ValueOperations<String, String> operation = template.opsForValue();
+        ValueOperations<String, String> operation = template0.opsForValue();
         return operation.get(key);
     }
 
@@ -112,24 +116,24 @@ public class RedisServiceImpl implements RedisService {
      * @return true为存在
      * */
     private boolean isExist(String key){
-        Boolean a=template.hasKey(key);
+        Boolean a=template0.hasKey(key);
         return Boolean.TRUE.equals(a);
     }
 
     @Override
     public boolean deleteKey(String key) {
-        return Boolean.TRUE.equals(template.delete(key));
+        return Boolean.TRUE.equals(template0.delete(key));
     }
 
     @Override
     public boolean fuzzyQuery(String matchKey){
-        Set<String> set=template.keys("*"+matchKey+"*");
+        Set<String> set=template0.keys("*"+matchKey+"*");
         // 将set转成ArrayList
         List<String> list=new ArrayList<>(set);
         if(list.size()!=0){
             for (String str:list){
                 //通过查到的key值获取value，并放入result
-                if (template.opsForValue().get(str)!=null){
+                if (template0.opsForValue().get(str)!=null){
                     return false;
                 }
             }
@@ -137,5 +141,26 @@ public class RedisServiceImpl implements RedisService {
         return true;
 
     }
+
+    @Override
+    public void saveChatRecode(BaseMessage baseMessage) {
+        String key = baseMessage.getTime() + "|" + baseMessage.getGoodId();
+        template1.opsForValue().set(key, new ChatDO(baseMessage));
+    }
+
+    @Override
+    public List<ChatDO> getChatRecodes()  {
+        Set<String> keys= template1.keys("*");
+        List<ChatDO> chatDOS=new ArrayList<>();
+        if (keys != null) {
+            for (String key:keys){
+                chatDOS.add(template1.opsForValue().get(key));
+            }
+            template1.delete(keys);
+        }
+        return chatDOS;
+    }
+
+
 
 }

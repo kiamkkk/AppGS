@@ -4,10 +4,7 @@ import com.alipay.api.AlipayApiException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.common.Result;
-import com.gseek.gs.dao.BillMapper;
-import com.gseek.gs.dao.GoodMapper;
-import com.gseek.gs.dao.MoneyMapper;
-import com.gseek.gs.dao.RechargeWithdrawMapper;
+import com.gseek.gs.dao.*;
 import com.gseek.gs.exce.business.money.RemainNotEnoughException;
 import com.gseek.gs.exce.business.money.WalletFrozenException;
 import com.gseek.gs.pojo.business.MoneyBO;
@@ -24,7 +21,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 
 /**
@@ -55,6 +51,8 @@ public class MoneyServiceImpl implements MoneyService {
     GoodMapper goodMapper;
     @Autowired
     RechargeWithdrawMapper rwMapper;
+    @Autowired
+    DebtMapper debtMapper;
 
     @Override
     public void payBill(int buyerId, int billId)
@@ -73,10 +71,14 @@ public class MoneyServiceImpl implements MoneyService {
         // 判断卖家余额是否充足
         BigDecimal goodPrice=goodMapper.selectPriceByBillId(billId);
         BigDecimal sellerIdRemain=moneyMapper.selectRemainByUserId(sellerId);
-        if (goodPrice.compareTo(sellerIdRemain.multiply(agreementFee)) < 0){
-            throw new RemainNotEnoughException();
+        if (goodPrice.compareTo(sellerIdRemain.multiply(agreementFee)) >= 0){
+            // 卖家钱包剩余足够，正常退款
+            moneyMapper.returnMoney(billId);
+        } else {
+            // 卖家钱包剩余不足够，将卖家的钱全转到买家，将卖家加入Debt表里。
+            moneyMapper.updateAllRemainToBuyer(billId);
+            debtMapper.addDebt(new DebtDO(sellerId,goodPrice.subtract(sellerIdRemain)));
         }
-        moneyMapper.returnMoney(billId);
     }
 
     @Override
@@ -109,7 +111,7 @@ public class MoneyServiceImpl implements MoneyService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public String withdrawal(int userId, WithdrawalDTO dto)
-            throws JsonProcessingException, AlipayApiException, FileNotFoundException, RemainNotEnoughException {
+            throws JsonProcessingException, AlipayApiException, RemainNotEnoughException {
 
         BigDecimal accountRemain = remainAvailable(userId);
         if (accountRemain.compareTo(dto.getWithdrawalAmount()) >= 1){

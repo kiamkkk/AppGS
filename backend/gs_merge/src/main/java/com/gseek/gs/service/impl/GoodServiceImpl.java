@@ -52,6 +52,7 @@ public class GoodServiceImpl implements GoodService {
         List<Integer> goodIds=goodTagMapper.selectGoodIdByTagId(tagId);
         //根据goodId获取商品并修改
         List<GoodsWithoutAccountAndSoldBO> goods=new ArrayList<>();
+        //todo 用批量查询
         for (int id:goodIds){
             GoodDO goodDO =goodMapper.selectGoodByGoodIdFully(id);
             List<String> coverPics=goodCoverPicMapper.selectCoversByGoodId(id);

@@ -12,7 +12,7 @@ public class GoodSoldException extends BusinessException{
 
     public GoodSoldException() {
         super();
-        code=400;
+        code=404;
         msg="商品已经被卖出";
     }
 

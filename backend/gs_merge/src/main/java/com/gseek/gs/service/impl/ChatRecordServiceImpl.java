@@ -5,8 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.dao.ChatRecordMapper;
 import com.gseek.gs.pojo.data.ChatDO;
 import com.gseek.gs.service.inter.ChatRecordService;
+import com.gseek.gs.service.inter.RedisService;
 import com.gseek.gs.websocket.message.BaseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,11 +21,14 @@ import java.util.List;
  */
 @Service("chatRecordServiceImpl")
 public class ChatRecordServiceImpl implements ChatRecordService {
-
+//todo 补充注释
     @Autowired
     ChatRecordMapper chatRecordMapper;
     @Autowired
     ObjectMapper objectMapper;
+    @Autowired
+    @Qualifier("redisServiceImpl")
+    RedisService redisService;
 
     @Override
     public String getChatRecords(int goodId, int userId)
@@ -30,8 +37,22 @@ public class ChatRecordServiceImpl implements ChatRecordService {
         return objectMapper.writeValueAsString(chatDOS);
     }
 
+    @Async("async")
     @Override
     public void insertMessage(BaseMessage message) {
-        chatRecordMapper.insertChat(new ChatDO(message));
+        redisService.saveChatRecode(message);
     }
+
+    /**
+     * 每半小时同步一次
+     * */
+    @Async("async")
+    @Scheduled(cron="* 1-30 * * * ? *")
+    public void redisToMysql(){
+        List<ChatDO> chatDOS=redisService.getChatRecodes();
+        if (chatDOS.size()>0){
+            chatRecordMapper.insertChat(chatDOS);
+        }
+    }
+
 }

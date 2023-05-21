@@ -75,6 +75,21 @@
 
     </update>
 
+    <update id="updateAllRemainToBuyer">
+        update money
+        set money = money +
+                    (select good_price from good where good_id =
+                                                       (select good_id from bill where bill_id=#{billId})
+                    )
+        where user_id=
+              (select buyer_id from bill where bill_id=#{billId}) ;
+
+        update money
+        set money = 0.00
+        where user_id=
+              (select buyer_id from bill where bill_id=#{billId}) ;
+    </update>
+
     <select id="selectMoneyBOByUserId" resultMap="MoneyBO">
         select money,frozen
         from money

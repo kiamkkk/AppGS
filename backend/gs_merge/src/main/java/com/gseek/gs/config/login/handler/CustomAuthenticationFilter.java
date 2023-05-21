@@ -38,8 +38,6 @@ public class CustomAuthenticationFilter  extends AbstractAuthenticationProcessin
         super(new AntPathRequestMatcher("/users","POST"), authenticationManager);
     }
 
-    //todo 这个方法还有没有必要重写？？？
-    // 这个方法从请求体里读出数据，有必要
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException ,ContentTypeWrongException{
@@ -51,6 +49,7 @@ public class CustomAuthenticationFilter  extends AbstractAuthenticationProcessin
             //从请求体中读出userName和password
             try (InputStream is = request.getInputStream()){
                 AuthenticationBean authenticationBean = mapper.readValue(is,AuthenticationBean.class);
+
                 authRequest = new UsernamePasswordAuthenticationToken(
                         authenticationBean.getUserName(), authenticationBean.getPassword());
                 setDetails(request, authRequest);

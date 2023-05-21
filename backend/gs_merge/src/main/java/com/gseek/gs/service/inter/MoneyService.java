@@ -2,10 +2,12 @@ package com.gseek.gs.service.inter;
 
 import com.alipay.api.AlipayApiException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.gseek.gs.exce.business.money.RemainNotEnoughException;
 import com.gseek.gs.pojo.dto.RechargeDTO;
 import com.gseek.gs.pojo.dto.WithdrawalDTO;
 
 import java.io.FileNotFoundException;
+import java.math.BigDecimal;
 
 /**
  * @author Phak
@@ -26,7 +28,7 @@ public interface MoneyService {
      *  根据订单对应的商品价格还给买家钱
      *
      */
-    void returnMoney(int billId, int sellerId);
+    BigDecimal returnMoney(int billId, int sellerId) throws RemainNotEnoughException;
     /**
      *
      * */
@@ -40,7 +42,8 @@ public interface MoneyService {
     /**
      * 提现
      * */
-    String withdrawal(int userId, WithdrawalDTO withdrawalDTO) throws JsonProcessingException, AlipayApiException, FileNotFoundException;
+    String withdrawal(int userId, WithdrawalDTO withdrawalDTO)
+            throws JsonProcessingException, AlipayApiException, FileNotFoundException;
 
     /**
      * 查看钱包数据

@@ -1,6 +1,11 @@
 package com.gseek.gs.service.inter;
 
 import com.gseek.gs.exce.business.login.RepeatLoginException;
+import com.gseek.gs.pojo.data.ChatDO;
+import com.gseek.gs.websocket.message.BaseMessage;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Phak
@@ -42,6 +47,15 @@ public interface RedisService {
     boolean isUserHasToken(String token);
 
     /**
+     * 储存String.
+     *
+     * @param key      储存的键值
+     * @param value    储存的值
+     * @param timeout  时间
+     * @param timeUnit 时间单位
+     */
+    void addKey(String key, String value, long timeout, TimeUnit timeUnit);
+    /**
      * 获得储存的值.
      *
      * @param key
@@ -55,6 +69,10 @@ public interface RedisService {
      * @param key
      */
     boolean deleteKey(String key);
+
+    void saveChatRecode(BaseMessage baseMessage) ;
+
+    List<ChatDO> getChatRecodes();
 
     boolean fuzzyQuery(String matchKey);
 }

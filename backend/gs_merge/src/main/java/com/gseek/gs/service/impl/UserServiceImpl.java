@@ -46,7 +46,6 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     PasswordUtil passwordUtil;
-
     @Autowired
     Result result;
     @Autowired
@@ -57,9 +56,10 @@ public class UserServiceImpl implements UserService {
     UserInformationMapper userInformationMapper;
     @Autowired
     MoneyMapper moneyMapper;
-
     @Autowired
     ObjectMapper objectMapper;
+
+
 
     /**
      * 一般用户权限
@@ -105,17 +105,8 @@ public class UserServiceImpl implements UserService {
     public String patchUserInformation(int userId, String photoPath, PatchUserInformationDTO dto)
             throws JsonProcessingException {
         UserPasswordDO userPasswordDO=new UserPasswordDO(userId);
-        UserInformationDO userInformationDO=new UserInformationDO();//todo
+        UserInformationDO userInformationDO=new UserInformationDO(dto,photoPath,userId);
 
-        if (dto.getEmail()!=null){
-            userInformationDO.setEmail(dto.getEmail());
-        }
-        if (photoPath!=null){
-            userInformationDO.setProfilePhoto(photoPath);
-        }
-        if (dto.getUsername()!=null){
-            userPasswordDO.setUserName(dto.getUsername());
-        }
         userInformationMapper.updateUserInformation(userInformationDO);
         userPasswordMapper.updateUserPassword(userPasswordDO);
 
@@ -140,9 +131,10 @@ public class UserServiceImpl implements UserService {
             log.debug("UsernameNotFound|"+username);
             throw new UsernameNotFoundException("UsernameNotFound:"+username);
         }
-        //todo 密码盐怎么加入？
-        user.setPassword(userPasswordDO.getPassword());
+
+        user.setPassword(PREFIX+userPasswordDO.getSalt()+SUFFIX+userPasswordDO.getPassword());
         user.setUserId(userPasswordDO.getUserId());
         return user;
     }
+
 }

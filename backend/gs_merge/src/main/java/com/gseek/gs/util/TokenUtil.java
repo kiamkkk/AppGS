@@ -21,7 +21,6 @@ import java.util.function.Function;
  */
 @Component
 public class TokenUtil {
-
     /**
      * token默认有效时间2小时
      * */

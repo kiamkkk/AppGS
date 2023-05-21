@@ -1,10 +1,8 @@
 package com.gseek.gs.config.login.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gseek.gs.common.ResultCode;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.business.ForbiddenException;
-import com.gseek.gs.pojo.business.BlacklistResultBO;
 import com.gseek.gs.service.inter.BlacklistService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,13 +36,11 @@ public class BlackListInterceptor implements HandlerInterceptor {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             int userId=details.getUserId();
-            BlacklistResultBO bo=blacklistService.queryByRespondentId(userId);
+            Boolean bo=blacklistService.queryByRespondentId(userId);
             if (bo != null ){
-                if (Boolean.TRUE==bo.isAppeal_result()){
-                    ResultCode.User_BLACKLISTED;
+                if (Boolean.TRUE.equals(bo)){
                     //todo 用户被拉入黑名单，禁止访问该项目
                     throw new ForbiddenException("用户已经被加入黑名单，禁止访问");
-                    return false;
                 }
             }else {
                 log.debug("用户 {} 没有被举报过",userId);

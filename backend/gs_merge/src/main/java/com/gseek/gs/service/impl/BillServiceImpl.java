@@ -96,7 +96,8 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
-    public String postBill(PostBillsDTO dto) {
+    public String postBill(PostBillsDTO dto)
+            throws IllegalBlockSizeException, BadPaddingException {
         BillDO billDO=new BillDO(dto);
         try{
             billMapper.insertBill(billDO);

@@ -17,7 +17,7 @@ public interface BillService {
     /**
      *
      * */
-    String postBill(PostBillsDTO dto);
+    String postBill(PostBillsDTO dto) throws IllegalBlockSizeException, BadPaddingException;
 
     /**
      *  买家交钱暂存平台，通知双方

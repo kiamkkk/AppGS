@@ -44,6 +44,8 @@ public interface MoneyMapper {
 
     int payToSeller(@Param("billId") int billId);
 
+    int updateAllRemainToBuyer(@Param("billId") int billId);
+
     MoneyBO selectMoneyBOByUserId(@Param("userId") int userId);
 
 }

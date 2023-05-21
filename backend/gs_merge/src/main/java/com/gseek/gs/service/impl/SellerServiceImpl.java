@@ -51,6 +51,8 @@ public class SellerServiceImpl implements SellerService {
     GoodTagMapper goodTagMapper;
     @Autowired
     OfferPriceMapper offerPriceMapper;
+    @Autowired
+    GoodCheckMapper goodCheckMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -70,6 +72,8 @@ public class SellerServiceImpl implements SellerService {
         }
         // 更新type和tag情况
         updateTypeAndTags(dto,goodDO,goodId);
+        // 把good加入待审核名单
+        goodCheckMapper.insertNewGood(goodId);
 
         return result.gainPostSuccess();
     }

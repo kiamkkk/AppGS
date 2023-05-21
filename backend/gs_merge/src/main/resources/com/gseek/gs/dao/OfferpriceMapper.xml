@@ -28,13 +28,13 @@
         <result column="offer_price" jdbcType="DECIMAL" property="offerPrice" />
         <collection property="tag" ofType="String"
                     select="com.gseek.gs.dao.GoodDetailPicMapper.selectDetailsByGoodId"
-                    column="good_id=goodId"/>
+                    column="{goodId=good_id}"/>
         <collection property="coverPictures" ofType="String"
                     select="com.gseek.gs.dao.GoodCoverPicMapper.selectCoversByGoodId"
-                    column="good_id=goodId"/>
+                    column="{goodId=good_id}"/>
         <collection property="detailPictures" ofType="String"
                     select="com.gseek.gs.dao.GoodDetailPicMapper.selectDetailsByGoodId"
-                    column="good_id=goodId"/>
+                    column="{goodId=good_id}"/>
     </resultMap>
 
     <select id="selectOfferPriceByGoodId" parameterType="int" resultMap="OfferPriceBO">

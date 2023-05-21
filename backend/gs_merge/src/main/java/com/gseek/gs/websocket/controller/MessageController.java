@@ -88,9 +88,9 @@ public class MessageController {
      *
      * */
     @MessageMapping("/user/chat")
-    public void chat(@Payload BaseMessage message) {
+    public void chat(@Payload BaseMessage message) throws JsonProcessingException {
        messageService.sendMessage(message);
-        //todo 用另一个线程储存聊天记录
+        // 用另一个线程储存聊天记录
         chatRecordService.insertMessage(message);
     }
 
@@ -145,7 +145,6 @@ public class MessageController {
     @GetMapping("/chats/records/{good_id}/{user_id}")
     public String getChatRecords(@PathVariable("good_id") int goodId,@PathVariable("user_id") int userId)
             throws JsonProcessingException {
-        // todo 获取聊天记录
         return chatRecordService.getChatRecords(goodId,userId);
     }
 

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.gseek.gs.exce.BaseException;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.ToBeConstructed;
-import com.gseek.gs.exce.business.ParameterWrongException;
+import com.gseek.gs.exce.business.BusinessException;
 import com.gseek.gs.exce.business.login.RepeatLoginException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -36,14 +36,20 @@ public class ExceptionController {
         ObjectNode objectNode=objectMapper.createObjectNode();
         objectNode.put("code", 50010);
         objectNode.put("message", "后端未知错误");
+        log.error(e.getMessage());
         return objectNode.toPrettyString();
     }
 
-    @ExceptionHandler(ParameterWrongException.class)
-    public String parameterWrongHandler(ParameterWrongException parameterWrong, HttpServletResponse response){
-        log.debug("参数有误");
+    @ExceptionHandler(ToBeConstructed.class)
+    public String toBeConstructedExceptionHandler(ToBeConstructed e,HttpServletResponse response){
         response.setStatus(500);
-        return packageMessage(parameterWrong);
+        return "后端竟然还有没写的异常！！！带着以下消息火速前去拷打廖俊煜！！！\n"+e.getMessage();
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public String businessExceptionHandel(BusinessException e,HttpServletResponse response){
+        response.setStatus(e.getCode());
+        return packageMessage(e);
     }
 
     @ExceptionHandler(ServerException.class)
@@ -56,12 +62,6 @@ public class ExceptionController {
     public String repeatLoginExceptionHandler(RepeatLoginException e,HttpServletResponse response){
         response.setStatus(403);
         return packageMessage(e);
-    }
-
-    @ExceptionHandler(ToBeConstructed.class)
-    public String toBeConstructedExceptionHandler(ToBeConstructed e,HttpServletResponse response){
-        response.setStatus(500);
-        return "后端竟然还有没写的异常！！！带着以下消息火速前去拷打廖俊煜！！！\n"+e.getMessage();
     }
 
     /**

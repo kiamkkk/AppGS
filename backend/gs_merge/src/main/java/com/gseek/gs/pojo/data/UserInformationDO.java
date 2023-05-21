@@ -1,5 +1,6 @@
 package com.gseek.gs.pojo.data;
 
+import com.gseek.gs.pojo.dto.PatchUserInformationDTO;
 import com.gseek.gs.pojo.dto.RegisterDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,5 +27,17 @@ public class UserInformationDO {
     public UserInformationDO(RegisterDTO dto, Integer userId) {
         this.userId = userId;
         this.email=dto.getEmail();
+    }
+
+    public UserInformationDO(PatchUserInformationDTO dto,String photoPath,int userId) {
+        if (dto.getEmail()!=null){
+            this.email=dto.getEmail();
+        }
+        if (photoPath!=null){
+            this.profilePhoto=photoPath;
+        }
+        if (dto.getUsername()!=null){
+            this.userId=userId;
+        }
     }
 }

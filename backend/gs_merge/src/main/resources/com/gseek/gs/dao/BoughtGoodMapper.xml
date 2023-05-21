@@ -21,13 +21,13 @@
         <result column="bought_time" jdbcType="BIGINT" property="boughtTime" />
         <collection property="tag" ofType="String"
                 select="com.gseek.gs.dao.GoodDetailPicMapper.selectDetailsByGoodId"
-                column="good_id=goodId"/>
+                column="{goodId=good_id}"/>
         <collection property="coverPictures" ofType="String"
                 select="com.gseek.gs.dao.GoodCoverPicMapper.selectCoversByGoodId"
-                column="good_id=goodId"/>
+                column="{goodId=good_id}"/>
         <collection property="detailPictures" ofType="String"
                 select="com.gseek.gs.dao.GoodDetailPicMapper.selectDetailsByGoodId"
-                column="good_id=goodId"/>
+                column="{goodId=good_id}"/>
     </resultMap>
 
     <insert id="insertBoughtGoods" >
