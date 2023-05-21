@@ -34,7 +34,7 @@
     <select id="queryAllUnchecked" resultType="com.gseek.gs.pojo.data.BlacklistDO">
         select * from gseek.blacklist where checked=0;
     </select>
-    <update id="auditReport" parameterType="com.gseek.gs.pojo.dto.AdminBlacklistDTO" >
+    <update id="auditReport" parameterType="com.gseek.gs.pojo.business.BlacklistResultBO" >
         update gseek.blacklist
         <set>
             <if test="admin_id != null">
@@ -55,6 +55,9 @@
     </update>
     <select id="queryByRespondentId" resultType="boolean">
         select appeal_result from gseek.blacklist where respondent_id=#{respondentId};
+    </select>
+    <select id="queryBlackId" resultType="int">
+        select black_id from gseek.blacklist where respondent_id=#{respondentId},claimer_id=#{claimerId},checked=0;
     </select>
 <!--    <update id="updateAuditResult" parameterType="com.gseek.gs.pojo.data.BlacklistDODO" >-->
 <!--        update gseek.blacklistDO set appeal_result=#{appeal_result} where black_id=#{black_id};-->

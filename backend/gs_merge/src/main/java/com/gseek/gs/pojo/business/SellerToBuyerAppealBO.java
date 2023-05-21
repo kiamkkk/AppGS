@@ -19,4 +19,6 @@ public class SellerToBuyerAppealBO {
     private boolean accept;
     private int bill_id;
     private boolean checked;
+    @JsonIgnore
+    private int myId;
 }

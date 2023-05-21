@@ -45,6 +45,6 @@ public interface BillService {
 
     @Transactional(rollbackFor = Exception.class)
     String patchBillInspect(PatchBillInspectDTO dto, int userId) throws JsonProcessingException;
-
+    BillDO selectBill(int billId);
 
 }

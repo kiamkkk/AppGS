@@ -49,4 +49,6 @@ public interface MoneyService {
      * 查看钱包数据
      * */
     String getWalletInformation(int userId) throws JsonProcessingException;
+    int frozenUser(int userId);
+    int unfrozenUser(int userId);
 }

@@ -27,9 +27,10 @@ public interface BlacklistService {
     //    int userId===claimer_id,int blackId,String appeal_reason
     int updateReport(BlacklistDO blacklistDO);
     List<BlacklistDO> queryAllUnchecked();
-    int auditReport(AdminBlacklistDTO adminBlacklistDTO);
+    int auditReport(BlacklistResultBO blacklistResultBO);
     int updateCheck(int blackId);
     //    int adminId,boolean appealResult,int blackId
     int updateAuditResult(BlacklistDO blacklistDO);
     boolean queryByRespondentId(int respondentId);
+    int queryBlackId(int claimerId,int respondentId);
 }

@@ -17,4 +17,6 @@ public class BuyerToSellerAppealBO {
     private boolean checked;
     private String provePic;
     private int bill_id;
+    @JsonIgnore
+    private int myId;
 }

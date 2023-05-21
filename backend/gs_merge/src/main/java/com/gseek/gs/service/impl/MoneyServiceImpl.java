@@ -148,4 +148,12 @@ public class MoneyServiceImpl implements MoneyService {
         }
         return  moneyBO.getRemain();
     }
+    @Override
+    public int frozenUser(int userId){
+        return moneyMapper.frozenUser(userId);
+    }
+    @Override
+    public int unfrozenUser(int userId){
+        return  moneyMapper.unfrozenUser(userId);
+    }
 }

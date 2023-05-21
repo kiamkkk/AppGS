@@ -75,8 +75,8 @@ public class BlacklistServiceImpl implements BlacklistService {
     public List<BlacklistDO> queryAllUnchecked(){
         return blacklistMapper.queryAllUnchecked();
     }
-    public int auditReport(AdminBlacklistDTO adminBlacklistDTO) {
-        return blacklistMapper.auditReport(adminBlacklistDTO);
+    public int auditReport(BlacklistResultBO blacklistResultBO) {
+        return blacklistMapper.auditReport(blacklistResultBO);
     }
     public int updateCheck(int blackId){return blacklistMapper.updateCheck(blackId);}
 
@@ -85,5 +85,9 @@ public class BlacklistServiceImpl implements BlacklistService {
     }
     public boolean queryByRespondentId(int respondentId){
         return blacklistMapper.queryByRespondentId(respondentId);
+    }
+
+    public int queryBlackId(int claimerId,int respondentId){
+        return blacklistMapper.queryBlackId(claimerId,respondentId);
     }
 }

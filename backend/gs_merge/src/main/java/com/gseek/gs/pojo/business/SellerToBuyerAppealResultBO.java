@@ -16,4 +16,6 @@ public class SellerToBuyerAppealResultBO {
     private int admin_id;
     private String appeal_result;
     private int damage_degree;
+    @JsonIgnore
+    private boolean accept;
 }

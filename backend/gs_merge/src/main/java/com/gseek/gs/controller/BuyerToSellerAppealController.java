@@ -4,6 +4,7 @@ package com.gseek.gs.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gseek.gs.common.Result;
 import com.gseek.gs.config.login.handler.CustomWebAuthenticationDetails;
+import com.gseek.gs.config.login.handler.admin.AdminWebAuthenticationDetails;
 import com.gseek.gs.dao.BillMapper;
 import com.gseek.gs.dao.GoodMapper;
 import com.gseek.gs.dao.MoneyMapper;
@@ -52,25 +53,20 @@ public class BuyerToSellerAppealController {
     @Autowired
     MoneyMapper moneyMapper;
     @Autowired
+    BillService billService;
+    @Autowired
     Result result;
     @PostMapping("/complain")
     public String addBuyerToSellerAppeal(@RequestParam("provePic") MultipartFile provePic, HttpServletRequest request,
                                          @RequestParam int billId,@RequestParam String appealReason,@RequestParam int myId,
-                                         @CurrentSecurityContext(expression = "authentication ") Authentication authentication){
+                                         @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws JsonProcessingException {
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-//TODO 这里缺一个拿钱的
             int respondentId=billMapper.selectBillByBillId(billId).getSellerId();
-            BigDecimal money=goodMapper.selectPriceByBillId(billId);
-            if(money.compareTo(moneyMapper.selectMoneyBOByUserId(details.getUserId()).getRemain())<=-1){
-                moneyMapper.returnMoney(billId);
-            }
-            else {
-                //todo 缺一个退余额同时加入欠款的
-            }
+            moneyMapper.frozenUser(respondentId);
             String realPath= FileUtils.fileUtil(provePic,request);
             BuyerToSellerAppealDTO buyerToSellerAppealDTO=new BuyerToSellerAppealDTO(appealReason,realPath,billId,myId);
             buyerToSellerAppealService.addBuyerToSellerAppeal(buyerToSellerAppealDTO);
-            return "ok";
+            return result.gainPostSuccess();
 
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
@@ -81,13 +77,17 @@ public class BuyerToSellerAppealController {
     @GetMapping("/complain/{appealId}")
     public String queryAppeal(@PathVariable int appealId,
                                              @CurrentSecurityContext(expression = "authentication ") Authentication authentication){
+        if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
+            return buyerToSellerAppealService.queryAppeal(appealId).toString();
+        }
+
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             int billId=buyerToSellerAppealService.queryAppeal(appealId).getBill_id();
-//            int respondentId=billService.selectBillByBillId(billId).getSellerId();
-//            if (buyerToSellerAppealService.queryMyId(appealId)!=details.getUserId()
-//            || respondentId!=details.getUserId()){
-//                throw new ForbiddenException();
-//            }
+            int respondentId=billService.selectBillByBillId(billId).getSellerId();
+            if (buyerToSellerAppealService.queryMyId(appealId)!=details.getUserId()
+            || respondentId!=details.getUserId()){
+                throw new ForbiddenException();
+            }
             return buyerToSellerAppealService.queryAppeal(appealId).toString();
 
         }else {
@@ -99,6 +99,19 @@ public class BuyerToSellerAppealController {
     @DeleteMapping("/complain/{appealId}")
     public String deleteAppeal(@PathVariable int appealId,
                                @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws JsonProcessingException {
+        if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
+            buyerToSellerAppealService.deleteAppeal(appealId);
+            if(buyerToSellerAppealService.queryResult(appealId).isAppeal_result()){
+                //TODO 余额返还
+
+                int billId=buyerToSellerAppealService.queryAppeal(appealId).getBill_id();
+                moneyMapper.unfrozenUser(billMapper.selectBill(billId).getSellerId());
+                //从黑名单内删除
+                blacklistService.deleteReport(blacklistService.queryBlackId(billMapper.selectBill(billId).getBuyerId(),billMapper.selectBill(billId).getSellerId()));
+            }
+            return result.gainDeleteSuccess();
+        }
+
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
             if (buyerToSellerAppealService.queryMyId(appealId)!=details.getUserId()){
@@ -106,10 +119,12 @@ public class BuyerToSellerAppealController {
             }
             buyerToSellerAppealService.deleteAppeal(appealId);
             if(buyerToSellerAppealService.queryResult(appealId).isAppeal_result()){
-                //TODO 解除钱包冻结和余额返还
-                //todo 这里可能要查询一下在黑名单的id
+                //TODO 余额返还
+
+                int billId=buyerToSellerAppealService.queryAppeal(appealId).getBill_id();
+                moneyMapper.unfrozenUser(billMapper.selectBill(billId).getSellerId());
                 //从黑名单内删除
-                blacklistService.deleteReport(appealId);
+                blacklistService.deleteReport(blacklistService.queryBlackId(details.getUserId(),billMapper.selectBill(billId).getSellerId()));
             }
             return result.gainDeleteSuccess();
         }else {
@@ -122,13 +137,18 @@ public class BuyerToSellerAppealController {
     @GetMapping("/query/audit/{appealId}")
     public String queryResult(@PathVariable int appealId,
                                                    @CurrentSecurityContext(expression = "authentication ") Authentication authentication){
+        if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
+
+            return buyerToSellerAppealService.queryResult(appealId).toString();
+
+        }
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             int billId=buyerToSellerAppealService.queryAppeal(appealId).getBill_id();
-//            int respondentId=billService.selectBillByBillId(billId).getSellerId();
-//            if (buyerToSellerAppealService.queryMyId(appealId)!=details.getUserId()
-//                    || respondentId!=details.getUserId()){
-//                throw new ForbiddenException();
-//            }
+            int respondentId=billService.selectBillByBillId(billId).getSellerId();
+            if (buyerToSellerAppealService.queryMyId(appealId)!=details.getUserId()
+                    || respondentId!=details.getUserId()){
+                throw new ForbiddenException();
+            }
             return buyerToSellerAppealService.queryResult(appealId).toString();
 
         }else {
@@ -137,7 +157,7 @@ public class BuyerToSellerAppealController {
         }
 
     }
-    //TODO 方法不确定能不能行，要试试
+
     @PatchMapping("/complain/{appealId}")
     public String updateAppeal(@PathVariable int appealId,@RequestParam int billId,HttpServletRequest request,
                                @RequestParam String appealReason,@RequestParam("provePic") MultipartFile provePic,

@@ -95,5 +95,14 @@
         from money
         where user_id=#{userId};
     </select>
-
+    <update id="frozenUser" >
+        update money
+        set frozen =1
+        where user_id=#{userId};
+    </update>
+    <update id="unfrozenUser" >
+        update money
+        set frozen =0
+        where user_id=#{userId};
+    </update>
 </mapper>

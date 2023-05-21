@@ -47,5 +47,7 @@ public interface MoneyMapper {
     int updateAllRemainToBuyer(@Param("billId") int billId);
 
     MoneyBO selectMoneyBOByUserId(@Param("userId") int userId);
+    int frozenUser(int userId);
+    int unfrozenUser(int userId);
 
 }

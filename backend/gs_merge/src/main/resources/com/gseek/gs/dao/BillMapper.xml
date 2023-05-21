@@ -60,5 +60,8 @@
     <select id="selectBillByBillId" resultMap="BaseResultMap">
         select * from bill where bill_id=#{billId};
     </select>
+    <select id="selectBill" resultType="com.gseek.gs.pojo.data.BillDO">
+        select * from bill where bill_id=#{billId};
+    </select>
 
 </mapper>

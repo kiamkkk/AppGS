@@ -301,4 +301,8 @@ public class BillServiceImpl implements BillService {
             throw new BillStateNotAllowException(state);
         }
     }
+    @Override
+    public BillDO selectBill(int billId){
+        return billMapper.selectBill(billId);
+    }
 }

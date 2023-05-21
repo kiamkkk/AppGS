@@ -5,6 +5,9 @@ import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gseek.gs.common.Result;
 import com.gseek.gs.config.login.handler.CustomWebAuthenticationDetails;
+import com.gseek.gs.config.login.handler.admin.AdminWebAuthenticationDetails;
+import com.gseek.gs.dao.BillMapper;
+import com.gseek.gs.dao.MoneyMapper;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.business.ForbiddenException;
 import com.gseek.gs.pojo.business.SellerToBuyerAppealBO;
@@ -45,23 +48,54 @@ public class SellerToBuyerAppealController {
     @Autowired
     BlacklistService blacklistService;
     @Autowired
+    MoneyMapper moneyMapper;
+    @Autowired
+    BillMapper billMapper;
+    @Autowired
     Result result;
     @PostMapping("/complain")
     public String addSellerToBuyerAppeal(@RequestParam("pic_before") MultipartFile picBefore,@RequestParam("pic_after") MultipartFile picAfter, HttpServletRequest request,
-                                         @RequestParam int billId, @RequestParam String appealReason, @RequestParam int myId,@RequestParam boolean accept){
+                                         @RequestParam int billId, @RequestParam String appealReason, @RequestParam int myId,@RequestParam boolean accept) throws JsonProcessingException {
         String pathBefore= FileUtils.fileUtil(picBefore,request);
         String pathAfter=FileUtils.fileUtil(picAfter,request);
         SellerToBuyerAppealDTO sellerToBuyerAppealDTO=new SellerToBuyerAppealDTO(appealReason,pathBefore,pathAfter,accept,billId,myId);
         sellerToBuyerAppealService.addSellerToBuyerAppeal(sellerToBuyerAppealDTO);
-        return "ok";
+        return result.gainPostSuccess();
     }
     @GetMapping("/complain/{appealId}")
-    public SellerToBuyerAppealBO queryAppeal(@PathVariable int appealId){
-        return sellerToBuyerAppealService.queryAppeal(appealId);
+    public SellerToBuyerAppealBO queryAppeal(@PathVariable int appealId,
+                                             @CurrentSecurityContext(expression = "authentication ") Authentication authentication){
+        if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
+            return sellerToBuyerAppealService.queryAppeal(appealId);
+        }
+        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
+
+            if (sellerToBuyerAppealService.queryMyId(appealId)!=details.getUserId()){
+                throw new ForbiddenException();
+            }
+            return sellerToBuyerAppealService.queryAppeal(appealId);
+        }else {
+            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
+            throw new ServerException("认证时出错");
+        }
+
     }
     @DeleteMapping("/complain/{appealId}")
     public String deleteAppeal(@PathVariable int appealId,
                                @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws JsonProcessingException {
+        if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
+            sellerToBuyerAppealService.deleteAppeal(appealId);
+            if(sellerToBuyerAppealService.queryResult(appealId).isAppeal_result()){
+                //TODO 余额返还
+                int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBill_id();
+                moneyMapper.unfrozenUser(billMapper.selectBill(billId).getSellerId());
+
+                //从黑名单内删除
+                //todo 这里可能要查询一下在黑名单的id
+                blacklistService.deleteReport(appealId);
+            }
+            return result.gainDeleteSuccess();
+        }
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
             if (sellerToBuyerAppealService.queryMyId(appealId)!=details.getUserId()){
@@ -69,8 +103,12 @@ public class SellerToBuyerAppealController {
             }
             sellerToBuyerAppealService.deleteAppeal(appealId);
             if(sellerToBuyerAppealService.queryResult(appealId).isAppeal_result()){
-                //TODO 解除钱包冻结和余额返还
+                //TODO 余额返还
+                int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBill_id();
+                moneyMapper.unfrozenUser(billMapper.selectBill(billId).getSellerId());
+
                 //从黑名单内删除
+                //todo 这里可能要查询一下在黑名单的id
                 blacklistService.deleteReport(appealId);
             }
             return result.gainDeleteSuccess();
@@ -83,13 +121,16 @@ public class SellerToBuyerAppealController {
     @GetMapping("/query/audit/{appealId}")
     public String queryResult(@PathVariable int appealId,
                               @CurrentSecurityContext(expression = "authentication ") Authentication authentication){
+        if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
+            return sellerToBuyerAppealService.queryResult(appealId).toString();
+        }
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBill_id();
-//            int respondentId=sellerToBuyerAppealService.selectBillByBillId(billId).getBuyerId();
-//            if (sellerToBuyerAppealService.queryMyId(appealId)!=details.getUserId()
-//                    || respondentId!=details.getUserId()){
-//                throw new ForbiddenException();
-//            }
+            int respondentId=sellerToBuyerAppealService.selectBillByBillId(billId).getBuyerId();
+            if (sellerToBuyerAppealService.queryMyId(appealId)!=details.getUserId()
+                    || respondentId!=details.getUserId()){
+                throw new ForbiddenException();
+            }
             return sellerToBuyerAppealService.queryResult(appealId).toString();
 
         }else {

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.common.Result;
 import com.gseek.gs.config.login.handler.CustomWebAuthenticationDetails;
+import com.gseek.gs.config.login.handler.admin.AdminWebAuthenticationDetails;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.business.ForbiddenException;
 import com.gseek.gs.pojo.business.BlacklistBO;
@@ -71,12 +72,15 @@ public class BlacklistController {
     @GetMapping("/query_audit/{blackId}")
     public String queryResult(@PathVariable int blackId,
                                          @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws JsonProcessingException {
+        if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
+            return objectMapper.writeValueAsString(blacklistService.queryResult(blackId));
+        }
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             if (blacklistService.queryReport(blackId).getClaimer_id()!=details.getUserId()){
                 throw new ForbiddenException();
             }
             return objectMapper.writeValueAsString(blacklistService.queryResult(blackId));
-        }else {
+        } else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
             throw new ServerException("认证时出错");
         }
@@ -84,12 +88,29 @@ public class BlacklistController {
     }
     @GetMapping("/{blackId}")
     //TODO 要不要把传回去的id换成用户名
-    public String queryReport(@PathVariable int blackId) throws JsonProcessingException {
-        return objectMapper.writeValueAsString(blacklistService.queryReport(blackId));
+    public String queryReport(@PathVariable int blackId,
+                              @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws JsonProcessingException {
+        if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
+            return objectMapper.writeValueAsString(blacklistService.queryReport(blackId));
+        }
+        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
+            if (blacklistService.queryReport(blackId).getClaimer_id()!=details.getUserId()){
+                throw new ForbiddenException();
+            }
+            return objectMapper.writeValueAsString(blacklistService.queryReport(blackId));
+        }else {
+            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
+            throw new ServerException("认证时出错");
+        }
+
     }
     @DeleteMapping("/{blackId}")
     public String deleteReport(@PathVariable int blackId,
                                @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws JsonProcessingException {
+        if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
+            blacklistService.deleteReport(blackId);
+            return result.gainDeleteSuccess();
+        }
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             if (blacklistService.queryReport(blackId).getClaimer_id()!=details.getUserId()){
                 throw new ForbiddenException();
