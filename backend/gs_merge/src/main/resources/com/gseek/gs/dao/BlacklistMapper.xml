@@ -3,23 +3,23 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gseek.gs.dao.BlacklistMapper">
-    <insert id="addReport" parameterType="com.gseek.gs.pojo.data.Blacklist" >
+    <insert id="addReport" parameterType="com.gseek.gs.pojo.dto.BlacklistDTO" >
         insert into gseek.blacklist(claimer_id,respondent_id,appeal_reason,provePic)
         values (#{claimer_id},#{respondent_id},#{appeal_reason},#{provePic});
     </insert>
-    <select id="queryResult" resultType="boolean">
+    <select id="queryResult" resultType="com.gseek.gs.pojo.business.BlacklistResultBO">
         select appeal_result from gseek.blacklist where black_id=#{black_id};
     </select>
     <select id="queryChecked" resultType="boolean">
         select checked from gseek.blacklist where black_id=#{black_id};
     </select>
-    <select id="queryReport" resultType="com.gseek.gs.pojo.data.Blacklist">
+    <select id="queryReport" resultType="com.gseek.gs.pojo.business.BlacklistBO">
         select * from gseek.blacklist where black_id=#{black_id};
     </select>
     <delete id="deleteReport" parameterType="int">
         delete from gseek.blacklist where black_id=#{black_id} ;
     </delete>
-    <update id="updateReport" parameterType="com.gseek.gs.pojo.data.Blacklist" >
+    <update id="updateReport" parameterType="com.gseek.gs.pojo.data.BlacklistDO" >
         update gseek.blacklist
             <set>
                     <if test="appeal_reason != null">
@@ -31,10 +31,10 @@
             </set>
         where black_id=#{black_id};
     </update>
-    <select id="queryAllUnchecked" resultType="com.gseek.gs.pojo.data.Blacklist">
+    <select id="queryAllUnchecked" resultType="com.gseek.gs.pojo.data.BlacklistDO">
         select * from gseek.blacklist where checked=0;
     </select>
-    <update id="auditReport" parameterType="map" >
+    <update id="auditReport" parameterType="com.gseek.gs.pojo.dto.AdminBlacklistDTO" >
         update gseek.blacklist
         <set>
             <if test="admin_id != null">
@@ -53,7 +53,7 @@
     <update id="updateCheck" parameterType="int" >
         update gseek.blacklist set checked=1 where black_id=#{black_id};
     </update>
-<!--    <update id="updateAuditResult" parameterType="com.gseek.gs.pojo.data.Blacklist" >-->
-<!--        update gseek.blacklist set appeal_result=#{appeal_result} where black_id=#{black_id};-->
+<!--    <update id="updateAuditResult" parameterType="com.gseek.gs.pojo.data.BlacklistDODO" >-->
+<!--        update gseek.blacklistDO set appeal_result=#{appeal_result} where black_id=#{black_id};-->
 <!--    </update>-->
 </mapper>
