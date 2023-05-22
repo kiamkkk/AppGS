@@ -49,20 +49,18 @@ public class UserController {
     MinioUtil minioUtil;
 
     @PostMapping("/register")
-    public String register(RegisterDTO dto)
+    public String register(@RequestBody RegisterDTO dto)
             throws JsonProcessingException, ParameterWrongException, IllegalBlockSizeException, BadPaddingException {
+        log.info("开始注册");
         dto.perService();
         return userService.register(dto);
-
     }
 
     @GetMapping("/{username}")
     public String getUserInformation(@PathVariable("username") String userName,
                                      @CurrentSecurityContext(expression = "Authentication") Authentication authentication)
             throws ServerException, JsonProcessingException {
-        if (!Objects.equals(authentication.getName(), userName)){
-            throw new ForbiddenException();
-        }
+        log.info("开始获取用户信息");
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
             return userService.getUserInformation(details.getUserId());
@@ -76,8 +74,7 @@ public class UserController {
 
     @GetMapping("/{username}/real_name")
     public String getRealNameInformation(@PathVariable("username") String userName,
-                                         @CurrentSecurityContext(expression = "Authentication")
-                                         Authentication authentication)
+                                         @CurrentSecurityContext(expression = "Authentication") Authentication authentication)
             throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
         if (!Objects.equals(authentication.getName(), userName)){
             throw new ForbiddenException();
@@ -97,7 +94,7 @@ public class UserController {
     @PatchMapping("/{username}")
     public String patchUserInformation(@PathVariable("username") String userName,
                                        @CurrentSecurityContext(expression = "Authentication") Authentication authentication,
-                                       PatchUserInformationDTO dto)
+                                       @RequestBody PatchUserInformationDTO dto)
             throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
 
         dto.perService();
@@ -120,7 +117,7 @@ public class UserController {
     @PostMapping("/{username}/real_name")
     public String postRealNameInformation(@PathVariable("username") String userName,
                                           @CurrentSecurityContext(expression = "Authentication") Authentication authentication,
-                                          PostRealNameInformationDTO dto)
+                                          @RequestBody PostRealNameInformationDTO dto)
             throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
         dto.perService();
         if (!Objects.equals(authentication.getName(), userName)){

@@ -39,7 +39,7 @@ public class BuyerController {
 
     @PostMapping("/offer_price")
     public String postOfferPrice(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
-                                 PostOfferPriceDTO dto)
+                                 @RequestBody PostOfferPriceDTO dto)
             throws JsonProcessingException, ForbiddenException, IllegalBlockSizeException, BadPaddingException {
         dto.perService();
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){

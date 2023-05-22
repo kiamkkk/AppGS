@@ -1,5 +1,7 @@
 server:
   port: 8080
+  servlet:
+    context-path: /
 
 spring:
   profiles:
@@ -9,7 +11,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/gseek?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
     username: gseek
-    password: gseek
+    password: Gseek_123
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   data:
@@ -35,7 +37,7 @@ spring:
 
 logging:
   level:
-    root: warn
+    root: info
 
 minio:
   endpoint: http://127.0.0.1:9000
@@ -53,4 +55,6 @@ custom:
   encryptKey: "test1encrypt2key"
   # 平台抽成后卖家获得多少钱
   agreementFee: 0.7
+  # 主机名
+  localhost: 118.178.243.30
 

@@ -1,6 +1,7 @@
 package com.gseek.gs.util;
 
 import com.gseek.gs.config.MinioConfig;
+import com.gseek.gs.config.SecurityConfig;
 import com.gseek.gs.pojo.bean.GoodPhotoFileBean;
 import com.gseek.gs.pojo.bean.GoodPhotoPathBean;
 import io.minio.*;
@@ -53,6 +54,8 @@ public class MinioUtil {
 
     @Autowired
     private MinioConfig prop;
+    @Autowired
+    SecurityConfig securityConfig;
 
     @Autowired
     private MinioClient minioClient;
@@ -176,7 +179,6 @@ public class MinioUtil {
         pathAndFileName[1]=fromUserId+"_"+time+SUFFIX_JPG;
         return pathAndFileName;
     }
-
     /**
      * 储存单个文件
      *
@@ -198,7 +200,6 @@ public class MinioUtil {
             throw new RuntimeException(e);
         }
     }
-
     /**
      * 储存多个文件.
      *
@@ -233,7 +234,6 @@ public class MinioUtil {
             throw new RuntimeException(e);
         }
     }
-
     /**
      * 删除单个文件
      *
@@ -251,7 +251,6 @@ public class MinioUtil {
             throw new RuntimeException(e);
         }
     }
-
     /**
      * 删除多个文件
      *
@@ -280,7 +279,6 @@ public class MinioUtil {
             }
         }
     }
-
     /**
      * 获取单个文件
      *

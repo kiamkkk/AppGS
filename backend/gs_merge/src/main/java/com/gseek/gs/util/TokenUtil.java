@@ -44,8 +44,8 @@ public class TokenUtil {
     /**
      * 获取token
      * */
-    public static String gainToken(String userId){
-        return createToken(userId);
+    public static String gainToken(String username){
+        return createToken(username);
     }
 
     /**
@@ -57,9 +57,9 @@ public class TokenUtil {
     private static String createToken(String userName){
         //签发时间
         long issuedAt =System.currentTimeMillis();
-        return TOKEN_PREFIX+ Jwts.builder().
-                setSubject(userName).
-                setExpiration(new Date(issuedAt+EFFECTIVE_TIME)).
+        return TOKEN_PREFIX+ Jwts.builder()
+                .setSubject(userName)
+                .setExpiration(new Date(issuedAt+EFFECTIVE_TIME)).
                 signWith(getSignInKey()).compact();
     }
 
@@ -93,10 +93,10 @@ public class TokenUtil {
      * @param userId 用户id
      * @return newToken 新token
      * */
-    public String reissueToken(String oldToken, String userId){
-        redisService.deleteKey(oldToken);
-        String newToken= gainToken(userId);
-        redisService.saveToken(newToken, userId);
+    public String reissueToken(String oldToken, String userName){
+        redisService.deleteKey(userName);
+        String newToken= gainToken(userName);
+        redisService.saveToken(newToken, userName);
         return newToken;
     }
 

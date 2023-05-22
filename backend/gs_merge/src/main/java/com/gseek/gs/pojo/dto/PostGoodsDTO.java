@@ -41,28 +41,28 @@ public class PostGoodsDTO implements DTOPerService{
     public void validateParameters() throws ParameterWrongException, JsonProcessingException {
         ParameterWrongBean bean =new ParameterWrongBean();
 
-        if (goodName.isBlank()){
+        if (goodName == null ||goodName.isBlank()){
             bean.addParameters("goodName",goodName);
         }
-        if (account.isBlank()){
+        if (account == null ||account.isBlank()){
             bean.addParameters("account", account);
         }
-        if (accountPassword.isBlank()){
+        if (accountPassword == null ||accountPassword.isBlank()){
             bean.addParameters("accountPassword", accountPassword);
         }
         if (price==null || price.compareTo(BigDecimal.valueOf(0.00)) <=0){
             bean.addParameters("price", price+"");
         }
-        if (ownUserName.isBlank()){
+        if (ownUserName == null ||ownUserName.isBlank()){
             bean.addParameters("ownUserName",ownUserName);
         }
-        if (type.isBlank()){
+        if (type == null ||type.isBlank()){
             bean.addParameters("type", type);
         }
         if (time == null || time <= 0){
             bean.addParameters("time", time+"");
         }
-        if (goodText.isBlank()){
+        if (goodText == null ||goodText.isBlank()){
             bean.addParameters("goodText", goodText);
         }
 

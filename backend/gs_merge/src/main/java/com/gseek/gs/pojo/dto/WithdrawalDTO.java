@@ -38,7 +38,7 @@ public class WithdrawalDTO implements DTOPerService{
             bean.addParameters("time",time.toString());
         }
 
-        if (alipayAccount==null ||alipayAccount.isEmpty()){
+        if (alipayAccount==null ||alipayAccount.isBlank()){
             bean.addParameters("alipayAccount",alipayAccount);
         }
 

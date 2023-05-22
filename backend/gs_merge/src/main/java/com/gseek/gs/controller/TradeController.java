@@ -40,7 +40,7 @@ public class TradeController {
 
     @PostMapping("/bills")
     public String postBill(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
-                            PostBillsDTO dto)
+                           @RequestBody PostBillsDTO dto)
             throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
 
         dto.perService();
@@ -60,7 +60,7 @@ public class TradeController {
 
     @PutMapping("/bills")
     public String putPayBill(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
-                             PayBillDTO dto)
+                             @RequestBody PayBillDTO dto)
             throws JsonProcessingException, ForbiddenException, IllegalBlockSizeException, BadPaddingException {
 
         dto.perService();
@@ -77,7 +77,7 @@ public class TradeController {
 
     @PatchMapping("/bills")
     public String patchDeliveryBill(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
-                                    PatchDeliveryBillDTO dto)
+                                    @RequestBody PatchDeliveryBillDTO dto)
             throws IllegalBlockSizeException, BadPaddingException, JsonProcessingException {
         dto.perService();
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
@@ -105,7 +105,7 @@ public class TradeController {
 
     @PatchMapping("/bills/cancel")
     public String patchBillCancel(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
-                                  PatchBillCancelDTO dto)
+                                  @RequestBody PatchBillCancelDTO dto)
             throws IllegalBlockSizeException, BadPaddingException, JsonProcessingException {
         dto.perService();
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){

@@ -2,6 +2,8 @@ package com.gseek.gs.config.login.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.gseek.gs.exce.business.login.RepeatLoginException;
+import com.gseek.gs.exce.business.login.TokenInvalidException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,16 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
             response.setStatus(400);
             objectNode.put("code", 400);
             objectNode.put("message", "PasswordWrong");
+        }
+        if (exception instanceof TokenInvalidException tokenInvalidException){
+            response.setStatus(403);
+            objectNode.put("code", 403);
+            objectNode.put("msg", tokenInvalidException.getMessage());
+        }
+        if (exception instanceof RepeatLoginException repeatLoginException){
+            response.setStatus(403);
+            objectNode.put("code", 403);
+            objectNode.put("msg", repeatLoginException.getMessage());
         }
 
         try (PrintWriter printWriter = response.getWriter()){
