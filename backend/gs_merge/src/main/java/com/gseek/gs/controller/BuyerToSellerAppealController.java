@@ -10,11 +10,6 @@ import com.gseek.gs.dao.GoodMapper;
 import com.gseek.gs.dao.MoneyMapper;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.business.ForbiddenException;
-import com.gseek.gs.pojo.business.BuyerToSellerAppealBO;
-import com.gseek.gs.pojo.business.BuyerToSellerAppealResultBO;
-import com.gseek.gs.pojo.business.GoodBO;
-import com.gseek.gs.pojo.data.BillDO;
-import com.gseek.gs.pojo.dto.BlacklistDTO;
 import com.gseek.gs.pojo.dto.BuyerToSellerAppealDTO;
 import com.gseek.gs.service.inter.*;
 import com.gseek.gs.util.FileUtils;
@@ -25,12 +20,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
-
 
 
 /**
@@ -83,7 +72,7 @@ public class BuyerToSellerAppealController {
 
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             int billId=buyerToSellerAppealService.queryAppeal(appealId).getBill_id();
-            int respondentId=billService.selectBillByBillId(billId).getSellerId();
+            int respondentId=billService.selectBill(billId).getSellerId();
             if (buyerToSellerAppealService.queryMyId(appealId)!=details.getUserId()
             || respondentId!=details.getUserId()){
                 throw new ForbiddenException();
@@ -105,9 +94,9 @@ public class BuyerToSellerAppealController {
                 //TODO 余额返还
 
                 int billId=buyerToSellerAppealService.queryAppeal(appealId).getBill_id();
-                moneyMapper.unfrozenUser(billMapper.selectBill(billId).getSellerId());
+                moneyMapper.unfrozenUser(billService.selectBill(billId).getSellerId());
                 //从黑名单内删除
-                blacklistService.deleteReport(blacklistService.queryBlackId(billMapper.selectBill(billId).getBuyerId(),billMapper.selectBill(billId).getSellerId()));
+                blacklistService.deleteReport(blacklistService.queryBlackId(billService.selectBill(billId).getBuyerId(),billService.selectBill(billId).getSellerId()));
             }
             return result.gainDeleteSuccess();
         }
@@ -122,9 +111,9 @@ public class BuyerToSellerAppealController {
                 //TODO 余额返还
 
                 int billId=buyerToSellerAppealService.queryAppeal(appealId).getBill_id();
-                moneyMapper.unfrozenUser(billMapper.selectBill(billId).getSellerId());
+                moneyMapper.unfrozenUser(billService.selectBill(billId).getSellerId());
                 //从黑名单内删除
-                blacklistService.deleteReport(blacklistService.queryBlackId(details.getUserId(),billMapper.selectBill(billId).getSellerId()));
+                blacklistService.deleteReport(blacklistService.queryBlackId(details.getUserId(),billService.selectBill(billId).getSellerId()));
             }
             return result.gainDeleteSuccess();
         }else {
@@ -144,7 +133,7 @@ public class BuyerToSellerAppealController {
         }
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             int billId=buyerToSellerAppealService.queryAppeal(appealId).getBill_id();
-            int respondentId=billService.selectBillByBillId(billId).getSellerId();
+            int respondentId=billService.selectBill(billId).getSellerId();
             if (buyerToSellerAppealService.queryMyId(appealId)!=details.getUserId()
                     || respondentId!=details.getUserId()){
                 throw new ForbiddenException();

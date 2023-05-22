@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gseek.gs.dao.OfferPriceMapper">
+
+    <resultMap id="BaseResultMap" type="com.gseek.gs.pojo.data.OfferPriceDO">
+        <result column="bidder_id" jdbcType="INTEGER" property="bidderId" />
+        <result column="seller_id" jdbcType="INTEGER" property="sellerId" />
+        <result column="offer_price" jdbcType="DECIMAL" property="offerPrice" />
+        <result column="good_id" jdbcType="INTEGER" property="goodId" />
+        <result column="offer_time" jdbcType="BIGINT" property="offerTime" />
+    </resultMap>
+
+    <resultMap id="OfferPriceBO" type="com.gseek.gs.pojo.business.OfferPriceBO">
+        <result column="offer_price" jdbcType="DECIMAL" property="price" />
+        <result column="offer_time" jdbcType="BIGINT" property="time" />
+        <result column="offer_user_name" jdbcType="VARCHAR" property="offerUserName"/>
+    </resultMap>
+
+    <resultMap id="GoodAndOfferPriceBO" type="com.gseek.gs.pojo.business.GoodOfferPriceBO">
+        <id column="good_id" jdbcType="INTEGER" property="goodId" />
+        <result column="good_name" jdbcType="VARCHAR" property="goodName" />
+        <result column="good_text" jdbcType="VARCHAR" property="goodText" />
+        <result column="own_user_name" jdbcType="VARCHAR" property="ownUserName"/>
+        <result column="good_price" jdbcType="DECIMAL" property="goodPrice" />
+        <result column="type_tag_name" jdbcType="VARCHAR" property="type" />
+        <result column="offer_price" jdbcType="DECIMAL" property="offerPrice" />
+        <collection property="tag" ofType="String"
+                    select="com.gseek.gs.dao.GoodDetailPicMapper.selectDetailsByGoodId"
+                    column="{goodId=good_id}"/>
+        <collection property="coverPictures" ofType="String"
+                    select="com.gseek.gs.dao.GoodCoverPicMapper.selectCoversByGoodId"
+                    column="{goodId=good_id}"/>
+        <collection property="detailPictures" ofType="String"
+                    select="com.gseek.gs.dao.GoodDetailPicMapper.selectDetailsByGoodId"
+                    column="{goodId=good_id}"/>
+    </resultMap>
+
+    <select id="selectOfferPriceByGoodId" parameterType="int" resultMap="OfferPriceBO">
+        select op.offer_price, op.offer_time, up.user_name as offer_user_name
+        from offer_price as op
+        inner join user_password as up
+        on op.bidder_id=up.user_id
+        where op.good_id=#{goodId};
+    </select>
+
+    <insert id="insertOfferPrice">
+        insert into offer_price(bidder_id, seller_id, offer_price, good_id, offer_time)
+        VALUES (#{dto.offerUserId},  ( select own_user_id  from good where good_id=#{dto.goodId} ),
+                #{dto.offerPrice} ,#{dto.goodId} , #{dto.time} );
+    </insert>
+
+    <select id="getAllOfferPrice" parameterType="int" resultMap="GoodAndOfferPriceBO">
+        select g.good_id, g.good_name, g.good_text, g.own_user_name, g.good_price, g.type_tag_name, op.offer_price
+        from offer_price op
+             left join good as g
+                 on g.good_id = op.good_id
+        where op.bidder_id=#{userId};
+    </select>
+
+
+</mapper>

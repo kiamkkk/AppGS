@@ -28,7 +28,7 @@ public interface MoneyService {
      *  根据订单对应的商品价格还给买家钱
      *
      */
-    BigDecimal returnMoney(int billId, int sellerId) throws RemainNotEnoughException;
+    void returnMoney(int billId, int sellerId) throws RemainNotEnoughException;
     /**
      *
      * */

@@ -7,6 +7,7 @@ import com.gseek.gs.pojo.bean.OrdinaryAdmin;
 import com.gseek.gs.pojo.bean.OrdinaryUser;
 import com.gseek.gs.pojo.business.*;
 import com.gseek.gs.pojo.data.AdminDO;
+
 import com.gseek.gs.pojo.data.GoodCheckedDO;
 import com.gseek.gs.pojo.data.UserPasswordDO;
 import com.gseek.gs.service.inter.AdminService;
@@ -71,7 +72,7 @@ public class AdminServiceImpl implements AdminService {
         return adminMapper.auditGood(goodChecked);
     }
     public int auditSellerAppeal(SellerToBuyerAppealResultBO sellerToBuyerAppealResultBO){
-        adminMapper.setSellerCheck(sellerToBuyerAppealResultBO.getAppeal_id());
+        adminMapper.setSellerCheck(sellerToBuyerAppealResultBO.getAppealId());
         return adminMapper.auditSellerAppeal(sellerToBuyerAppealResultBO);
     }
     public int auditBuyerAppeal(BuyerToSellerAppealResultBO buyerToSellerAppealResultBO){

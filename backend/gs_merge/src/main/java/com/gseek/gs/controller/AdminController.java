@@ -100,9 +100,9 @@ public class AdminController {
             buyerToSellerAppealResultBO.setAppeal_id(appealId);
             int billId=buyerToSellerAppealService.queryAppeal(appealId).getBill_id();
             if (buyerToSellerAppealResultBO.isAppeal_result()){
-//            成功扣钱
-                moneyService.returnMoney(billId);
+//                成功扣钱
                 int respondentId=billService.selectBill(billId).getSellerId();
+                moneyService.returnMoney(billId,respondentId);
                 int goodId=billService.selectBill(billId).getGoodId();
                 BigDecimal price=goodMapper.selectPriceByBillId(billId);
                 if(moneyMapper.selectMoneyBOByUserId(respondentId).getRemain().compareTo(price)>0){
@@ -144,12 +144,13 @@ public class AdminController {
                 }
                 if(sellerToBuyerAppealResultBO.getDamage_degree()==3){
                     //TODO 通知买家
-//                返回钱
-                    moneyService.returnMoney(billId);
+//
                     //加入黑名单
                     SellerToBuyerAppealBO b=sellerToBuyerAppealService.queryAppeal(appealId);
                     int claimerId =b.getMyId();
                     int respondentId=billService.selectBill(billId).getBuyerId();
+//                    返回钱
+                    moneyService.returnMoney(billId,respondentId);
                     String appealReason=sellerToBuyerAppealService.queryAppeal(appealId).getAppeal_reason();
                     String provePic=sellerToBuyerAppealService.queryAppeal(appealId).getPic_after();
                     BlacklistDTO blacklistDTO=new BlacklistDTO(claimerId,respondentId,appealReason,provePic);

@@ -8,6 +8,7 @@ import com.gseek.gs.dao.*;
 import com.gseek.gs.exce.business.money.RemainNotEnoughException;
 import com.gseek.gs.exce.business.money.WalletFrozenException;
 import com.gseek.gs.pojo.business.MoneyBO;
+import com.gseek.gs.pojo.data.DebtDO;
 import com.gseek.gs.pojo.data.RechargeWithdrawDO;
 import com.gseek.gs.pojo.dto.RechargeDTO;
 import com.gseek.gs.pojo.dto.WithdrawalDTO;
@@ -77,7 +78,7 @@ public class MoneyServiceImpl implements MoneyService {
         } else {
             // 卖家钱包剩余不足够，将卖家的钱全转到买家，将卖家加入Debt表里。
             moneyMapper.updateAllRemainToBuyer(billId);
-            debtMapper.addDebt(new DebtDO(sellerId,goodPrice.subtract(sellerIdRemain)));
+            debtMapper.addDebt(new DebtDO(goodPrice.subtract(sellerIdRemain),sellerId));
         }
     }
 
