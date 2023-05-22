@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gseek.gs.dao.UserIdentificationMapper">
+
+    <resultMap id="BaseResultMap" type="com.gseek.gs.pojo.data.UserIdentificationDO">
+        <id column="user_id" jdbcType="INTEGER" property="userId" />
+        <result column="id_number" jdbcType="VARCHAR" property="idNumber" />
+        <result column="certified" jdbcType="BIT" property="certified" />
+        <result column="modified_time" jdbcType="BIGINT" property="modifiedTime" />
+    </resultMap>
+
+    <resultMap id="UserIdentificationBO" type="com.gseek.gs.pojo.business.UserIdentificationBO">
+        <id column="user_id" jdbcType="INTEGER" property="userId" />
+        <result column="id_number" jdbcType="VARCHAR" property="idNumber" />
+    </resultMap>
+
+    <insert id="insertUserIdentification" parameterType="com.gseek.gs.pojo.data.UserIdentificationDO">
+        insert into user_identification (user_id, modified_time)
+            values (#{userIdentificationDO.userId},#{userIdentificationDO.modifiedTime});
+    </insert>
+
+    <select id="selectUserIdentificationByUserId" parameterType="int" resultMap="UserIdentificationBO">
+        select user_id,id_number
+        from user_identification
+        where user_id=#{userId};
+    </select>
+
+    <update id="updateUserIdentification" >
+        update user_identification
+        <set>
+            <if test="idNumber != null">
+                id_number  = #{idNumber},
+            </if>
+            <if test="modifiedTime !=null">
+                modified_time = #{modifiedTime},
+            </if>
+            certified =true
+        </set>
+        where user_id=#{userId};
+    </update>
+
+</mapper>

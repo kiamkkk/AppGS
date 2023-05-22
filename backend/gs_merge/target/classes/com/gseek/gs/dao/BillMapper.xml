@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gseek.gs.dao.BillMapper">
+
+    <resultMap id="BaseResultMap" type="com.gseek.gs.pojo.data.BillDO">
+        <id column="bill_id" jdbcType="INTEGER" property="billId" />
+        <result column="good_id" jdbcType="INTEGER" property="goodId" />
+        <result column="create_time" jdbcType="BIGINT" property="createTime" />
+        <result column="seller_id" jdbcType="INTEGER" property="sellerId" />
+        <result column="buyer_id" jdbcType="INTEGER" property="buyerId" />
+        <result column="state" jdbcType="VARCHAR" property="state" />
+        <result column="state_modified_time" jdbcType="BIGINT" property="stateModifiedTime" />
+    </resultMap>
+
+    <resultMap id="BillStateBO" type="com.gseek.gs.pojo.business.BillStateBO">
+        <id column="bill_id" jdbcType="INTEGER" property="billId" />
+        <result column="good_id" jdbcType="INTEGER" property="goodId" />
+        <result column="create_time" jdbcType="BIGINT" property="createTime" />
+        <result column="seller_name" jdbcType="INTEGER" property="sellerName" />
+        <result column="buyer_name" jdbcType="INTEGER" property="buyerName" />
+        <result column="price" jdbcType="INTEGER" property="price" />
+        <result column="state" jdbcType="VARCHAR" property="state" />
+        <result column="state_modified_time" jdbcType="BIGINT" property="stateModifiedTime" />
+    </resultMap>
+
+    <insert id="insertBill" parameterType="com.gseek.gs.pojo.data.BillDO"
+            useGeneratedKeys="true" keyColumn="bill_id" keyProperty="billId">
+        insert into bill ( good_id, create_time, seller_id, buyer_id)
+            VALUES ( #{billDO.goodId}, #{billDO.createTime}, #{billDO.sellerId}, #{billDO.buyerId} ) ;
+    </insert>
+
+    <update id="updateBillState">
+        update bill
+            set
+                state=#{billDO.state} ,
+                state_modified_time=#{billDO.stateModifiedTime}
+        where bill_id=#{billDO.billId} ;
+
+/*       ;*/
+    </update>
+
+    <select id="selectBillStateBOByBillId" resultMap="BillStateBO">
+        select b.bill_id, b.good_id, b.create_time,
+               g.own_user_name as seller_name, up.user_name as buyer_name,
+               g.good_price, b.state, b.state_modified_time
+        from bill as b
+            left join good as g
+                on b.good_id = g.good_id
+            left join user_password as up
+                on up.user_id=b.buyer_id
+        where bill_id=#{billId};
+    </select>
+
+    <select id="selectGoodIdByBillId" resultType="integer">
+        select good_id from bill where bill_id=#{billId};
+    </select>
+
+    <select id="selectBillByBillId" resultMap="BaseResultMap">
+        select * from bill where bill_id=#{billId};
+    </select>
+    <select id="selectBill" resultType="com.gseek.gs.pojo.data.BillDO">
+        select * from bill where bill_id=#{billId};
+    </select>
+
+</mapper>

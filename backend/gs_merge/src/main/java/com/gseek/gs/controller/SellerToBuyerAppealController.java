@@ -88,7 +88,7 @@ public class SellerToBuyerAppealController {
             if(sellerToBuyerAppealService.queryResult(appealId).isAppeal_result()){
                 //TODO 余额返还
                 int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBill_id();
-                moneyMapper.unfrozenUser(billMapper.selectBill(billId).getSellerId());
+                moneyMapper.unfrozenUser(billService.selectBill(billId).getSellerId());
 
                 //从黑名单内删除
                 //todo 这里可能要查询一下在黑名单的id
@@ -105,7 +105,7 @@ public class SellerToBuyerAppealController {
             if(sellerToBuyerAppealService.queryResult(appealId).isAppeal_result()){
                 //TODO 余额返还
                 int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBill_id();
-                moneyMapper.unfrozenUser(billMapper.selectBill(billId).getSellerId());
+                moneyMapper.unfrozenUser(billService.selectBill(billId).getSellerId());
 
                 //从黑名单内删除
                 //todo 这里可能要查询一下在黑名单的id
@@ -126,7 +126,7 @@ public class SellerToBuyerAppealController {
         }
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBill_id();
-            int respondentId=sellerToBuyerAppealService.selectBillByBillId(billId).getBuyerId();
+            int respondentId=billService.selectBill(billId).getBuyerId();
             if (sellerToBuyerAppealService.queryMyId(appealId)!=details.getUserId()
                     || respondentId!=details.getUserId()){
                 throw new ForbiddenException();

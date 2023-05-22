@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gseek.gs.dao.RechargeWithdrawMapper">
+
+    <resultMap id="BaseResultMap" type="com.gseek.gs.pojo.data.RechargeWithdrawDO">
+        <id column="rw_id" jdbcType="VARCHAR" property="rwId" />
+        <result column="user_id" jdbcType="INTEGER" property="userId" />
+        <result column="amount" jdbcType="BIGINT" property="amount" />
+        <result column="type" jdbcType="BIGINT" property="type" />
+        <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    </resultMap>
+
+    <insert id="insertRecode" parameterType="com.gseek.gs.pojo.data.RechargeWithdrawDO">
+        insert into recharge_withdraw (rw_id, user_id, create_time, amount, type)
+        VALUES (#{rw_do.rwId}, #{rw_do.userId}, #{rw_do.createTime}, #{rw_do.amount}, #{rw_do.type});
+    </insert>
+
+</mapper>

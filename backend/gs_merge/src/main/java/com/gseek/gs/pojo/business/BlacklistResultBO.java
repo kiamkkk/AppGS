@@ -16,4 +16,5 @@ public class BlacklistResultBO {
     private boolean checked;
     private int admin_id;
     private int black_id;
+    private String disapprove_reason;
 }

@@ -303,6 +303,6 @@ public class BillServiceImpl implements BillService {
     }
     @Override
     public BillDO selectBill(int billId){
-        return billMapper.selectBill(billId);
+        return billMapper.selectBillByBillId(billId);
     }
 }

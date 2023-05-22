@@ -41,7 +41,7 @@ public interface BlacklistMapper {
 //    int adminId,boolean appealResult,int blackId,String disapproveReason
 //    审核举报
 
-    int auditReport(AdminBlacklistDTO adminBlacklistDTO);
+    int auditReport(BlacklistResultBO blacklistResultBO);
     //改为已查看
     int updateCheck(int blackId);
 //    int adminId,boolean appealResult,int blackId
@@ -49,5 +49,6 @@ public interface BlacklistMapper {
     int updateAuditResult(BlacklistDO blacklistDO);
 //    查询在不在黑名单内
     boolean queryByRespondentId(int respondentId);
-
+    //todo 有没有更好的查法
+    int queryBlackId(int claimerId,int respondentId);
 }
