@@ -44,7 +44,7 @@ public interface RedisService {
 
     boolean isRepeatLogin(String token, String userName);
 
-    boolean isUserHasToken(String token);
+    boolean isUserHasToken(String userName);
 
     /**
      * 储存String.

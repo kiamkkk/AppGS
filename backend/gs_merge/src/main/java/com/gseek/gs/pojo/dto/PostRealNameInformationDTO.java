@@ -32,10 +32,10 @@ public class PostRealNameInformationDTO implements DTOPerService{
     public void validateParameters() throws ParameterWrongException, JsonProcessingException {
         ParameterWrongBean bean =new ParameterWrongBean();
 
-        if (userName.isBlank()){
+        if (userName == null ||userName.isBlank()){
             bean.addParameters("userName",userName);
         }
-        if (idNumber.isBlank()){
+        if (idNumber == null ||idNumber.isBlank()){
             bean.addParameters("idNumber", idNumber);
         }
         if (time == null || time <= 0){

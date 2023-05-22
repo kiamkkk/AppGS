@@ -1,16 +1,16 @@
 package com.gseek.gs.exce.business.login;
 
-import com.gseek.gs.exce.business.BusinessException;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Phak
  * @since 2023/5/4-23:50
  */
-public class TokenInvalidException extends BusinessException {
+@Slf4j
+public class TokenInvalidException extends CustomAuthenticationException {
 
-    public TokenInvalidException(String... info) {
-        super();
-        code=403;
-        msg="TokenInvalid";
+    public TokenInvalidException(String message) {
+        super(message);
+        log.error("TokenInvalidException");
     }
 }

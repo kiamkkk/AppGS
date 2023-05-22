@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
         userInformationMapper.insertUserInformation(new UserInformationDO(dto,userId));
         userIdentificationMapper.insertUserIdentification(new UserIdentificationDO(dto,userId));
         moneyMapper.insertMoney(new MoneyDO(userId));
-
+        log.info("结束注册");
         return result.gainPostSuccess();
     }
 
@@ -90,6 +90,7 @@ public class UserServiceImpl implements UserService {
     public String getUserInformation(int userId) throws JsonProcessingException {
 
         UserInformationBO bo =userInformationMapper.selectUserInformationByUserId(userId);
+        log.info("结束获取用户信息");
         return objectMapper.writeValueAsString(bo);
 
     }

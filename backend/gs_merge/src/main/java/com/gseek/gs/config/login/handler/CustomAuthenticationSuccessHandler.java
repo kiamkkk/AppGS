@@ -43,10 +43,12 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         log.debug("onAuthenticationSuccess开始");
         if (authentication instanceof UsernamePasswordAuthenticationToken authenticationToken){
             if (authenticationToken.getDetails() instanceof CustomWebAuthenticationDetails details){
+                // 根据username来构建token
+                // 不根据userId来构建token,因为JwtAuthenticationTokenFilter要根据username获取用户登录信息
+                String username =authentication.getName();
                 String userId =details.getUserId()+"";
-                //根据userId来构建token
-                String token=TokenUtil.gainToken(userId);
-                redisService.saveToken(token, userId);
+                String token=TokenUtil.gainToken(username);
+                redisService.saveToken(token, username);
 
                 ObjectNode objectNode=objectMapper.createObjectNode();
                 objectNode.put("token", token);

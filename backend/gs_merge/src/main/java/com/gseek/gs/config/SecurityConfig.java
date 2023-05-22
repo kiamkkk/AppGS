@@ -8,6 +8,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -29,6 +30,15 @@ import org.springframework.security.web.session.ForceEagerSessionCreationFilter;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    @Value("${custom.localhost}")
+    public String localhost;
+    @Value("${server.port}")
+    public String port;
+    @Value("${server.servlet.context-path}")
+    public String contextPath;
+    public String baseUrl="http://"+localhost+port+contextPath;
+    public String loginFormUrl=baseUrl+"/users";
+
     @Autowired
     @Qualifier("userServiceImpl")
     UserService userService;
@@ -37,6 +47,7 @@ public class SecurityConfig {
     AdminService adminService;
     @Autowired
     JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
+
     /** update by Isabella at 2023/5/17-21:20 **/
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
@@ -48,7 +59,7 @@ public class SecurityConfig {
         httpSecurity.csrf().disable();
 
         httpSecurity.authorizeHttpRequests()
-//                .anyRequest().permitAll()
+
                 .requestMatchers(HttpMethod.OPTIONS).permitAll()
                 .requestMatchers("/alipay/**","/imgs/**","/users/register","/users").permitAll()
                 .requestMatchers("/report/**","/report").permitAll()
@@ -56,8 +67,6 @@ public class SecurityConfig {
                 .requestMatchers("/users/**","/buyer/**","/buyer/**","/goods/**","/seller/**","/trade/**").hasAnyAuthority("USER","ADMIN")
                 .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
                 .anyRequest().authenticated()
-               /* .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)*/
         ;
 
 
@@ -127,5 +136,4 @@ public class SecurityConfig {
         provider.setUserDetailsService(adminService);
         return provider;
     }
-
 }

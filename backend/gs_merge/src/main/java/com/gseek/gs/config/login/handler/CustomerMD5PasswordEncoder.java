@@ -4,6 +4,7 @@ import com.gseek.gs.service.inter.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.security.MessageDigest;
+import java.util.Objects;
 
 /**
  * 采用MD5进行加密，且在比较密码的时候向待验密码加入自己生成的盐.
@@ -15,16 +16,12 @@ public class CustomerMD5PasswordEncoder implements PasswordEncoder {
 
     @Override
     public String encode(CharSequence rawPassword) {
-        return encode((String) rawPassword);
+        return digest((String) rawPassword);
     }
 
     @Override
     public boolean matches(CharSequence rawPassword, String encodedPassword) {
-        return encodedPassword.equals(
-                    encode(
-                            addSalt(rawPassword,encodedPassword)
-                    )
-        );
+        return Objects.equals(digest(encodedPassword),digest(addSalt(rawPassword,encodedPassword)) );
     }
 
     private String addSalt(CharSequence rawPassword, String encodedPassword){
@@ -36,7 +33,7 @@ public class CustomerMD5PasswordEncoder implements PasswordEncoder {
     /**
      * 使用MD5对原文进行加密
      * */
-    private String encode(String rawPassword) {
+    private String digest(String rawPassword) {
         MessageDigest md5 = null;
         try {
             md5 = MessageDigest.getInstance("MD5");

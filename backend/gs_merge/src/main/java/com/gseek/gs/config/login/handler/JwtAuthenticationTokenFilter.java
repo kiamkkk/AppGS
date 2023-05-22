@@ -66,10 +66,10 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
         if (StrUtil.checkToken(rawToken)) {
             final String token = rawToken.substring(TokenUtil.TOKEN_PREFIX.length());
             log.info("token格式正确|"+token);
-            String username = TokenUtil.extractClaim(token, Claims::getSubject);
-            log.info("用户名|"+username);
-            if (! token.isBlank() && redisService.isUserHasToken(username)) {
-                if (! username.isBlank() ) {
+            String userName = TokenUtil.extractClaim(token, Claims::getSubject);
+            log.info("用户名|"+userName);
+            if (! token.isBlank() && redisService.isUserHasToken(userName)) {
+                if (! userName.isBlank() ) {
                     //验证token是否过期
                     int code=redisService.inspectToken(token);
                     switch (code) {
@@ -77,7 +77,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
                             log.info("token可用|"+token);
                         }
                         case TOKEN_REISSUE -> {
-                            String newToken = tokenUtil.reissueToken(token, username);
+                            String newToken = tokenUtil.reissueToken(token, userName);
                             //todo 放响应头里感觉不太好，我是这样想：
                             // 1、要么直接在这放进响应体里，controller里再读一遍响应体来改；
                             // 2、要么想想办法把新token传到controller里，统一写入响应体。
@@ -86,7 +86,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
                         }
                         case TOKEN_INVALID -> {
                             log.warn("token不可用|"+token);
-                            throw new TokenInvalidException();
+                            throw new TokenInvalidException("TokenInvalid");
                         }
                         default -> {
                             log.error("检查token是否过期时出错：出现异常状态码|" + code);
@@ -94,32 +94,31 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
                     }
                     log.info("状态码{}",code);
 
-                    OrdinaryUser user =(OrdinaryUser) this.userService.loadUserByUsername(username);
+                    OrdinaryUser user =(OrdinaryUser) this.userService.loadUserByUsername(userName);
 
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             user, user.getPassword(), user.getAuthorities());
                     authentication.setDetails(new CustomWebAuthenticationDetailsSource().buildDetails(
                             request).setUserId(user.getUserId()));
 
-                    log.info("认证用户" + username + ",设置security context");
+                    log.info("认证用户" + userName + ",设置security context");
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                     /** update by Isabella**/
-                    OrdinaryAdmin admin=(OrdinaryAdmin) this.adminService.loadUserByUsername(username);
+                    OrdinaryAdmin admin=(OrdinaryAdmin) this.adminService.loadUserByUsername(userName);
                     log.info(admin.toString());
                     UsernamePasswordAuthenticationToken adminAuthentication = new UsernamePasswordAuthenticationToken(
                             admin, admin.getPassword(), user.getAuthorities());
                     adminAuthentication.setDetails(new AdminWebAuthenticationDetailsSource().buildDetails(
                             request).setAdminId(admin.getAdminId()));
 
-                    log.info("认证管理员" + username + ",设置security context");
+                    log.info("认证管理员" + userName + ",设置security context");
 
                     SecurityContextHolder.getContext().setAuthentication(adminAuthentication);
                     /** update by Isabella end **/
 
 
                 }
-
 
             }
         }else {

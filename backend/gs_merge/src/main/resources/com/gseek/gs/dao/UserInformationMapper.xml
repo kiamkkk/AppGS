@@ -18,9 +18,9 @@
     </resultMap>
 
     <insert id="insertUserInformation" parameterType="com.gseek.gs.pojo.data.UserInformationDO">
-        insert into user_information (user_id, email, profile_photo)
+        insert into user_information (user_id, email)
             values (#{userInformationDO.userId},
-                    #{userInformationDO.email},#{userInformationDO.profilePhoto});
+                    #{userInformationDO.email});
     </insert>
 
     <select id="selectUserInformationByUserId" parameterType="int" resultMap="UserInformationBO">

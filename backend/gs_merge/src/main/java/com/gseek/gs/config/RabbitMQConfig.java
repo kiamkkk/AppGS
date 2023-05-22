@@ -21,15 +21,15 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 public class RabbitMQConfig {
 
-    @Value("${spring.rabbitmq.host}")
+
     public static String host;
-    @Value("${spring.rabbitmq.port}")
+
     public static int port;
-    @Value("${spring.rabbitmq.username}")
+
     public static String username;
-    @Value("${spring.rabbitmq.password}")
+
     public static String password;
-    @Value("${spring.rabbitmq.virtual-host}")
+
     public static String virtualHost;
 
     public final static String EXCHANGE_TOPIC = "gseekExchange";
@@ -141,5 +141,26 @@ public class RabbitMQConfig {
             log.debug("消息处理成功！ 已经推送到websocket！");
         });
         return container;
+    }
+
+    @Value("${spring.rabbitmq.host}")
+    public void setHost(String host) {
+        RabbitMQConfig.host = host;
+    }
+    @Value("${spring.rabbitmq.port}")
+    public void setPort(int port) {
+        RabbitMQConfig.port = port;
+    }
+    @Value("${spring.rabbitmq.username}")
+    public void setUsername(String username) {
+        RabbitMQConfig.username = username;
+    }
+    @Value("${spring.rabbitmq.password}")
+    public void setPassword(String password) {
+        RabbitMQConfig.password = password;
+    }
+    @Value("${spring.rabbitmq.virtual-host}")
+    public void setVirtualHost(String virtualHost) {
+        RabbitMQConfig.virtualHost = virtualHost;
     }
 }

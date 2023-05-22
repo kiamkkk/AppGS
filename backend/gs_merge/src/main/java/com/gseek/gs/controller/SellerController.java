@@ -37,7 +37,7 @@ public class SellerController {
 
     @PostMapping("/goods")
     public String postGoods(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
-                            PostGoodsDTO dto)
+                            @RequestBody PostGoodsDTO dto)
             throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
         dto.perService();
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
@@ -53,7 +53,7 @@ public class SellerController {
 
     @PatchMapping("/goods")
     public String patchGoods(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
-                             PatchGoodsDTO dto)
+                             @RequestBody PatchGoodsDTO dto)
             throws JsonProcessingException, ForbiddenException, IllegalBlockSizeException, BadPaddingException {
         dto.perService();
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){

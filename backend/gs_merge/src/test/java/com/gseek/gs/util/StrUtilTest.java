@@ -18,23 +18,22 @@ public class StrUtilTest {
     @Autowired
     ObjectMapper objectMapper;
 
-    @Disabled
+
     @Test
     public void checkTokenWhenRight(){
-        assert StrUtil.checkToken("Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ1c2VyMSIsImlhdCI6MTY4MzU5NjY5OCwiZXhwIjoxNjgzNjAzODk4fQ.AFwbJHKjfV6rtilr388MHJL8zMldx6tIn98RUecLstLHC4p-m2tH0E-1fx8-H_di");
+        assert StrUtil.checkToken("Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJnc2Vla1VzZXIxIiwiZXhwIjoxNjg0NzY3MzgwfQ.JqtrpVdZvwlK2vzzbQX7A4Sb_v4c7eAJpzSkLZVF-UU2uwXHlwhgAKDEculxgU8l");
     }
 
-    @Disabled
+
     @Test
     public void checkTokenWhenWrong(){
         assert ! StrUtil.checkToken("Bear asdasdsa");
     }
 
-    @Disabled
+
     @Test
     public void checkUserNameWhenRight(){
-        assert StrUtil.checkUserName("user123nNAME爱我中华");
-
+        assert StrUtil.checkUserName("gseekUser1");
     }
 
     @Disabled

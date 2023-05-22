@@ -29,13 +29,13 @@ public class RegisterDTO implements DTOPerService{
     public void validateParameters() throws ParameterWrongException, JsonProcessingException {
         ParameterWrongBean bean=new ParameterWrongBean();
 
-        if (userName.isBlank() || StrUtil.checkUserName(userName)){
+        if (userName == null || userName.isBlank() || ! StrUtil.checkUserName(userName)){
             bean.addParameters("userName", userName);
         }
-        if (password.isBlank()){
+        if (password == null || password.isBlank()){
             bean.addParameters("password", password);
         }
-        if (email.isBlank()){
+        if (email == null ||email.isBlank() || ! StrUtil.checkEmail(email)){
             bean.addParameters("email", email);
         }
         if (time==null || time==0){
