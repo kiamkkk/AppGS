@@ -27,7 +27,7 @@ spring:
 
   rabbitmq:
     host: 127.0.0.1
-    port: 15674
+    port: 5672
     username: gseek
     password: gseek
     virtual-host: GseekHost
@@ -35,7 +35,7 @@ spring:
 
 logging:
   level:
-    root: info
+    root: warn
 
 minio:
   endpoint: http://127.0.0.1:9000
