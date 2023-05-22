@@ -6,6 +6,7 @@ import com.gseek.gs.dao.ChatRecordMapper;
 import com.gseek.gs.pojo.data.ChatDO;
 import com.gseek.gs.service.inter.ChatRecordService;
 import com.gseek.gs.service.inter.RedisService;
+import com.gseek.gs.service.inter.ScheduledService;
 import com.gseek.gs.websocket.message.BaseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,7 +21,7 @@ import java.util.List;
  * @since 2023/5/17-9:49
  */
 @Service("chatRecordServiceImpl")
-public class ChatRecordServiceImpl implements ChatRecordService {
+public class ChatRecordServiceImpl implements ChatRecordService, ScheduledService {
 //todo 补充注释
     @Autowired
     ChatRecordMapper chatRecordMapper;
@@ -44,10 +45,11 @@ public class ChatRecordServiceImpl implements ChatRecordService {
     }
 
     /**
-     * 每半小时同步一次
+     * 每一小时同步一次
      * */
     @Async("async")
-    @Scheduled(cron="* 1-30 * * * ? *")
+    @Scheduled(cron="0/1 * 0/1 * * ?")
+    @Override
     public void redisToMysql(){
         List<ChatDO> chatDOS=redisService.getChatRecodes();
         if (chatDOS.size()>0){
