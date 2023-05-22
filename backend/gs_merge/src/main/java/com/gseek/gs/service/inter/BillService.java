@@ -1,6 +1,7 @@
 package com.gseek.gs.service.inter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.gseek.gs.pojo.data.BillDO;
 import com.gseek.gs.pojo.dto.*;
 import org.springframework.transaction.annotation.Transactional;
 
