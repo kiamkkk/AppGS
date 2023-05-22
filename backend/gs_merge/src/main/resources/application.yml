@@ -54,11 +54,10 @@ custom:
   # aes加密key值，在PasswordUtil#init中用到
   encryptKey: "test1encrypt2key"
   # 平台抽成后卖家获得多少钱
-<<<<<<< HEAD
+
   agreementFee: 0.01
-=======
-  agreementFee: 0.7
+
   # 主机名
   localhost: 118.178.243.30
->>>>>>> a8688ad71507da51db886207e334c6eb104f14b5
+
 

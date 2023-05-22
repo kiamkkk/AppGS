@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gseek.gs.dao.GoodFavMapper">
+
+    <resultMap id="BaseResultMap" type="com.gseek.gs.pojo.data.GoodFavDO">
+        <result column="user_id" jdbcType="INTEGER" property="userId" />
+        <result column="good_id" jdbcType="VARCHAR" property="goodId" />
+        <result column="fav_time" jdbcType="BIGINT" property="favTime"/>
+    </resultMap>
+
+    <resultMap id="GoodFavBO" type="com.gseek.gs.pojo.business.GoodFavBO">
+        <result column="good_id" jdbcType="INTEGER" property="goodId" />
+        <result column="good_name" jdbcType="VARCHAR" property="goodName" />
+        <result column="good_text" jdbcType="VARCHAR" property="goodText" />
+        <result column="own_user_name" jdbcType="VARCHAR" property="ownUserName"/>
+        <result column="type_tag_name" jdbcType="VARCHAR" property="type" />
+        <result column="good_price" jdbcType="DECIMAL" property="goodPrice" />
+        <result column="fav_time" jdbcType="BIGINT" property="favTime"/>
+        <collection property="tag" ofType="String"
+                    select="com.gseek.gs.dao.GoodDetailPicMapper.selectDetailsByGoodId"
+                    column="{goodId=good_id}"/>
+        <collection property="coverPictures" ofType="String"
+                    select="com.gseek.gs.dao.GoodCoverPicMapper.selectCoversByGoodId"
+                    column="{goodId=good_id}"/>
+        <collection property="detailPictures" ofType="String"
+                    select="com.gseek.gs.dao.GoodDetailPicMapper.selectDetailsByGoodId"
+                    column="{goodId=good_id}"/>
+    </resultMap>
+
+    <select id="getAllFav" parameterType="int" resultMap="GoodFavBO">
+        select g.good_id, g.good_name, g.good_text, g.own_user_name, g.good_price, g.type_tag_name,f.fav_time
+        from good_fav as f
+                 left join good as g
+                           on g.good_id = f.good_id
+        where f.user_id=#{userId};
+    </select>
+
+    <insert id="insertFav" >
+        insert into good_fav (user_id, good_id, fav_time)
+        values ( #{userId} , #{goodId} , #{time} );
+    </insert>
+
+    <delete id="deleteFav">
+        delete from good_fav
+        where user_id=#{userId} and good_id=#{goodId};
+    </delete>
+</mapper>
