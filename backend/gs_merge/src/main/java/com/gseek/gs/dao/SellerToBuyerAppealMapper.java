@@ -14,7 +14,6 @@ import java.util.Map;
  **/
 @Mapper
 public interface SellerToBuyerAppealMapper {
-    //TODO 和其他表的交互
     //TODO 检测输入信息是否是有效信息（？
     int addSellerToBuyerAppeal(SellerToBuyerAppealDTO sellerToBuyerAppealDTO);
     SellerToBuyerAppealBO queryAppeal(int appealId);

@@ -42,7 +42,7 @@
             set money = money +
                         (select good_price from good where good_id =
                               (select good_id from bill where bill_id=#{billId})
-                        )*0.7
+                        )*1.01
         where user_id=
               (select buyer_id from bill where bill_id=#{billId}) ;
 
@@ -61,7 +61,7 @@
         set money = money +
                     (select good_price from good where good_id =
                              (select good_id from bill where bill_id=#{billId})
-                    )*0.7
+                    )
         where user_id=
               (select seller_id from bill where bill_id=#{billId}) ;
 
@@ -104,5 +104,59 @@
         update money
         set frozen =0
         where user_id=#{userId};
+    </update>
+    <update id="returnMoneyByDegree">
+        update money
+        set money = money -
+                    (select good_price from good where good_id =
+                                                       (select good_id from bill where bill_id=#{billId})
+                    )*#{rate}*1.01
+        where user_id=
+              (select buyer_id from bill where bill_id=#{billId}) ;
+
+        update money
+        set money = money +
+                    (select good_price from good where good_id =
+                                                       (select good_id from bill where bill_id=#{billId})
+                    )*#{rate}
+        where user_id=
+              (select seller_id from bill where bill_id=#{billId}) ;
+
+    </update>
+    <update id="returnBuyerAppealMoney">
+        update money
+        set money = money -
+                    (select good_price from good where good_id =
+                                                       (select good_id from bill where bill_id=#{billId})
+                    )*1.01
+        where user_id=
+              (select buyer_id from bill where bill_id=#{billId}) ;
+
+        update money
+        set money = money +
+                    (select good_price from good where good_id =
+                                                       (select good_id from bill where bill_id=#{billId})
+                    )
+        where user_id=
+              (select seller_id from bill where bill_id=#{billId}) ;
+
+    </update>
+    <update id="returnSellerAppealMoney">
+        update money
+        set money = money +
+                    (select good_price from good where good_id =
+                                                       (select good_id from bill where bill_id=#{billId})
+                    )*#{rate}*1.01
+        where user_id=
+              (select buyer_id from bill where bill_id=#{billId}) ;
+
+        update money
+        set money = money -
+                    (select good_price from good where good_id =
+                                                       (select good_id from bill where bill_id=#{billId})
+                    )*#{rate}
+        where user_id=
+              (select seller_id from bill where bill_id=#{billId}) ;
+
     </update>
 </mapper>

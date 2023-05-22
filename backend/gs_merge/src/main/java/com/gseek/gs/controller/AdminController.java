@@ -137,29 +137,31 @@ public class AdminController {
             int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBill_id();
             if (sellerToBuyerAppealResultBO.isAppeal_result()){
                 if(sellerToBuyerAppealResultBO.isAccept()){
-                    //TODO 按损伤程度赔偿要写,程度为3，1的不用
-//            moneyService
-
-
-                }
-                if(sellerToBuyerAppealResultBO.getDamage_degree()==3){
-                    //TODO 通知买家
+                    if(sellerToBuyerAppealResultBO.getDamage_degree()==3){
+                        //TODO 通知买家
 //
-                    //加入黑名单
-                    SellerToBuyerAppealBO b=sellerToBuyerAppealService.queryAppeal(appealId);
-                    int claimerId =b.getMyId();
-                    int respondentId=billService.selectBill(billId).getBuyerId();
+                        //加入黑名单
+                        SellerToBuyerAppealBO b=sellerToBuyerAppealService.queryAppeal(appealId);
+                        int claimerId =b.getMyId();
+                        int respondentId=billService.selectBill(billId).getBuyerId();
 //                    返回钱
-                    moneyService.returnMoney(billId,respondentId);
-                    String appealReason=sellerToBuyerAppealService.queryAppeal(appealId).getAppeal_reason();
-                    String provePic=sellerToBuyerAppealService.queryAppeal(appealId).getPic_after();
-                    BlacklistDTO blacklistDTO=new BlacklistDTO(claimerId,respondentId,appealReason,provePic);
-                    blacklistService.addReport(blacklistDTO);
-                    int blackId=blacklistService.queryBlackId(claimerId,respondentId);
-                    BlacklistResultBO blacklistResultBO=new BlacklistResultBO(true,true,adminDetails.getAdminId(),blackId,"");
-                    blacklistService.auditReport(blacklistResultBO);
+                        moneyService.returnMoney(billId,respondentId);
+                        String appealReason=sellerToBuyerAppealService.queryAppeal(appealId).getAppeal_reason();
+                        String provePic=sellerToBuyerAppealService.queryAppeal(appealId).getPic_after();
+                        BlacklistDTO blacklistDTO=new BlacklistDTO(claimerId,respondentId,appealReason,provePic);
+                        blacklistService.addReport(blacklistDTO);
+                        int blackId=blacklistService.queryBlackId(claimerId,respondentId);
+                        BlacklistResultBO blacklistResultBO=new BlacklistResultBO(true,true,adminDetails.getAdminId(),blackId,"");
+                        blacklistService.auditReport(blacklistResultBO);
+                    }
+                    else {
+                        int respondentId=billService.selectBill(billId).getBuyerId();
+                        moneyService.returnMoneyByDegree(billId,sellerToBuyerAppealResultBO.getDamage_degree(),respondentId);
+                    }
                 }
-                if(sellerToBuyerAppealResultBO.getDamage_degree()==1){
+
+                // 账号没有损伤
+                if(!sellerToBuyerAppealResultBO.isAppeal_result()){
                     //TODO 告知卖家结束过程，协调程序不确定怎么跳转
                 }
 

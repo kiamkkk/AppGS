@@ -72,7 +72,7 @@ public class MoneyServiceImpl implements MoneyService {
         // 判断卖家余额是否充足
         BigDecimal goodPrice=goodMapper.selectPriceByBillId(billId);
         BigDecimal sellerIdRemain=moneyMapper.selectRemainByUserId(sellerId);
-        if (goodPrice.compareTo(sellerIdRemain.multiply(agreementFee)) >= 0){
+        if (goodPrice.compareTo(sellerIdRemain) <= 0){
             // 卖家钱包剩余足够，正常退款
             moneyMapper.returnMoney(billId);
         } else {
@@ -156,5 +156,79 @@ public class MoneyServiceImpl implements MoneyService {
     @Override
     public int unfrozenUser(int userId){
         return  moneyMapper.unfrozenUser(userId);
+    }
+    //TODO 这个方法没考虑清楚
+    @Override
+    public  void returnMoneyByDegree(int billId,int degree,int buyerId)throws RemainNotEnoughException{
+        BigDecimal price=goodMapper.selectPriceByBillId(billId);
+        BigDecimal buyerIdRemain=moneyMapper.selectRemainByUserId(buyerId);
+        BigDecimal degree1= BigDecimal.valueOf(0.45);
+        BigDecimal degree2= BigDecimal.valueOf(0.7);
+        BigDecimal plusFee=BigDecimal.valueOf(1.01);
+        if(degree==1){
+            if ((price.multiply(degree1).multiply(plusFee)).compareTo(buyerIdRemain) <= 0){
+
+                moneyMapper.returnMoneyByDegree(billId,degree1);
+            } else {
+
+                moneyMapper.updateAllRemainToBuyer(billId);
+                debtMapper.addDebt(new DebtDO(price.multiply(plusFee).subtract(buyerIdRemain),buyerId));
+            }
+
+        }
+        else if(degree==2){
+            if ((price.multiply(degree2).multiply(plusFee)).compareTo(buyerIdRemain) <= 0){
+
+                moneyMapper.returnMoneyByDegree(billId,degree1);
+            } else {
+
+                moneyMapper.updateAllRemainToBuyer(billId);
+                debtMapper.addDebt(new DebtDO(price.multiply(plusFee).subtract(buyerIdRemain),buyerId));
+            }
+
+        }
+
+    }
+    public void returnBuyerAppealMoney(int billId,int buyerId)throws RemainNotEnoughException{
+        // 判断卖家余额是否充足
+        BigDecimal goodPrice=goodMapper.selectPriceByBillId(billId);
+        BigDecimal buyerIdRemain=moneyMapper.selectRemainByUserId(buyerId);
+        if (goodPrice.compareTo(buyerIdRemain) <= 0){
+
+            moneyMapper.returnMoney(billId);
+        } else {
+
+            moneyMapper.updateAllRemainToBuyer(billId);
+            debtMapper.addDebt(new DebtDO(goodPrice.subtract(buyerIdRemain),buyerId));
+        }
+    }
+    public void returnSellerAppealMoney(int billId,int sellerId,int degree)throws RemainNotEnoughException{
+        BigDecimal price=goodMapper.selectPriceByBillId(billId);
+        BigDecimal sellerIdRemain=moneyMapper.selectRemainByUserId(sellerId);
+        BigDecimal degree1= BigDecimal.valueOf(0.45);
+        BigDecimal degree2= BigDecimal.valueOf(0.7);
+        BigDecimal plusFee=BigDecimal.valueOf(1.01);
+        if(degree==1){
+            if ((price.multiply(degree1).multiply(plusFee)).compareTo(sellerIdRemain) <= 0){
+
+                moneyMapper.returnMoneyByDegree(billId,degree1);
+            } else {
+
+                moneyMapper.updateAllRemainToBuyer(billId);
+                debtMapper.addDebt(new DebtDO(price.multiply(plusFee).subtract(sellerIdRemain),sellerId));
+            }
+
+        }
+        else if(degree==2){
+            if ((price.multiply(degree2).multiply(plusFee)).compareTo(sellerIdRemain) <= 0){
+
+                moneyMapper.returnMoneyByDegree(billId,degree1);
+            } else {
+
+                moneyMapper.updateAllRemainToBuyer(billId);
+                debtMapper.addDebt(new DebtDO(price.multiply(plusFee).subtract(sellerIdRemain),sellerId));
+            }
+
+        }
     }
 }

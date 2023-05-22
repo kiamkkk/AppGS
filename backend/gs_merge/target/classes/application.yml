@@ -52,5 +52,5 @@ custom:
   # aes加密key值，在PasswordUtil#init中用到
   encryptKey: "test1encrypt2key"
   # 平台抽成后卖家获得多少钱
-  agreementFee: 0.7
+  agreementFee: 0.01
 
