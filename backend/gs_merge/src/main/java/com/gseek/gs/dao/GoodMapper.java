@@ -73,4 +73,9 @@ public interface GoodMapper {
 
     GoodAccountBO selectGoodAccountByBillId(@Param("billId") int billId);
 
+    /**
+     * 将原ownUserName为的originUserName的商品修改为patchUserName
+     * */
+    int updateOwnUserName(@Param("patchUserName") String patchUserName,@Param("originUserName") String originUserName);
+
 }

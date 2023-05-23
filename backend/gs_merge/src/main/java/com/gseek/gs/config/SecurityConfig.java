@@ -64,6 +64,8 @@ public class SecurityConfig {
                 .requestMatchers("/users/**","/buyer/**","/buyer/**","/goods/**","/seller/**","/trade/**").hasAnyAuthority("USER","ADMIN")
                 .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
                 .anyRequest().authenticated()
+
+                .and().exceptionHandling().authenticationEntryPoint(new CustomerAuthenticationEntryPoint(loginFormUrl));
         ;
 
 

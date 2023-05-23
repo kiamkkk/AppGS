@@ -58,7 +58,7 @@ public interface UserService extends UserDetailsService {
      * @param photoPath 头像url地址
      * @return 通用响应
      * */
-    String patchUserInformation(int userId, String photoPath,PatchUserInformationDTO dto) throws JsonProcessingException;
+    String patchUserInformation(int userId, String originUserName,String photoPath,PatchUserInformationDTO dto) throws JsonProcessingException;
 
     /**
      * 修改用户实名认证信息.

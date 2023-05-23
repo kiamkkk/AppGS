@@ -3,11 +3,9 @@ package com.gseek.gs.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.common.Result;
-import com.gseek.gs.dao.MoneyMapper;
-import com.gseek.gs.dao.UserIdentificationMapper;
-import com.gseek.gs.dao.UserInformationMapper;
-import com.gseek.gs.dao.UserPasswordMapper;
+import com.gseek.gs.dao.*;
 import com.gseek.gs.exce.business.ParameterWrongException;
+import com.gseek.gs.exce.business.users.RepeatUserNameException;
 import com.gseek.gs.pojo.bean.OrdinaryUser;
 import com.gseek.gs.pojo.business.UserIdentificationBO;
 import com.gseek.gs.pojo.business.UserInformationBO;
@@ -22,6 +20,7 @@ import com.gseek.gs.service.inter.UserService;
 import com.gseek.gs.util.PasswordUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -58,6 +57,8 @@ public class UserServiceImpl implements UserService {
     MoneyMapper moneyMapper;
     @Autowired
     ObjectMapper objectMapper;
+    @Autowired
+    GoodMapper goodMapper;
 
 
 
@@ -73,12 +74,15 @@ public class UserServiceImpl implements UserService {
 
         UserPasswordDO userPasswordDO =new UserPasswordDO(dto);
         userPasswordDO.setSalt(PasswordUtil.gainSalt());
-        userPasswordMapper.insertUserPassword(userPasswordDO);
+        try{
+            userPasswordMapper.insertUserPassword(userPasswordDO);
+        }catch (DuplicateKeyException e) {
+            throw new RepeatUserNameException(e);
+        }
         Integer userId= userPasswordDO.getUserId();
         if (userId == null){
             log.error("主键不回显，建议检查mapper中有无配置useGeneratedKeys");
         }
-
         userInformationMapper.insertUserInformation(new UserInformationDO(dto,userId));
         userIdentificationMapper.insertUserIdentification(new UserIdentificationDO(dto,userId));
         moneyMapper.insertMoney(new MoneyDO(userId));
@@ -103,13 +107,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String patchUserInformation(int userId, String photoPath, PatchUserInformationDTO dto)
+    public String patchUserInformation(int userId, String originUserName,String photoPath, PatchUserInformationDTO dto)
             throws JsonProcessingException {
         // todo 要支持修改密码！！！
         UserPasswordDO userPasswordDO=new UserPasswordDO(userId);
         UserInformationDO userInformationDO=new UserInformationDO(dto,photoPath,userId);
 
         userInformationMapper.updateUserInformation(userInformationDO);
+
+        // 如果需要修改用户名，修改与用户名有关的字段
+        // good中的own_user_name需要修改
+        String patchUserName=dto.getUsername();
+        if (patchUserName==null||patchUserName.isBlank()){
+            goodMapper.updateOwnUserName(patchUserName,originUserName);
+        }
+
        // userPasswordMapper.updateUserPassword(userPasswordDO);
 
         return result.gainPatchSuccess();
