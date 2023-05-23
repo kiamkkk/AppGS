@@ -4,13 +4,11 @@ package com.gseek.gs.dao;
 import com.gseek.gs.pojo.business.BlacklistBO;
 import com.gseek.gs.pojo.business.BlacklistResultBO;
 import com.gseek.gs.pojo.data.BlacklistDO;
-import com.gseek.gs.pojo.dto.AdminBlacklistDTO;
 import com.gseek.gs.pojo.dto.BlacklistDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Isabella
@@ -48,7 +46,7 @@ public interface BlacklistMapper {
     //TODO 这个好像没有必要，直接用auditReport就行（？）
     int updateAuditResult(BlacklistDO blacklistDO);
 //    查询在不在黑名单内
-    boolean queryByRespondentId(int respondentId);
+    Boolean queryByRespondentId(int respondentId);
     //todo 有没有更好的查法
     int queryBlackId(int claimerId,int respondentId);
 }

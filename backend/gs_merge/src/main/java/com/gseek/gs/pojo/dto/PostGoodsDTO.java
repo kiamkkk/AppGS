@@ -4,11 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gseek.gs.exce.business.ParameterWrongException;
 import com.gseek.gs.pojo.bean.ParameterWrongBean;
 import com.gseek.gs.util.PasswordUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -36,6 +38,24 @@ public class PostGoodsDTO implements DTOPerService{
     private String goodText;
     private List<MultipartFile> coverPicture;
     private List<MultipartFile> detailPictures;
+
+    public PostGoodsDTO(HttpServletRequest request) {
+        MultipartHttpServletRequest params=((MultipartHttpServletRequest) request);
+
+        this.coverPicture=params.getFiles("coverPicture");
+        this.detailPictures=params.getFiles("detailPictures");
+        this.tag= List.of(params.getParameterValues("tag"));
+
+        this.goodName=params.getParameter("goodName");
+        this.account=params.getParameter("account");
+        this.accountPassword=params.getParameter("accountPassword");
+        this.price=new BigDecimal(params.getParameter("price"));
+        this.ownUserName=params.getParameter("ownUserName");
+        this.type=params.getParameter("type");
+        this.time= Long.valueOf(params.getParameter("time"));
+        this.goodText=params.getParameter("goodText");
+
+    }
 
     @Override
     public void validateParameters() throws ParameterWrongException, JsonProcessingException {

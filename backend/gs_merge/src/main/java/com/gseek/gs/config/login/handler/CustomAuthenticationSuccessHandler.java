@@ -2,6 +2,7 @@ package com.gseek.gs.config.login.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.gseek.gs.common.TokenGrade;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.business.login.RepeatLoginException;
 import com.gseek.gs.service.inter.RedisService;
@@ -47,7 +48,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                 // 不根据userId来构建token,因为JwtAuthenticationTokenFilter要根据username获取用户登录信息
                 String username =authentication.getName();
                 String userId =details.getUserId()+"";
-                String token=TokenUtil.gainToken(username);
+                String token=TokenUtil.gainToken(username, TokenGrade.USER);
                 redisService.saveToken(token, username);
 
                 ObjectNode objectNode=objectMapper.createObjectNode();

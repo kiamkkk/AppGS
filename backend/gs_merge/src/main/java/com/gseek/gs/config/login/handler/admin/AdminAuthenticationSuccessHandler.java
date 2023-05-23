@@ -2,6 +2,7 @@ package com.gseek.gs.config.login.handler.admin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.gseek.gs.common.TokenGrade;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.business.login.RepeatLoginException;
 import com.gseek.gs.service.inter.RedisService;
@@ -44,7 +45,7 @@ public class AdminAuthenticationSuccessHandler implements AuthenticationSuccessH
         if (authentication instanceof UsernamePasswordAuthenticationToken authenticationToken){
             //根据userName来构建token
             String adminName = authenticationToken.getName();
-            String token=TokenUtil.gainToken(adminName);
+            String token=TokenUtil.gainToken(adminName, TokenGrade.ADMIN);
             if (authenticationToken.getDetails() instanceof AdminWebAuthenticationDetails details){
                 int adminId =details.getAdminId();
                 redisService.saveToken(token,""+adminId);

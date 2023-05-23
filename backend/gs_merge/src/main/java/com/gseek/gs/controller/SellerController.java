@@ -8,6 +8,7 @@ import com.gseek.gs.exce.business.ForbiddenException;
 import com.gseek.gs.pojo.dto.PatchGoodsDTO;
 import com.gseek.gs.pojo.dto.PostGoodsDTO;
 import com.gseek.gs.service.inter.SellerService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -37,9 +38,12 @@ public class SellerController {
 
     @PostMapping("/goods")
     public String postGoods(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
-                            @RequestBody PostGoodsDTO dto)
+                            HttpServletRequest request)
             throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
+
+        PostGoodsDTO dto=new PostGoodsDTO(request);
         dto.perService();
+
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             
             return sellerService.postGood(details.getUserId(),dto.getOwnUserName(),dto);
@@ -53,9 +57,12 @@ public class SellerController {
 
     @PatchMapping("/goods")
     public String patchGoods(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
-                             @RequestBody PatchGoodsDTO dto)
+                             HttpServletRequest request)
             throws JsonProcessingException, ForbiddenException, IllegalBlockSizeException, BadPaddingException {
+
+        PatchGoodsDTO dto =new PatchGoodsDTO(request);
         dto.perService();
+
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
             return sellerService.patchGood(details.getUserId(),dto.getOwnUserName(),dto);

@@ -7,16 +7,13 @@ import com.gseek.gs.dao.BlacklistMapper;
 import com.gseek.gs.pojo.business.BlacklistBO;
 import com.gseek.gs.pojo.business.BlacklistResultBO;
 import com.gseek.gs.pojo.data.BlacklistDO;
-import com.gseek.gs.pojo.dto.AdminBlacklistDTO;
 import com.gseek.gs.pojo.dto.BlacklistDTO;
 import com.gseek.gs.service.inter.BlacklistService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 对应/report/**的操作.
@@ -83,7 +80,7 @@ public class BlacklistServiceImpl implements BlacklistService {
     public int updateAuditResult(BlacklistDO blacklistDO) {
         return blacklistMapper.updateAuditResult(blacklistDO);
     }
-    public boolean queryByRespondentId(int respondentId){
+    public Boolean queryByRespondentId(int respondentId){
         return blacklistMapper.queryByRespondentId(respondentId);
     }
 

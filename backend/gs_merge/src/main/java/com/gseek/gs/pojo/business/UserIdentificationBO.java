@@ -7,8 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -23,12 +21,7 @@ import javax.crypto.IllegalBlockSizeException;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Component
 public class UserIdentificationBO implements BOPostService{
-
-    @Autowired
-    @JsonIgnore
-    PasswordUtil passwordUtil;
 
     @JsonIgnore
     private Integer userId;

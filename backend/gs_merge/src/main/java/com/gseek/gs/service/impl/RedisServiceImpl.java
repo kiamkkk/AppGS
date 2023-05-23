@@ -6,7 +6,6 @@ import com.gseek.gs.pojo.data.ChatDO;
 import com.gseek.gs.service.inter.RedisService;
 import com.gseek.gs.util.TokenUtil;
 import com.gseek.gs.websocket.message.BaseMessage;
-import io.jsonwebtoken.Claims;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +50,9 @@ public class RedisServiceImpl implements RedisService {
      * */
     public static final int TOKEN_REISSUE=2;
     
-    private static final long IMMINENT_TIME=10*60*1000;
+    public static final long IMMINENT_TIME=10*60*1000;
 
+    //todo 应该放在TokenUtil里
     @Override
     public void saveToken(String token,String userName) {
         if (isRepeatLogin(token,userName)){
@@ -62,23 +62,29 @@ public class RedisServiceImpl implements RedisService {
         addKey(userName, token, TokenUtil.EFFECTIVE_TIME,TimeUnit.MILLISECONDS);
     }
 
+    //todo 应该放在TokenUtil里
     @Override
     public int inspectToken(String token) {
+        // token为空或null
         if (token==null||token.isBlank()){
             log.info("token is NULL or empty");
             return TOKEN_INVALID;
         }
-
-        if (System.currentTimeMillis()>
-                TokenUtil.extractClaim(token, Claims::getExpiration).getTime()-IMMINENT_TIME){
-            log.debug("token reissue");
+        // token过期
+        if (TokenUtil.isTokenExpired(token)){
+            log.info("token timeout");
+            return TOKEN_INVALID;
+        }
+        // token临期
+        if (TokenUtil.needReissue(token)){
+            log.info("token reissue");
             return TOKEN_REISSUE;
         }
 
         return TOKEN_VALID;
-
     }
 
+    //todo 应该放在TokenUtil里
     @Override
     public boolean isRepeatLogin(String token, String userName){
         if (token.isBlank()){
@@ -93,6 +99,7 @@ public class RedisServiceImpl implements RedisService {
         }
         return !localToken.equals(token);
     }
+    //todo 应该放在TokenUtil里
     @Override
     public boolean isUserHasToken(String userName){
         return isExist(userName);

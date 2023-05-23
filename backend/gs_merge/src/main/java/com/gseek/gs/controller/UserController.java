@@ -12,6 +12,7 @@ import com.gseek.gs.pojo.dto.PostRealNameInformationDTO;
 import com.gseek.gs.pojo.dto.RegisterDTO;
 import com.gseek.gs.service.inter.UserService;
 import com.gseek.gs.util.MinioUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -91,13 +92,20 @@ public class UserController {
 
     }
 
+    /**
+     * @RequestBody 只接受json，这里有可能接收到文件，只能用multipart/form-data，得自己接参数手动装配
+     *
+     * */
     @PatchMapping("/{username}")
     public String patchUserInformation(@PathVariable("username") String userName,
                                        @CurrentSecurityContext(expression = "Authentication") Authentication authentication,
-                                       @RequestBody PatchUserInformationDTO dto)
-            throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
+                                       HttpServletRequest request)
 
+            throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException, com.gseek.gs.exce.ServerException  {
+
+        PatchUserInformationDTO dto=new PatchUserInformationDTO(request);
         dto.perService();
+
         if (!Objects.equals(authentication.getName(), userName)){
             throw new ForbiddenException();
         }
@@ -111,7 +119,6 @@ public class UserController {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
             throw new ServerException("认证时出错");
         }
-
     }
 
     @PostMapping("/{username}/real_name")
@@ -134,4 +141,6 @@ public class UserController {
             throw new ServerException("认证时出错");
         }
     }
+
+
 }

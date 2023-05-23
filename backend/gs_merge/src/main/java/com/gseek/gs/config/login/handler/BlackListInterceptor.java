@@ -37,12 +37,17 @@ public class BlackListInterceptor implements HandlerInterceptor {
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             int userId=details.getUserId();
             Boolean bo=blacklistService.queryByRespondentId(userId);
-            if (bo != null ){
+            /*if (Boolean.TRUE.equals(bo)){
+                // 用户被拉入黑名单，禁止访问该项目
+                log.info("用户已经被加入黑名单，禁止访问");
+                throw new ForbiddenException("用户已经被加入黑名单，禁止访问");
+            }*/
+            if (Boolean.FALSE.equals(bo)){
                 if (Boolean.TRUE.equals(bo)){
-                    // 用户被拉入黑名单，禁止访问该项目
-                    log.info("用户已经被加入黑名单，禁止访问");
-                    throw new ForbiddenException("用户已经被加入黑名单，禁止访问");
-                }
+                // 用户被拉入黑名单，禁止访问该项目
+                log.info("用户已经被加入黑名单，禁止访问");
+                throw new ForbiddenException("用户已经被加入黑名单，禁止访问");
+            }
             }else {
                 log.debug("用户 {} 没有被举报过",userId);
             }

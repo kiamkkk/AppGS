@@ -105,11 +105,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public String patchUserInformation(int userId, String photoPath, PatchUserInformationDTO dto)
             throws JsonProcessingException {
+        // todo 要支持修改密码！！！
         UserPasswordDO userPasswordDO=new UserPasswordDO(userId);
         UserInformationDO userInformationDO=new UserInformationDO(dto,photoPath,userId);
 
         userInformationMapper.updateUserInformation(userInformationDO);
-        userPasswordMapper.updateUserPassword(userPasswordDO);
+       // userPasswordMapper.updateUserPassword(userPasswordDO);
 
         return result.gainPatchSuccess();
     }

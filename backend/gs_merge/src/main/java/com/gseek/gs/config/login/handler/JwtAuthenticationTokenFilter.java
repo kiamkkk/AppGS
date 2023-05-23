@@ -1,6 +1,7 @@
 package com.gseek.gs.config.login.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gseek.gs.common.TokenGrade;
 import com.gseek.gs.config.login.handler.admin.AdminWebAuthenticationDetailsSource;
 import com.gseek.gs.exce.business.login.TokenInvalidException;
 import com.gseek.gs.pojo.bean.OrdinaryAdmin;
@@ -64,10 +65,19 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
             return;
         }
         if (StrUtil.checkToken(rawToken)) {
-            final String token = rawToken.substring(TokenUtil.TOKEN_PREFIX.length());
-            log.info("token格式正确|"+token);
+
+            String token = rawToken.substring(TokenUtil.TOKEN_PREFIX.length());
+            // token过期
+            if (TokenUtil.isTokenExpired(token)){
+                log.info("token过期");
+                throw new TokenInvalidException("TokenInvalid");
+            }
+
+            log.info("token格式正确{}",token);
+            TokenGrade grade=TokenUtil.extractTokenGrade(token);
             String userName = TokenUtil.extractClaim(token, Claims::getSubject);
-            log.info("用户名|"+userName);
+            log.info("用户名{},权限为{}",userName,grade);
+
             if (! token.isBlank() && redisService.isUserHasToken(userName)) {
                 if (! userName.isBlank() ) {
                     //验证token是否过期
@@ -77,7 +87,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
                             log.info("token可用|"+token);
                         }
                         case TOKEN_REISSUE -> {
-                            String newToken = tokenUtil.reissueToken(token, userName);
+                            String newToken = tokenUtil.reissueToken(token, userName, grade);
                             //todo 放响应头里感觉不太好，我是这样想：
                             // 1、要么直接在这放进响应体里，controller里再读一遍响应体来改；
                             // 2、要么想想办法把新token传到controller里，统一写入响应体。
@@ -94,30 +104,32 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
                     }
                     log.info("状态码{}",code);
 
-                    OrdinaryUser user =(OrdinaryUser) this.userService.loadUserByUsername(userName);
+                    // todo 根据权限不同，使用不同的UserService
+                    if (grade==TokenGrade.USER){
+                        OrdinaryUser user =(OrdinaryUser) this.userService.loadUserByUsername(userName);
 
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            user, user.getPassword(), user.getAuthorities());
-                    authentication.setDetails(new CustomWebAuthenticationDetailsSource().buildDetails(
-                            request).setUserId(user.getUserId()));
+                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                                user, user.getPassword(), user.getAuthorities());
+                        authentication.setDetails(new CustomWebAuthenticationDetailsSource().buildDetails(
+                                request).setUserId(user.getUserId()));
 
-                    log.info("认证用户" + userName + ",设置security context");
+                        log.info("认证用户" + userName + ",设置security context");
 
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                    /** update by Isabella**/
-                    OrdinaryAdmin admin=(OrdinaryAdmin) this.adminService.loadUserByUsername(userName);
-                    log.info(admin.toString());
-                    UsernamePasswordAuthenticationToken adminAuthentication = new UsernamePasswordAuthenticationToken(
-                            admin, admin.getPassword(), user.getAuthorities());
-                    adminAuthentication.setDetails(new AdminWebAuthenticationDetailsSource().buildDetails(
-                            request).setAdminId(admin.getAdminId()));
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }else if (grade==TokenGrade.ADMIN){
+                        OrdinaryAdmin admin=(OrdinaryAdmin) this.adminService.loadUserByUsername(userName);
+                        log.info(admin.toString());
+                        UsernamePasswordAuthenticationToken adminAuthentication = new UsernamePasswordAuthenticationToken(
+                                admin, admin.getPassword(), admin.getAuthorities());
+                        adminAuthentication.setDetails(new AdminWebAuthenticationDetailsSource().buildDetails(
+                                request).setAdminId(admin.getAdminId()));
 
-                    log.info("认证管理员" + userName + ",设置security context");
+                        log.info("认证管理员" + userName + ",设置security context");
 
-                    SecurityContextHolder.getContext().setAuthentication(adminAuthentication);
-                    /** update by Isabella end **/
-
-
+                        SecurityContextHolder.getContext().setAuthentication(adminAuthentication);
+                    }else {
+                        log.warn("权限错误");
+                    }
                 }
 
             }

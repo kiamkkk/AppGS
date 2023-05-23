@@ -5,11 +5,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gseek.gs.pojo.business.BlacklistBO;
 import com.gseek.gs.pojo.business.BlacklistResultBO;
 import com.gseek.gs.pojo.data.BlacklistDO;
-import com.gseek.gs.pojo.dto.AdminBlacklistDTO;
 import com.gseek.gs.pojo.dto.BlacklistDTO;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 对应/report/**的操作.
@@ -31,6 +29,6 @@ public interface BlacklistService {
     int updateCheck(int blackId);
     //    int adminId,boolean appealResult,int blackId
     int updateAuditResult(BlacklistDO blacklistDO);
-    boolean queryByRespondentId(int respondentId);
+    Boolean queryByRespondentId(int respondentId);
     int queryBlackId(int claimerId,int respondentId);
 }

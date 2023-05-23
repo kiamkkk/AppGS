@@ -16,4 +16,9 @@ public class ServerException extends BaseException{
         msg= Arrays.toString(info);
     }
 
+    public ServerException(Throwable cause) {
+        super(cause);
+        code=50001;
+        msg=cause.getMessage();
+    }
 }

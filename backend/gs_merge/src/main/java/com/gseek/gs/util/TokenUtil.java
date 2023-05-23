@@ -1,8 +1,11 @@
 package com.gseek.gs.util;
 
+import com.gseek.gs.common.TokenGrade;
+import com.gseek.gs.service.impl.RedisServiceImpl;
 import com.gseek.gs.service.inter.RedisService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.impl.JwtMap;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +14,8 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -20,7 +25,7 @@ import java.util.function.Function;
  * @since 2023/5/3-13:47
  */
 @Component
-public class TokenUtil {
+public class TokenUtil extends JwtMap {
     /**
      * token默认有效时间2小时
      * */
@@ -29,6 +34,8 @@ public class TokenUtil {
      * token前缀
      * */
     public static final String TOKEN_PREFIX="Bearer ";
+
+
 
     @Autowired
     @Qualifier("redisServiceImpl")
@@ -44,8 +51,9 @@ public class TokenUtil {
     /**
      * 获取token
      * */
-    public static String gainToken(String username){
-        return createToken(username);
+    public static String gainToken(String username, TokenGrade grade){
+        assert (grade==TokenGrade.ADMIN || grade==TokenGrade.USER) :"grade必须为USER或ADMIN";
+        return createToken(username, grade);
     }
 
     /**
@@ -54,10 +62,15 @@ public class TokenUtil {
      * @param userName 用户名
      * @return token
      * */
-    private static String createToken(String userName){
+    private static String createToken(String userName, TokenGrade grade){
         //签发时间
         long issuedAt =System.currentTimeMillis();
+        //用户名与权限等级
+        Map<String,String> map=new HashMap<>(1);
+        map.put(CustomClaims.TOKEN_GRADE, grade.name());
+
         return TOKEN_PREFIX+ Jwts.builder()
+                .setClaims(map)
                 .setSubject(userName)
                 .setExpiration(new Date(issuedAt+EFFECTIVE_TIME)).
                 signWith(getSignInKey()).compact();
@@ -69,9 +82,14 @@ public class TokenUtil {
      * @param token
      * @return true为过期
      */
-    public boolean isTokenExpired(String token) {
+    public static boolean isTokenExpired(String token) {
         return System.currentTimeMillis() >
                 extractClaim(token, Claims::getExpiration).getTime();
+    }
+
+    public static boolean needReissue(String token) {
+        return System.currentTimeMillis() >
+                extractClaim(token, Claims::getExpiration).getTime()- RedisServiceImpl.IMMINENT_TIME;
     }
 
     /**
@@ -80,9 +98,15 @@ public class TokenUtil {
      * @param token
      * @return
      */
-    public static <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    public static <T> T extractClaim(String token, Function< Claims, T> claimsResolver) {
         Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
+    }
+
+    public static TokenGrade extractTokenGrade(String token){
+        Claims claims = extractAllClaims(token);
+        String grade=claims.get(CustomClaims.TOKEN_GRADE, String.class);
+        return TokenGrade.gainTokenGradeByName(grade);
     }
 
     /**
@@ -90,12 +114,12 @@ public class TokenUtil {
      * 删除旧token,储存并返回新token
      *
      * @param oldToken 旧token
-     * @param userId 用户id
+//todo 补充
      * @return newToken 新token
      * */
-    public String reissueToken(String oldToken, String userName){
+    public String reissueToken(String oldToken, String userName, TokenGrade grade){
         redisService.deleteKey(userName);
-        String newToken= gainToken(userName);
+        String newToken= gainToken(userName,grade);
         redisService.saveToken(newToken, userName);
         return newToken;
     }
@@ -126,5 +150,7 @@ public class TokenUtil {
         byte[] keyBytes = Decoders.BASE64.decode(SALT);
         return Keys.hmacShaKeyFor(keyBytes);
     }
+
+
 
 }

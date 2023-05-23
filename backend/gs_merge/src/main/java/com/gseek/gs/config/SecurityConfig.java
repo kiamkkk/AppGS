@@ -4,8 +4,6 @@ import com.gseek.gs.config.login.handler.*;
 import com.gseek.gs.config.login.handler.admin.*;
 import com.gseek.gs.service.inter.AdminService;
 import com.gseek.gs.service.inter.UserService;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +16,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.session.ForceEagerSessionCreationFilter;
 
 /**
  * SpringSecurity 配置类
@@ -75,14 +72,15 @@ public class SecurityConfig {
                 .addFilterAt(adminAuthenticationFilter(adminAuthenticationSuccessHandler, adminAuthenticationFailureHandler), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationTokenFilter, CustomAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationTokenFilter, AdminAuthenticationFilter.class)
-                .addFilterBefore((servletRequest, servletResponse, filterChain) -> {
+                ;
+                /*.addFilterBefore((servletRequest, servletResponse, filterChain) -> {
                     ServletRequest requestWrapper = new CustomHttpServletRequestWrapper((HttpServletRequest)servletRequest);
                     filterChain.doFilter(requestWrapper, servletResponse);//requestWrapper中保存着供二次使用的请求数据
-                }, ForceEagerSessionCreationFilter.class)
-                .addFilterBefore((servletRequest, servletResponse, filterChain) -> {
+                }, ForceEagerSessionCreationFilter.class);*/
+                /*.addFilterBefore((servletRequest, servletResponse, filterChain) -> {
                     ServletRequest requestWrapper = new AdminHttpServletRequestWrapper((HttpServletRequest)servletRequest);
                     filterChain.doFilter(requestWrapper, servletResponse);//requestWrapper中保存着供二次使用的请求数据
-                }, ForceEagerSessionCreationFilter.class);
+                }, ForceEagerSessionCreationFilter.class);*/
         return httpSecurity.build();
     }
 

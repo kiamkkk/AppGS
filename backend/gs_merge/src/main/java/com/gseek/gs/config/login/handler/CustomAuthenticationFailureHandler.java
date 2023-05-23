@@ -6,6 +6,7 @@ import com.gseek.gs.exce.business.login.RepeatLoginException;
 import com.gseek.gs.exce.business.login.TokenInvalidException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
@@ -22,17 +23,18 @@ import java.io.PrintWriter;
  * @author Phak
  * @since 2023/5/3-13:43
  */
+@Slf4j
 @Component("customAuthenticationFailureHandler")
 public class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler {
 
     @Autowired
     ObjectMapper objectMapper;
 
-
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
                                         AuthenticationException exception)
             throws IOException {
+        log.info("登录时错误：{}",exception.getMessage());
         ObjectNode objectNode=objectMapper.createObjectNode();
         if (exception instanceof UsernameNotFoundException) {
             response.setStatus(400);

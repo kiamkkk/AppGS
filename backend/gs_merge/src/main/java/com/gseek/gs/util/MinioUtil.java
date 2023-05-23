@@ -63,7 +63,8 @@ public class MinioUtil {
     /**
      * 储存头像.
      * */
-    public String saveProfilePhoto(int userId, MultipartFile profilePhoto){
+    public String saveProfilePhoto(int userId, MultipartFile profilePhoto)
+            throws com.gseek.gs.exce.ServerException {
 
         if (profilePhoto==null) {
             return DEFAULT_PROFILE_PHOTO;
@@ -81,7 +82,8 @@ public class MinioUtil {
      * @param file 新头像
      * @return 图片路径
      */
-    public String changeProfilePhoto(int userId, MultipartFile file){
+    public String changeProfilePhoto(int userId, MultipartFile file)
+            throws  com.gseek.gs.exce.ServerException {
         removeFile(userId+SUFFIX_JPG, PATH_HEAD_SCULPTURES);
         return saveProfilePhoto(userId, file);
     }
@@ -121,7 +123,8 @@ public class MinioUtil {
     /**
      * 储存聊天时图片.
      * */
-    public String saveChatPicture(MultipartFile pic,long time,int goodId,int fromUserId){
+    public String saveChatPicture(MultipartFile pic,long time,int goodId,int fromUserId)
+            throws com.gseek.gs.exce.ServerException {
         String[] pathAndFileName=createChatImgPathAndFileName(goodId,fromUserId,time);
         putFile(pic, pathAndFileName[0],pathAndFileName[1]);
         return pathAndFileName[0]+pathAndFileName[1];
@@ -186,7 +189,7 @@ public class MinioUtil {
      * @param path 储存路径
      * @param fileName 储存为文件名
      * */
-    private void putFile(MultipartFile file,String path,String fileName) {
+    private void putFile(MultipartFile file,String path,String fileName) throws com.gseek.gs.exce.ServerException{
         try {
             minioClient.putObject(
                     PutObjectArgs.builder()
@@ -196,8 +199,8 @@ public class MinioUtil {
                             .contentType(file.getContentType())
                             .build()
             );
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        }catch (Exception e){
+            throw new com.gseek.gs.exce.ServerException(e);
         }
     }
     /**
