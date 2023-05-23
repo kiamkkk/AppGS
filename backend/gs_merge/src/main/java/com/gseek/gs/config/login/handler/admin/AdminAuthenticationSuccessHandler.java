@@ -41,14 +41,14 @@ public class AdminAuthenticationSuccessHandler implements AuthenticationSuccessH
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication)
             throws RepeatLoginException,IOException,ServerException {
-        log.info("onAdminAuthenticationSuccess开始");//
+        log.debug("onAdminAuthenticationSuccess开始");//
         if (authentication instanceof UsernamePasswordAuthenticationToken authenticationToken){
-            //根据userName来构建token
-            String adminName = authenticationToken.getName();
-            String token=TokenUtil.gainToken(adminName, TokenGrade.ADMIN);
             if (authenticationToken.getDetails() instanceof AdminWebAuthenticationDetails details){
-                int adminId =details.getAdminId();
-                redisService.saveToken(token,""+adminId);
+                //根据userName来构建token
+                String adminName = authentication.getName();
+                String token=TokenUtil.gainToken(adminName, TokenGrade.ADMIN);
+//                int adminId =details.getAdminId();
+                redisService.saveToken(token,""+adminName);
 
                 ObjectNode objectNode=objectMapper.createObjectNode();
                 objectNode.put("token", token);
