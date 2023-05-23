@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.gseek</groupId>
     <artifactId>gs</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.3-SNAPSHOT</version>
     <name>gs</name>
     <description>gs</description>
     <properties>

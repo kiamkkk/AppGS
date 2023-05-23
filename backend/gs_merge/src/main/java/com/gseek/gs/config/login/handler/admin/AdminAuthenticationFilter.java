@@ -50,6 +50,7 @@ public class AdminAuthenticationFilter extends AbstractAuthenticationProcessingF
             //从请求体中读出userName和password
             try (InputStream is = request.getInputStream()){
                 AuthenticationBean authenticationBean = mapper.readValue(is,AuthenticationBean.class);
+
                 authRequest = new UsernamePasswordAuthenticationToken(
                         authenticationBean.getAdminName(), authenticationBean.getAdminPassword());
                 setDetails(request, authRequest);

@@ -122,6 +122,7 @@ public class StrUtil {
         return String.valueOf(System.currentTimeMillis()) + userId;
     }
 
+
     /**
      * 根据给定字符串，生成encryptKey.
      *

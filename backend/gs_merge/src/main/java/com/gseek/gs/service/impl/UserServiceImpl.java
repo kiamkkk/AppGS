@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
     /**
      * 一般用户权限
      * */
-    private final String AUTHORITIE_ORDINARYUSER="USER";
+    private final String AUTHORITIE_ORDINARY_USER="USER";
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -137,12 +137,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         List<GrantedAuthority> authorities= new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(AUTHORITIE_ORDINARYUSER));
+        authorities.add(new SimpleGrantedAuthority(AUTHORITIE_ORDINARY_USER));
         OrdinaryUser user=new OrdinaryUser(username,authorities);
 
         UserPasswordDO userPasswordDO =userPasswordMapper.selectUserPasswordByUsername(username);
         if (userPasswordDO ==null){
-            log.debug("UsernameNotFound|"+username);
+            log.debug("UsernameNotFound {}",username);
             throw new UsernameNotFoundException("UsernameNotFound:"+username);
         }
 
