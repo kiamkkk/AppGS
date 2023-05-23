@@ -49,5 +49,8 @@ public interface MoneyMapper {
     MoneyBO selectMoneyBOByUserId(@Param("userId") int userId);
     int frozenUser(int userId);
     int unfrozenUser(int userId);
+    int returnMoneyByDegree(@Param("billId") int billId,@Param("rate") BigDecimal rate);
+    int returnBuyerAppealMoney(int billId);
+    int returnSellerAppealMoney(int billId);
 
 }

@@ -26,8 +26,6 @@ public interface AdminMapper {
     SellerToBuyerAppealBO querySellerAppealById(int appealId);
     BuyerToSellerAppealBO queryBuyerAppealById(int appealId);
     //TODO 缺少把商品加入未审核表的SQL
-    //todo long和date的转换（？
-//    todo 其他权限的控制和查看
     int auditGood(GoodCheckedDO goodChecked);
     int auditSellerAppeal(SellerToBuyerAppealResultBO sellerToBuyerAppealResultBO);
     int auditBuyerAppeal(BuyerToSellerAppealResultBO buyerToSellerAppealResultBO);

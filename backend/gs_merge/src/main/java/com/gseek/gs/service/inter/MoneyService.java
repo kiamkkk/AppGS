@@ -51,4 +51,7 @@ public interface MoneyService {
     String getWalletInformation(int userId) throws JsonProcessingException;
     int frozenUser(int userId);
     int unfrozenUser(int userId);
+    void returnMoneyByDegree(int billId,int degree,int buyerId);
+    void returnBuyerAppealMoney(int billId,int buyerId);
+    void returnSellerAppealMoney(int billId,int sellerId,int degree);
 }

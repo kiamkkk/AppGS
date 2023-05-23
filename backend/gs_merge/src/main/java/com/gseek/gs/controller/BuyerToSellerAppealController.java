@@ -40,7 +40,7 @@ public class BuyerToSellerAppealController {
     @Autowired
     GoodMapper goodMapper;
     @Autowired
-    MoneyMapper moneyMapper;
+    MoneyService moneyService;
     @Autowired
     BillService billService;
     @Autowired
@@ -51,7 +51,7 @@ public class BuyerToSellerAppealController {
                                          @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws JsonProcessingException {
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             int respondentId=billMapper.selectBillByBillId(billId).getSellerId();
-            moneyMapper.frozenUser(respondentId);
+            moneyService.frozenUser(respondentId);
             String realPath= FileUtils.fileUtil(provePic,request);
             BuyerToSellerAppealDTO buyerToSellerAppealDTO=new BuyerToSellerAppealDTO(appealReason,realPath,billId,myId);
             buyerToSellerAppealService.addBuyerToSellerAppeal(buyerToSellerAppealDTO);
@@ -89,15 +89,18 @@ public class BuyerToSellerAppealController {
     public String deleteAppeal(@PathVariable int appealId,
                                @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws JsonProcessingException {
         if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
-            buyerToSellerAppealService.deleteAppeal(appealId);
-            if(buyerToSellerAppealService.queryResult(appealId).isAppeal_result()){
-                //TODO 余额返还
 
+            if(buyerToSellerAppealService.queryResult(appealId).isAppeal_result()){
                 int billId=buyerToSellerAppealService.queryAppeal(appealId).getBill_id();
-                moneyMapper.unfrozenUser(billService.selectBill(billId).getSellerId());
+//                余额返还
+                moneyService.returnBuyerAppealMoney(billId,billService.selectBill(billId).getSellerId());
+
+                moneyService.unfrozenUser(billService.selectBill(billId).getSellerId());
                 //从黑名单内删除
                 blacklistService.deleteReport(blacklistService.queryBlackId(billService.selectBill(billId).getBuyerId(),billService.selectBill(billId).getSellerId()));
+
             }
+            buyerToSellerAppealService.deleteAppeal(appealId);
             return result.gainDeleteSuccess();
         }
 
@@ -106,15 +109,19 @@ public class BuyerToSellerAppealController {
             if (buyerToSellerAppealService.queryMyId(appealId)!=details.getUserId()){
                 throw new ForbiddenException();
             }
-            buyerToSellerAppealService.deleteAppeal(appealId);
+
             if(buyerToSellerAppealService.queryResult(appealId).isAppeal_result()){
-                //TODO 余额返还
 
                 int billId=buyerToSellerAppealService.queryAppeal(appealId).getBill_id();
-                moneyMapper.unfrozenUser(billService.selectBill(billId).getSellerId());
+                //                余额返还
+                moneyService.returnBuyerAppealMoney(billId,billService.selectBill(billId).getSellerId());
+
+                moneyService.unfrozenUser(billService.selectBill(billId).getSellerId());
                 //从黑名单内删除
                 blacklistService.deleteReport(blacklistService.queryBlackId(details.getUserId(),billService.selectBill(billId).getSellerId()));
+
             }
+            buyerToSellerAppealService.deleteAppeal(appealId);
             return result.gainDeleteSuccess();
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");

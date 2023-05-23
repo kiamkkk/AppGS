@@ -16,6 +16,7 @@ import com.gseek.gs.pojo.dto.BuyerToSellerAppealDTO;
 import com.gseek.gs.pojo.dto.SellerToBuyerAppealDTO;
 import com.gseek.gs.service.inter.BillService;
 import com.gseek.gs.service.inter.BlacklistService;
+import com.gseek.gs.service.inter.MoneyService;
 import com.gseek.gs.service.inter.SellerToBuyerAppealService;
 import com.gseek.gs.util.FileUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,7 +40,6 @@ import java.util.Map;
 @RequestMapping("/after_sale/seller")
 @Slf4j
 public class SellerToBuyerAppealController {
-    //TODO 和buyer的controller一样的TODO也要改
     //TODO 图片名字也得放进来啊
     @Autowired
     SellerToBuyerAppealService sellerToBuyerAppealService;
@@ -48,7 +48,7 @@ public class SellerToBuyerAppealController {
     @Autowired
     BlacklistService blacklistService;
     @Autowired
-    MoneyMapper moneyMapper;
+    MoneyService moneyService;
     @Autowired
     BillMapper billMapper;
     @Autowired
@@ -84,16 +84,19 @@ public class SellerToBuyerAppealController {
     public String deleteAppeal(@PathVariable int appealId,
                                @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws JsonProcessingException {
         if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
-            sellerToBuyerAppealService.deleteAppeal(appealId);
+
             if(sellerToBuyerAppealService.queryResult(appealId).isAppeal_result()){
-                //TODO 余额返还
+                int degree=sellerToBuyerAppealService.queryResult(appealId).getDamage_degree();
+                // 余额返还
                 int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBill_id();
-                moneyMapper.unfrozenUser(billService.selectBill(billId).getSellerId());
+                moneyService.returnSellerAppealMoney(billId,billService.selectBill(billId).getBuyerId(),degree);
+                moneyService.unfrozenUser(billService.selectBill(billId).getSellerId());
 
                 //从黑名单内删除
-                //todo 这里可能要查询一下在黑名单的id
-                blacklistService.deleteReport(appealId);
+
+                blacklistService.deleteReport(blacklistService.queryBlackId(billService.selectBill(billId).getBuyerId(),billService.selectBill(billId).getBuyerId()));
             }
+            sellerToBuyerAppealService.deleteAppeal(appealId);
             return result.gainDeleteSuccess();
         }
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
@@ -101,16 +104,19 @@ public class SellerToBuyerAppealController {
             if (sellerToBuyerAppealService.queryMyId(appealId)!=details.getUserId()){
                 throw new ForbiddenException();
             }
-            sellerToBuyerAppealService.deleteAppeal(appealId);
+
             if(sellerToBuyerAppealService.queryResult(appealId).isAppeal_result()){
-                //TODO 余额返还
+                int degree=sellerToBuyerAppealService.queryResult(appealId).getDamage_degree();
+                // 余额返还
                 int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBill_id();
-                moneyMapper.unfrozenUser(billService.selectBill(billId).getSellerId());
+                moneyService.returnSellerAppealMoney(billId,billService.selectBill(billId).getBuyerId(),degree);
+                moneyService.unfrozenUser(billService.selectBill(billId).getSellerId());
 
                 //从黑名单内删除
-                //todo 这里可能要查询一下在黑名单的id
-                blacklistService.deleteReport(appealId);
+
+                blacklistService.deleteReport(blacklistService.queryBlackId(details.getUserId(),billService.selectBill(billId).getBuyerId()));
             }
+            sellerToBuyerAppealService.deleteAppeal(appealId);
             return result.gainDeleteSuccess();
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
