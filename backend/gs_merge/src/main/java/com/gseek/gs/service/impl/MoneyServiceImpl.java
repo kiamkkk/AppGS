@@ -85,10 +85,11 @@ public class MoneyServiceImpl implements MoneyService {
     @Override
     public void payToSeller(int billId, int buyerId)
         throws RemainNotEnoughException{
+        BigDecimal payFee=agreementFee.add(BigDecimal.ONE);
         // 判断买家余额是否充足
         BigDecimal goodPrice=goodMapper.selectPriceByBillId(billId);
         BigDecimal buyerIdRemain=remainAvailable(buyerId);
-        if (goodPrice.compareTo(buyerIdRemain.multiply(agreementFee)) < 0){
+        if (goodPrice.compareTo(buyerIdRemain.multiply(payFee)) < 0){
             throw new RemainNotEnoughException();
         }
         moneyMapper.payToSeller(billId);

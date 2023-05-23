@@ -2,7 +2,6 @@ package com.gseek.gs.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,26 +35,26 @@ public class StrUtilTest {
         assert StrUtil.checkUserName("gseekUser1");
     }
 
-    @Disabled
+
     @Test
     public void checkUserNameWhenWrong(){
         assert ! StrUtil.checkUserName("Bear\s##user123nNAME爱我中华 ");
     }
 
-    @Disabled
+
     @Test
     public void checkEmailWhenRight(){
         assert StrUtil.checkEmail("12345678@sad.vom");
 
     }
 
-    @Disabled
+
     @Test
     public void checkEmailWhenWrong(){
         assert ! StrUtil.checkEmail("12345$678#sad.vom");
     }
 
-    @Disabled
+
     @Test
     public void desensitizeIdNumberTest(){
         System.err.println(StrUtil.desensitizeIdNumber("37282420041306611x"));
