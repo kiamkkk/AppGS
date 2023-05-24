@@ -23,6 +23,7 @@ public class TokenUtilTest {
 
     @Test
     public void test(){
+
         List<Integer> integers= new ArrayList<>();
         integers.add(1);
         integers.add(2);

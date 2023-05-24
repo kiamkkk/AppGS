@@ -170,4 +170,8 @@
         where b.bill_id=#{billId};
     </select>
 
+    <update id="updateOwnUserName">
+        update good set own_user_name=#{patchUserName} where own_user_name=#{originUserName};
+    </update>
+
 </mapper>

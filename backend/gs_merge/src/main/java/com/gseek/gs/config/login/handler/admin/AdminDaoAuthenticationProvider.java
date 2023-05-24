@@ -1,9 +1,7 @@
 package com.gseek.gs.config.login.handler.admin;
 
-import com.gseek.gs.config.login.handler.CustomWebAuthenticationDetails;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.pojo.bean.OrdinaryAdmin;
-import com.gseek.gs.pojo.bean.OrdinaryUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
