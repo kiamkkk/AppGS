@@ -10,9 +10,11 @@ import com.gseek.gs.dao.GoodMapper;
 import com.gseek.gs.dao.MoneyMapper;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.business.ForbiddenException;
+import com.gseek.gs.pojo.bean.AppealMessageBean;
 import com.gseek.gs.pojo.dto.BuyerToSellerAppealDTO;
 import com.gseek.gs.service.inter.*;
 import com.gseek.gs.util.FileUtils;
+import com.gseek.gs.websocket.controller.MessageController;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,8 @@ public class BuyerToSellerAppealController {
     MoneyService moneyService;
     @Autowired
     BillService billService;
+    @Autowired
+    MessageController messageController;
     @Autowired
     Result result;
     @PostMapping("/complain")
@@ -98,7 +102,9 @@ public class BuyerToSellerAppealController {
                 moneyService.unfrozenUser(billService.selectBill(billId).getSellerId());
                 //从黑名单内删除
                 blacklistService.deleteReport(blacklistService.queryBlackId(billService.selectBill(billId).getBuyerId(),billService.selectBill(billId).getSellerId()));
-
+                //通知
+                AppealMessageBean appealMessageBean=buyerToSellerAppealService.message(appealId);
+                messageController.appealRemove(appealMessageBean);
             }
             buyerToSellerAppealService.deleteAppeal(appealId);
             return result.gainDeleteSuccess();
@@ -119,7 +125,9 @@ public class BuyerToSellerAppealController {
                 moneyService.unfrozenUser(billService.selectBill(billId).getSellerId());
                 //从黑名单内删除
                 blacklistService.deleteReport(blacklistService.queryBlackId(details.getUserId(),billService.selectBill(billId).getSellerId()));
-
+                //通知
+                AppealMessageBean appealMessageBean=buyerToSellerAppealService.message(appealId);
+                messageController.appealRemove(appealMessageBean);
             }
             buyerToSellerAppealService.deleteAppeal(appealId);
             return result.gainDeleteSuccess();

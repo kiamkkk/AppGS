@@ -69,7 +69,7 @@
         set money = money -
                     (select good_price from good where good_id =
                                                        (select good_id from bill where bill_id=#{billId})
-                    )
+                    )*1.01
         where user_id=
               (select buyer_id from bill where bill_id=#{billId}) ;
 

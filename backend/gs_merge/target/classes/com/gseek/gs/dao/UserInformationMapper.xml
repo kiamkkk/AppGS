@@ -31,19 +31,19 @@
         where ui.user_id=#{userId};
     </select>
 
-    <update id="updateUserInformation" parameterType="com.gseek.gs.pojo.data.UserInformationDO">
+    <update id="updateUserInformation" >
 
         update user_information
         <set>
             <if test="userInformationDO.email != null">
                 email=#{userInformationDO.email},
             </if>
-            <if test="profilePhoto != null">
+            <if test="userInformationDO.profilePhoto != null">
                 profile_photo=#{userInformationDO.profilePhoto},
             </if>
         </set>
         <where>
-            user_id=#{userId};
+            user_id=#{userInformationDO.userId};
         </where>
 
     </update>

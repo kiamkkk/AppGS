@@ -14,6 +14,7 @@ import com.gseek.gs.pojo.data.BlacklistDO;
 import com.gseek.gs.pojo.dto.BlacklistDTO;
 import com.gseek.gs.service.inter.BlacklistService;
 import com.gseek.gs.util.FileUtils;
+import com.gseek.gs.websocket.controller.MessageController;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,10 @@ public class BlacklistController {
     @Autowired
     Result result;
     @Autowired
+    MessageController messageController;
+    @Autowired
     ObjectMapper objectMapper;
+
     SimpleDateFormat sdf=new SimpleDateFormat("yyyy/MM/dd/");
     //TODO： 改变存图片的路径，从temp改到其他文件夹&&把处理文件的弄到一个工具类里面去
     @PostMapping("/")
@@ -94,7 +98,8 @@ public class BlacklistController {
             return objectMapper.writeValueAsString(blacklistService.queryReport(blackId));
         }
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-            if (blacklistService.queryReport(blackId).getClaimer_id()!=details.getUserId()){
+            if (blacklistService.queryReport(blackId).getClaimer_id()!=details.getUserId()
+            ||blacklistService.queryReport(blackId).getRespondent_id()!=details.getUserId()){
                 throw new ForbiddenException();
             }
             return objectMapper.writeValueAsString(blacklistService.queryReport(blackId));
@@ -115,7 +120,11 @@ public class BlacklistController {
             if (blacklistService.queryReport(blackId).getClaimer_id()!=details.getUserId()){
                 throw new ForbiddenException();
             }
+            if(blacklistService.queryResult(blackId).isAppeal_result()){
+                messageController.blacklistRemove(blacklistService.queryReport(blackId).getRespondent_id());
+            }
                 blacklistService.deleteReport(blackId);
+
             return result.gainDeleteSuccess();
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");

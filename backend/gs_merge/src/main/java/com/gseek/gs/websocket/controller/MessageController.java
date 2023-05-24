@@ -6,15 +6,14 @@ import com.gseek.gs.common.Result;
 import com.gseek.gs.config.login.handler.CustomWebAuthenticationDetails;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.business.ForbiddenException;
+import com.gseek.gs.pojo.bean.AppealMessageBean;
+import com.gseek.gs.pojo.business.BlacklistBO;
 import com.gseek.gs.pojo.business.GoodAccountBO;
 import com.gseek.gs.pojo.dto.ChatBlockDTO;
 import com.gseek.gs.pojo.dto.PostChatImgDTO;
 import com.gseek.gs.service.inter.ChatRecordService;
 import com.gseek.gs.util.MinioUtil;
-import com.gseek.gs.websocket.message.AnnounceMessage;
-import com.gseek.gs.websocket.message.BaseMessage;
-import com.gseek.gs.websocket.message.ChatPicMessage;
-import com.gseek.gs.websocket.message.NoticeMessage;
+import com.gseek.gs.websocket.message.*;
 import com.gseek.gs.websocket.service.MessageService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -80,6 +79,26 @@ public class MessageController {
      * */
     public void general(NoticeMessage message) {
         messageService.sendMessage(message);
+    }
+    /**
+     * 被加入黑名单通知
+     *
+     * */
+    public void blacklist(BlacklistBO blacklistBO) {
+        BlacklistNotice message=new BlacklistNotice(blacklistBO,objectMapper);
+        messageService.sendMessage(message);
+    }
+    public void blacklistRemove(int toUserId){
+        BlacklistNotice blacklistNotice=new BlacklistNotice("被移出黑名单",toUserId);
+        messageService.sendMessage(blacklistNotice);
+    }
+    public void appeal( AppealMessageBean appealMessageBean){
+        AppealNoticeMessage appealNoticeMessage=new AppealNoticeMessage(appealMessageBean);
+        messageService.sendMessage(appealNoticeMessage);
+    }
+    public void appealRemove(AppealMessageBean appealMessageBean){
+        AppealNoticeMessage appealNoticeMessage=new AppealNoticeMessage("被移出黑名单",appealMessageBean);
+        messageService.sendMessage(appealNoticeMessage);
     }
 
     /**

@@ -3,9 +3,7 @@ package com.gseek.gs.websocket.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.pojo.dto.ChatBlockDTO;
-import com.gseek.gs.websocket.message.BaseMessage;
-import com.gseek.gs.websocket.message.ChatTextMessage;
-import com.gseek.gs.websocket.message.MessageType;
+import com.gseek.gs.websocket.message.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -88,6 +86,9 @@ public class MessageService {
             case DELIVERY -> {
                 operations.convertAndSendToUser(bm.getToUserId() + "", "/remind/delivery", bm);
             }
+            case BLACKLIST -> {
+                operations.convertAndSendToUser(bm.getToUserId()+"","/remind/blacklist/",bm);
+            }
             case CHAT_PIC,CHAT_TEXT-> {
                 operations.convertAndSendToUser(bm.getToUserId() + "", "/chat", bm);
             }
@@ -95,6 +96,13 @@ public class MessageService {
                 log.error("无法识别消息类别，消息内容为:\n{}", bm);
             }
         }
+    }
+    //黑名单的消息提醒
+    public void sendMessage(BlacklistMessageBase bm){
+                operations.convertAndSendToUser(bm.getToUserId()+"","/remind/blacklist/",bm);
+    }
+    public void sendMessage(AppealMessageBase bm){
+        operations.convertAndSendToUser(bm.getToUserId()+"","/remind/appeal",bm);
     }
 
     public void blockOrUnblock(ChatBlockDTO dto){

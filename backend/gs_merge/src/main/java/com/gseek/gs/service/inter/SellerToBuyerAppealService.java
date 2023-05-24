@@ -1,6 +1,7 @@
 package com.gseek.gs.service.inter;
 
 
+import com.gseek.gs.pojo.bean.AppealMessageBean;
 import com.gseek.gs.pojo.business.SellerToBuyerAppealBO;
 import com.gseek.gs.pojo.business.SellerToBuyerAppealResultBO;
 import com.gseek.gs.pojo.dto.SellerToBuyerAppealDTO;
@@ -18,4 +19,5 @@ public interface SellerToBuyerAppealService {
     SellerToBuyerAppealResultBO queryResult(int appealId);
     int updateAppeal(SellerToBuyerAppealDTO sellerToBuyerAppealDTO);
     int queryMyId(int appealId);
+    AppealMessageBean message(int appealId);
 }

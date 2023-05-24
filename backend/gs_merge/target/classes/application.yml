@@ -10,8 +10,8 @@ spring:
 
   datasource:
     url: jdbc:mysql://localhost:3306/gseek?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
-    username: gseek
-    password: Gseek_123
+    username: root
+    password: willa1234
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   data:
@@ -30,10 +30,10 @@ spring:
   rabbitmq:
     host: 127.0.0.1
     port: 5672
-    username: gseek
-    password: gseek
-    virtual-host: GseekHost
-    relay_host: GseekHost
+    username: guest
+    password: guest
+#    virtual-host: GseekHost
+#    relay_host: GseekHost
 
 logging:
   level:
@@ -52,7 +52,7 @@ minio:
 # 自定义参数
 custom:
   # aes加密key值，在PasswordUtil#init中用到
-  encryptKey: "test1encrypt2key"
+  encryptKey: test1encrypt2key
   # 平台抽成后卖家获得多少钱
 
   agreementFee: 0.01

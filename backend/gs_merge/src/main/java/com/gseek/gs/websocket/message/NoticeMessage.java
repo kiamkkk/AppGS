@@ -1,6 +1,7 @@
 package com.gseek.gs.websocket.message;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gseek.gs.pojo.business.BlacklistBO;
 import com.gseek.gs.pojo.business.GoodAccountBO;
 
 /**
@@ -24,5 +25,7 @@ public class NoticeMessage extends BaseMessage{
         super(SYSTEM_FROM_USER_ID, bo.getBuyerId(),SYSTEM_GOOD_ID,SYSTEM_FROM_USER_NAME,
                 MessageType.DELIVERY.name(), bo.toMessage(objectMapper), time);
     }
+
+
 
 }
