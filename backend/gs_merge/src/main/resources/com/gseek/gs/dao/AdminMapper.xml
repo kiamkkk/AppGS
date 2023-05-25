@@ -6,8 +6,8 @@
 
     <resultMap id="BaseResultMap" type="com.gseek.gs.pojo.data.AdminDO">
         <id column="admin_id" jdbcType="INTEGER" property="adminId" />
-        <result column="admin_name" jdbcType="VARCHAR" property="adminName" />
         <result column="admin_password" jdbcType="VARCHAR" property="adminPassword" />
+        <result column="admin_name" jdbcType="VARCHAR" property="adminName" />
         <result column="salt" jdbcType="VARCHAR" property="salt" />
     </resultMap>
 

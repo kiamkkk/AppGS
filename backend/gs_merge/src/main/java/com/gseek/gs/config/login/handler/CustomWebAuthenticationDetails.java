@@ -13,7 +13,7 @@ import java.util.Objects;
 @Slf4j
 public class CustomWebAuthenticationDetails extends WebAuthenticationDetails {
 
-    private int userId;
+    private Integer userId;
 
     public CustomWebAuthenticationDetails(HttpServletRequest request) {
         super(request);

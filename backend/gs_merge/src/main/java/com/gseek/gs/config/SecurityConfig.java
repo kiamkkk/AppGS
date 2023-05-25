@@ -27,14 +27,22 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${custom.localhost}")
-    public String localhost;
-    @Value("${server.port}")
-    public String port;
-    @Value("${server.servlet.context-path}")
-    public String contextPath;
-    public String baseUrl="http://"+localhost+port+contextPath;
-    public String loginFormUrl=baseUrl+"/users";
+
+//    @Value("${custom.localhost}")
+//    public String localhost;
+//    @Value("${server.port}")
+//    public String port;
+//    @Value("${server.servlet.context-path}")
+//    public String contextPath;
+//    public String baseUrl="http://"+localhost+port+contextPath;
+//    public String loginFormUrl=baseUrl+"/users";
+
+    private String localhost;
+    private String port;
+    private String contextPath;
+    public String baseUrl;
+    public String loginFormUrl;
+
 
     @Autowired
     @Qualifier("userServiceImpl")
@@ -64,12 +72,31 @@ public class SecurityConfig {
                 .requestMatchers("/users/**","/buyer/**","/buyer/**","/goods/**","/seller/**","/trade/**").hasAnyAuthority("USER","ADMIN")
                 .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
                 .anyRequest().authenticated()
-        ;
+
+                .and().exceptionHandling().authenticationEntryPoint(
+                        new CustomerAuthenticationEntryPoint(getLoginFormUrl())
+                );
+
+
 
 
         httpSecurity
-                .addFilterAt(authenticationFilter(successHandler, failureHandler), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAt(adminAuthenticationFilter(adminAuthenticationSuccessHandler, adminAuthenticationFailureHandler), UsernamePasswordAuthenticationFilter.class)
+
+                .addFilterAt(
+                        authenticationFilter(
+                                successHandler,
+                                failureHandler
+                        ),
+                        UsernamePasswordAuthenticationFilter.class
+                )
+                .addFilterAt(
+                        adminAuthenticationFilter(
+                                adminAuthenticationSuccessHandler,
+                                adminAuthenticationFailureHandler
+                        ),
+                        UsernamePasswordAuthenticationFilter.class
+                )
+
                 .addFilterBefore(jwtAuthenticationTokenFilter, CustomAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationTokenFilter, AdminAuthenticationFilter.class)
                 ;
@@ -93,7 +120,14 @@ public class SecurityConfig {
     public CustomAuthenticationFilter authenticationFilter(CustomAuthenticationSuccessHandler successHandler,
                                                            CustomAuthenticationFailureHandler failureHandler) {
         CustomAuthenticationFilter filter = new CustomAuthenticationFilter();
-        filter.setAuthenticationManager(new ProviderManager(authenticationProvider(userService())));
+
+        filter.setAuthenticationManager(
+                new ProviderManager(
+                        userAuthenticationProvider(userService())
+/*                        adminAuthenticationProvider(adminService())*/
+                )
+        );
+
         filter.setAuthenticationSuccessHandler(successHandler);
         filter.setAuthenticationFailureHandler(failureHandler);
         filter.setAuthenticationDetailsSource(new CustomWebAuthenticationDetailsSource());
@@ -103,7 +137,12 @@ public class SecurityConfig {
     public AdminAuthenticationFilter adminAuthenticationFilter(AdminAuthenticationSuccessHandler successHandler,
                                                                AdminAuthenticationFailureHandler failureHandler) {
         AdminAuthenticationFilter filter = new AdminAuthenticationFilter();
-        filter.setAuthenticationManager(new ProviderManager(adminAuthenticationProvider(adminService())));
+        filter.setAuthenticationManager(
+                new ProviderManager(
+                        adminAuthenticationProvider(adminService()
+                        )
+                )
+        );
         filter.setAuthenticationSuccessHandler(successHandler);
         filter.setAuthenticationFailureHandler(failureHandler);
         filter.setAuthenticationDetailsSource(new AdminWebAuthenticationDetailsSource());
@@ -134,4 +173,44 @@ public class SecurityConfig {
         provider.setUserDetailsService(adminService);
         return provider;
     }
+
+    public String getLocalhost() {
+        return localhost;
+    }
+    @Value("${custom.localhost}")
+    public void setLocalhost(String localhost) {
+        this.localhost = localhost;
+    }
+
+    public String getPort() {
+        return port;
+    }
+    @Value("${server.port}")
+    public void setPort(String port) {
+        this.port = port;
+    }
+
+    public String getContextPath() {
+        return contextPath;
+    }
+    @Value("${server.servlet.context-path}")
+    public void setContextPath(String contextPath) {
+        this.contextPath = contextPath;
+    }
+
+
+    public String getBaseUrl() {
+        if (baseUrl==null){
+            baseUrl="http://"+getLocalhost()+":"+getPort()+getContextPath();
+        }
+        return baseUrl;
+    }
+
+    public String getLoginFormUrl() {
+        if (loginFormUrl==null){
+            loginFormUrl=getBaseUrl()+"users";
+        }
+        return loginFormUrl;
+    }
+
 }

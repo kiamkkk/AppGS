@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
@@ -162,6 +163,7 @@ public class MessageController {
      * 用户聊天时发送图片
      *
      * */
+
     @PostMapping("/chats/imgs/{good_id}/{user_id}")
     public String postChatImg(@CurrentSecurityContext(expression = "authentication ") Authentication authentication,
                               HttpServletRequest request,
@@ -220,6 +222,11 @@ public class MessageController {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
             throw new ServerException("认证时出错");
         }
+
+    }
+
+    @Async("")
+    private void saveChatRecode(){
 
     }
 
