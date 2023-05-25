@@ -10,6 +10,7 @@ import com.gseek.gs.dao.BillMapper;
 import com.gseek.gs.dao.MoneyMapper;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.business.ForbiddenException;
+import com.gseek.gs.pojo.bean.AppealMessageBean;
 import com.gseek.gs.pojo.business.SellerToBuyerAppealBO;
 import com.gseek.gs.pojo.business.SellerToBuyerAppealResultBO;
 import com.gseek.gs.pojo.dto.BuyerToSellerAppealDTO;
@@ -19,6 +20,7 @@ import com.gseek.gs.service.inter.BlacklistService;
 import com.gseek.gs.service.inter.MoneyService;
 import com.gseek.gs.service.inter.SellerToBuyerAppealService;
 import com.gseek.gs.util.FileUtils;
+import com.gseek.gs.websocket.controller.MessageController;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +53,8 @@ public class SellerToBuyerAppealController {
     MoneyService moneyService;
     @Autowired
     BillMapper billMapper;
+    @Autowired
+    MessageController messageController;
     @Autowired
     Result result;
     @PostMapping("/complain")
@@ -95,6 +99,9 @@ public class SellerToBuyerAppealController {
                 //从黑名单内删除
 
                 blacklistService.deleteReport(blacklistService.queryBlackId(billService.selectBill(billId).getBuyerId(),billService.selectBill(billId).getBuyerId()));
+                //通知
+                AppealMessageBean appealMessageBean=sellerToBuyerAppealService.message(appealId);
+                messageController.appealRemove(appealMessageBean);
             }
             sellerToBuyerAppealService.deleteAppeal(appealId);
             return result.gainDeleteSuccess();
@@ -115,6 +122,9 @@ public class SellerToBuyerAppealController {
                 //从黑名单内删除
 
                 blacklistService.deleteReport(blacklistService.queryBlackId(details.getUserId(),billService.selectBill(billId).getBuyerId()));
+                //通知
+                AppealMessageBean appealMessageBean=sellerToBuyerAppealService.message(appealId);
+                messageController.appealRemove(appealMessageBean);
             }
             sellerToBuyerAppealService.deleteAppeal(appealId);
             return result.gainDeleteSuccess();

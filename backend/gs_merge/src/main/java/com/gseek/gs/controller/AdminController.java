@@ -1,12 +1,14 @@
 package com.gseek.gs.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.common.Result;
 import com.gseek.gs.config.login.handler.admin.AdminWebAuthenticationDetails;
 import com.gseek.gs.dao.BillMapper;
 import com.gseek.gs.dao.GoodMapper;
 import com.gseek.gs.dao.MoneyMapper;
 import com.gseek.gs.exce.ServerException;
+import com.gseek.gs.pojo.bean.AppealMessageBean;
 import com.gseek.gs.pojo.business.*;
 import com.gseek.gs.pojo.data.BillDO;
 import com.gseek.gs.pojo.data.BlacklistDO;
@@ -14,6 +16,8 @@ import com.gseek.gs.pojo.data.GoodCheckedDO;
 import com.gseek.gs.pojo.dto.AdminBlacklistDTO;
 import com.gseek.gs.pojo.dto.BlacklistDTO;
 import com.gseek.gs.service.inter.*;
+import com.gseek.gs.websocket.controller.MessageController;
+import com.gseek.gs.websocket.message.NoticeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -53,6 +57,10 @@ public class AdminController {
     @Autowired
     GoodMapper goodMapper;
     @Autowired
+    MessageController messageController;
+    @Autowired
+    ObjectMapper objectMapper;
+    @Autowired
     Result result;
     //TODO 过滤器
     @GetMapping("/audit/report/unChecked")
@@ -73,6 +81,10 @@ public class AdminController {
         if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
             blacklistService.auditReport(blacklistResultBO);
             blacklistService.updateCheck(blackId);
+            if(blacklistResultBO.isAppeal_result()){
+                BlacklistBO blacklistBO=blacklistService.queryReport(blackId);
+                messageController.blacklist(blacklistBO);
+            }
             return result.gainPatchSuccess();
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
@@ -86,6 +98,11 @@ public class AdminController {
         if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
             goodCheckedDO.setGoodId(goodId);
             adminService.auditGood(goodCheckedDO);
+            if(goodCheckedDO.isResult()){
+                int toUserId=goodMapper.selectOwnUserIdByGoodId(goodId);
+                NoticeMessage noticeMessage=new NoticeMessage("商品审核通过",System.currentTimeMillis(),toUserId);
+                messageController.general(noticeMessage);
+            }
             return result.gainPutSuccess();
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
@@ -120,6 +137,10 @@ public class AdminController {
                 int blackId=blacklistService.queryBlackId(claimerId,respondentId);
                 BlacklistResultBO blacklistResultBO=new BlacklistResultBO(true,true,adminDetails.getAdminId(),blackId,"");
                 blacklistService.auditReport(blacklistResultBO);
+                BlacklistBO blacklistBO=blacklistService.queryReport(blackId);
+                messageController.blacklist(blacklistBO);
+                AppealMessageBean appealMessageBean=buyerToSellerAppealService.message(appealId);
+                messageController.appeal(appealMessageBean);
             }
             adminService.auditBuyerAppeal(buyerToSellerAppealResultBO);
             return result.gainPatchSuccess();
@@ -136,13 +157,12 @@ public class AdminController {
             sellerToBuyerAppealResultBO.setAdmin_id(appealId);
             int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBill_id();
             if (sellerToBuyerAppealResultBO.isAppeal_result()){
+                int claimerId =sellerToBuyerAppealService.queryAppeal(appealId).getMyId();
                 if(sellerToBuyerAppealResultBO.isAccept()){
                     if(sellerToBuyerAppealResultBO.getDamage_degree()==3){
-                        //TODO 通知买家
+
 //
                         //加入黑名单
-                        SellerToBuyerAppealBO b=sellerToBuyerAppealService.queryAppeal(appealId);
-                        int claimerId =b.getMyId();
                         int respondentId=billService.selectBill(billId).getBuyerId();
 //                    返回钱
                         moneyService.returnMoney(billId,respondentId);
@@ -153,6 +173,10 @@ public class AdminController {
                         int blackId=blacklistService.queryBlackId(claimerId,respondentId);
                         BlacklistResultBO blacklistResultBO=new BlacklistResultBO(true,true,adminDetails.getAdminId(),blackId,"");
                         blacklistService.auditReport(blacklistResultBO);
+                        BlacklistBO blacklistBO=blacklistService.queryReport(blackId);
+                        messageController.blacklist(blacklistBO);
+                        AppealMessageBean appealMessageBean=buyerToSellerAppealService.message(appealId);
+                        messageController.appeal(appealMessageBean);
                     }
                     else {
                         int respondentId=billService.selectBill(billId).getBuyerId();
@@ -162,11 +186,13 @@ public class AdminController {
 
                 // 账号没有损伤
                 if(!sellerToBuyerAppealResultBO.isAppeal_result()){
-                    //TODO 告知卖家结束过程，协调程序不确定怎么跳转
+
+                    NoticeMessage noticeMessage=new NoticeMessage("您的账号未损伤，申诉不通过",System.currentTimeMillis(),claimerId);
+                    messageController.general(noticeMessage);
                 }
 
             }
-            //TODO 还没写调解程序
+
             adminService.auditSellerAppeal(sellerToBuyerAppealResultBO);
             return result.gainPatchSuccess();
         }else {
