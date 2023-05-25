@@ -33,4 +33,5 @@ public interface AdminService extends UserDetailsService {
     int setGoodCheck(int goodId);
     int setSellerCheck(int appealId);
     int setBuyerCheck(int appealId);
+    int selectRandomAdmin();
 }

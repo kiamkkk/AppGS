@@ -62,7 +62,6 @@ public class UserController {
                                      @CurrentSecurityContext(expression = "Authentication") Authentication authentication)
             throws ServerException, JsonProcessingException {
         log.info("开始获取用户信息");
-
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
             return userService.getUserInformation(details.getUserId());
@@ -114,7 +113,7 @@ public class UserController {
 
             int userId=details.getUserId();
             String photoPath=minioUtil.changeProfilePhoto(userId, dto.getPicture());
-            return userService.patchUserInformation(userId,authentication.getName(),photoPath,dto);
+            return userService.patchUserInformation(userId,photoPath,dto);
 
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");

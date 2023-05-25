@@ -11,6 +11,7 @@ import com.gseek.gs.pojo.business.BlacklistBO;
 import com.gseek.gs.pojo.business.GoodAccountBO;
 import com.gseek.gs.pojo.dto.ChatBlockDTO;
 import com.gseek.gs.pojo.dto.PostChatImgDTO;
+import com.gseek.gs.service.inter.AdminService;
 import com.gseek.gs.service.inter.ChatRecordService;
 import com.gseek.gs.util.MinioUtil;
 import com.gseek.gs.websocket.message.*;
@@ -28,6 +29,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
+
+import static com.gseek.gs.websocket.message.BaseMessage.SYSTEM_GOOD_ID;
 
 /**
  * @author Phak
@@ -54,6 +57,9 @@ public class MessageController {
     @Autowired
     @Qualifier("chatRecordServiceImpl")
     ChatRecordService chatRecordService;
+    @Autowired
+    @Qualifier("adminServiceImpl")
+    AdminService adminService;
 
     /**
      * 广播
@@ -88,14 +94,27 @@ public class MessageController {
         BlacklistNotice message=new BlacklistNotice(blacklistBO,objectMapper);
         messageService.sendMessage(message);
     }
+    /**
+     * 被移出
+     * 黑名单通知
+     *
+     * */
     public void blacklistRemove(int toUserId){
         BlacklistNotice blacklistNotice=new BlacklistNotice("被移出黑名单",toUserId);
         messageService.sendMessage(blacklistNotice);
     }
+    /**
+     * 被加入申诉通知
+     *
+     * */
     public void appeal( AppealMessageBean appealMessageBean){
         AppealNoticeMessage appealNoticeMessage=new AppealNoticeMessage(appealMessageBean);
         messageService.sendMessage(appealNoticeMessage);
     }
+    /**
+     * 被移出黑名单通知
+     *
+     * */
     public void appealRemove(AppealMessageBean appealMessageBean){
         AppealNoticeMessage appealNoticeMessage=new AppealNoticeMessage("被移出黑名单",appealMessageBean);
         messageService.sendMessage(appealNoticeMessage);
@@ -109,6 +128,33 @@ public class MessageController {
     public void chat(@Payload BaseMessage message) throws JsonProcessingException {
        messageService.sendMessage(message);
         // 用另一个线程储存聊天记录
+        chatRecordService.insertMessage(message);
+    }
+    /**
+     * 客服聊天
+     *
+     * */
+    @MessageMapping("/user/admin/chat")
+    public void adminChat(@Payload AdminMessage message) throws JsonProcessingException {
+        int goodId=message.getGoodId();
+        int fromUserId=message.getFromUserId();
+        String identity=message.getFromUserName();
+        //TODO 告诉前端有身份要求
+        if(identity.equals("用户")){
+            int[] adminId=chatRecordService.selectToUser(goodId,fromUserId);
+            if(adminId[0]!=0){
+                message.setToUserId(adminId[0]);
+            }
+            else{
+                int newAdminId=adminService.selectRandomAdmin();
+                message.setToUserId(newAdminId);
+            }
+        }
+        if(identity.equals("管理员")){
+            int[] toUserId=chatRecordService.selectToUser(goodId,fromUserId);
+            message.setToUserId(toUserId[0]);
+        }
+        messageService.sendMessage(message);
         chatRecordService.insertMessage(message);
     }
 
@@ -149,6 +195,11 @@ public class MessageController {
     @GetMapping("/chats/records/{good_id}/{user_id}")
     public String getChatRecords(@PathVariable("good_id") int goodId,@PathVariable("user_id") int userId)
             throws JsonProcessingException {
+        return chatRecordService.getChatRecords(goodId,userId);
+    }
+    @GetMapping("/chats/admin/records/{goodId}/{userId}")
+    public String getAdminChatRecords(@PathVariable("goodId") int goodId,@PathVariable("userId") int userId) throws JsonProcessingException {
+        //TODO 提醒前端goodId=-1
         return chatRecordService.getChatRecords(goodId,userId);
     }
 

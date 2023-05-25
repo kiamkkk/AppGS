@@ -2,6 +2,7 @@ package com.gseek.gs.service.inter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gseek.gs.websocket.message.BaseMessage;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.scheduling.annotation.Async;
 
 /**
@@ -19,4 +20,5 @@ public interface ChatRecordService {
 
     @Async("async")
     void insertMessage(BaseMessage message);
+    int[] selectToUser(@Param("goodId") int goodId, @Param("userId") int userId);
 }

@@ -12,7 +12,7 @@ import java.util.Objects;
  * @author Phak
  * @since 2023/5/22-0:05
  */
-public class CustomMD5PasswordEncoder implements PasswordEncoder {
+public class CustomerMD5PasswordEncoder implements PasswordEncoder {
 
     @Override
     public String encode(CharSequence rawPassword) {

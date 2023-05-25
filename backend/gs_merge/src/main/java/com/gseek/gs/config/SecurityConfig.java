@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,12 +27,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private String localhost;
-    private String port;
-    private String contextPath;
-    @Lazy
+    @Value("${custom.localhost}")
+    public String localhost;
+    @Value("${server.port}")
+    public String port;
+    @Value("${server.servlet.context-path}")
+    public String contextPath;
     public String baseUrl="http://"+localhost+port+contextPath;
-    @Lazy
     public String loginFormUrl=baseUrl+"/users";
 
     @Autowired
@@ -64,24 +64,14 @@ public class SecurityConfig {
                 .requestMatchers("/users/**","/buyer/**","/buyer/**","/goods/**","/seller/**","/trade/**").hasAnyAuthority("USER","ADMIN")
                 .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
                 .anyRequest().authenticated()
-
-                .and().exceptionHandling().authenticationEntryPoint(
-                        new CustomerAuthenticationEntryPoint(loginFormUrl)
-                );
         ;
 
 
         httpSecurity
-                .addFilterAt(
-                        authenticationFilter(successHandler, failureHandler),
-                        UsernamePasswordAuthenticationFilter.class
-                )
-                .addFilterAt(
-                        adminAuthenticationFilter(adminAuthenticationSuccessHandler, adminAuthenticationFailureHandler),
-                        UsernamePasswordAuthenticationFilter.class
-                )
+                .addFilterAt(authenticationFilter(successHandler, failureHandler), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(adminAuthenticationFilter(adminAuthenticationSuccessHandler, adminAuthenticationFailureHandler), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationTokenFilter, CustomAuthenticationFilter.class)
-                /*.addFilterBefore(jwtAuthenticationTokenFilter, AdminAuthenticationFilter.class)*/
+                .addFilterBefore(jwtAuthenticationTokenFilter, AdminAuthenticationFilter.class)
                 ;
                 /*.addFilterBefore((servletRequest, servletResponse, filterChain) -> {
                     ServletRequest requestWrapper = new CustomHttpServletRequestWrapper((HttpServletRequest)servletRequest);
@@ -96,19 +86,14 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new CustomMD5PasswordEncoder();
+        return new CustomerMD5PasswordEncoder();
     }
 
     @Bean
     public CustomAuthenticationFilter authenticationFilter(CustomAuthenticationSuccessHandler successHandler,
                                                            CustomAuthenticationFailureHandler failureHandler) {
         CustomAuthenticationFilter filter = new CustomAuthenticationFilter();
-        filter.setAuthenticationManager(
-                new ProviderManager(
-                        userAuthenticationProvider(userService()),
-                        adminAuthenticationProvider(adminService())
-                )
-        );
+        filter.setAuthenticationManager(new ProviderManager(authenticationProvider(userService())));
         filter.setAuthenticationSuccessHandler(successHandler);
         filter.setAuthenticationFailureHandler(failureHandler);
         filter.setAuthenticationDetailsSource(new CustomWebAuthenticationDetailsSource());
@@ -136,8 +121,8 @@ public class SecurityConfig {
 
 
     @Bean
-    public UserDaoAuthenticationProvider userAuthenticationProvider(UserService userService) {
-        UserDaoAuthenticationProvider provider = new UserDaoAuthenticationProvider();
+    public CustomDaoAuthenticationProvider authenticationProvider(UserService userService) {
+        CustomDaoAuthenticationProvider provider = new CustomDaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder());
         provider.setUserDetailsService(userService);
         return provider;
@@ -148,29 +133,5 @@ public class SecurityConfig {
         provider.setPasswordEncoder(passwordEncoder());
         provider.setUserDetailsService(adminService);
         return provider;
-    }
-
-    public String getLocalhost() {
-        return localhost;
-    }
-    @Value("${custom.localhost}")
-    public void setLocalhost(String localhost) {
-        this.localhost = localhost;
-    }
-
-    public String getPort() {
-        return port;
-    }
-    @Value("${server.port}")
-    public void setPort(String port) {
-        this.port = port;
-    }
-
-    public String getContextPath() {
-        return contextPath;
-    }
-    @Value("${server.servlet.context-path}")
-    public void setContextPath(String contextPath) {
-        this.contextPath = contextPath;
     }
 }

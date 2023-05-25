@@ -101,10 +101,14 @@ public class MessageService {
     public void sendMessage(BlacklistMessageBase bm){
                 operations.convertAndSendToUser(bm.getToUserId()+"","/remind/blacklist/",bm);
     }
+    //申诉的消息提醒
     public void sendMessage(AppealMessageBase bm){
         operations.convertAndSendToUser(bm.getToUserId()+"","/remind/appeal",bm);
     }
-
+    //客服的消息提醒
+    public void sendMessage(AdminMessage bm){
+        operations.convertAndSendToUser(bm.getToUserId()+"","/admin/chat",bm);
+    }
     public void blockOrUnblock(ChatBlockDTO dto){
         if (blockMap.containsKey(dto.getToUserId())){
             blockMap.put(dto.getFromUserId(), new HashSet<>(16));

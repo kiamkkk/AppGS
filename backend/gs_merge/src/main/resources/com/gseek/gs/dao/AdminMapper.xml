@@ -121,4 +121,7 @@
     <update id="setBuyerCheck" parameterType="int">
         update gseek.appeal_buyer_to_seller set checked=1 where appeal_id=#{appealId};
     </update>
+    <select id="selectRandomAdmin" resultType="int">
+        select admin_id from  gseek.admin  order by   RAND() LIMIT 1;
+    </select>
 </mapper>

@@ -37,6 +37,10 @@ public enum MessageType {
      * */
     BLACKLIST_REMOVE,
     /**
+     * 和管理员聊天消息
+     * */
+    ADMIN,
+    /**
      * 被申诉通知
      * */
     APPEAL;

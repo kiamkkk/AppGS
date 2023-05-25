@@ -32,4 +32,5 @@ public interface AdminMapper {
     int setGoodCheck(int goodId);
     int setSellerCheck(int appealId);
     int setBuyerCheck(int appealId);
+    int selectRandomAdmin();
 }
