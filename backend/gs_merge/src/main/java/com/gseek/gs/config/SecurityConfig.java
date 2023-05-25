@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -31,10 +30,8 @@ public class SecurityConfig {
     private String localhost;
     private String port;
     private String contextPath;
-    @Lazy
-    public String baseUrl="http://"+localhost+port+contextPath;
-    @Lazy
-    public String loginFormUrl=baseUrl+"/users";
+    public String baseUrl;
+    public String loginFormUrl;
 
     @Autowired
     @Qualifier("userServiceImpl")
@@ -66,22 +63,28 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
 
                 .and().exceptionHandling().authenticationEntryPoint(
-                        new CustomerAuthenticationEntryPoint(loginFormUrl)
+                        new CustomerAuthenticationEntryPoint(getLoginFormUrl())
                 );
         ;
 
 
         httpSecurity
                 .addFilterAt(
-                        authenticationFilter(successHandler, failureHandler),
+                        authenticationFilter(
+                                successHandler,
+                                failureHandler
+                        ),
                         UsernamePasswordAuthenticationFilter.class
                 )
                 .addFilterAt(
-                        adminAuthenticationFilter(adminAuthenticationSuccessHandler, adminAuthenticationFailureHandler),
+                        adminAuthenticationFilter(
+                                adminAuthenticationSuccessHandler,
+                                adminAuthenticationFailureHandler
+                        ),
                         UsernamePasswordAuthenticationFilter.class
                 )
                 .addFilterBefore(jwtAuthenticationTokenFilter, CustomAuthenticationFilter.class)
-                /*.addFilterBefore(jwtAuthenticationTokenFilter, AdminAuthenticationFilter.class)*/
+                .addFilterBefore(jwtAuthenticationTokenFilter, AdminAuthenticationFilter.class)
                 ;
                 /*.addFilterBefore((servletRequest, servletResponse, filterChain) -> {
                     ServletRequest requestWrapper = new CustomHttpServletRequestWrapper((HttpServletRequest)servletRequest);
@@ -105,8 +108,8 @@ public class SecurityConfig {
         CustomAuthenticationFilter filter = new CustomAuthenticationFilter();
         filter.setAuthenticationManager(
                 new ProviderManager(
-                        userAuthenticationProvider(userService()),
-                        adminAuthenticationProvider(adminService())
+                        userAuthenticationProvider(userService())
+/*                        adminAuthenticationProvider(adminService())*/
                 )
         );
         filter.setAuthenticationSuccessHandler(successHandler);
@@ -118,7 +121,12 @@ public class SecurityConfig {
     public AdminAuthenticationFilter adminAuthenticationFilter(AdminAuthenticationSuccessHandler successHandler,
                                                                AdminAuthenticationFailureHandler failureHandler) {
         AdminAuthenticationFilter filter = new AdminAuthenticationFilter();
-        filter.setAuthenticationManager(new ProviderManager(adminAuthenticationProvider(adminService())));
+        filter.setAuthenticationManager(
+                new ProviderManager(
+                        adminAuthenticationProvider(adminService()
+                        )
+                )
+        );
         filter.setAuthenticationSuccessHandler(successHandler);
         filter.setAuthenticationFailureHandler(failureHandler);
         filter.setAuthenticationDetailsSource(new AdminWebAuthenticationDetailsSource());
@@ -172,5 +180,20 @@ public class SecurityConfig {
     @Value("${server.servlet.context-path}")
     public void setContextPath(String contextPath) {
         this.contextPath = contextPath;
+    }
+
+
+    public String getBaseUrl() {
+        if (baseUrl==null){
+            baseUrl="http://"+getLocalhost()+":"+getPort()+getContextPath();
+        }
+        return baseUrl;
+    }
+
+    public String getLoginFormUrl() {
+        if (loginFormUrl==null){
+            loginFormUrl=getBaseUrl()+"users";
+        }
+        return loginFormUrl;
     }
 }

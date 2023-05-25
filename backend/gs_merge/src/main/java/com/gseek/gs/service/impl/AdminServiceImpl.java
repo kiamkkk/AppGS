@@ -39,9 +39,10 @@ public class AdminServiceImpl implements AdminService {
         authorities.add(new SimpleGrantedAuthority(AUTHORITIE_ORDINARYUSER));
         OrdinaryAdmin admin=new OrdinaryAdmin(adminName,authorities);
 
+        //todo adminDO查出来是null
         AdminDO adminDO =adminMapper.selectAdminByAdminName(adminName);
         if (adminDO ==null){
-            log.debug("AdminNameFound|"+adminName);
+            log.info("AdminNameFound|"+adminName);
             throw new UsernameNotFoundException("AdminNameNotFound:"+adminName);
         }
         admin.setPassword(UserService.PREFIX+adminDO.getSalt()+UserService.SUFFIX+adminDO.getAdminPassword());

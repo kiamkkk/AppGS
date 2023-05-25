@@ -16,7 +16,7 @@ public interface AdminMapper {
     //TODO 要不要能添加
     int insertAdmin(AdminDO adminDO);
 
-    AdminDO selectAdminByAdminName( String adminName);
+    AdminDO selectAdminByAdminName(String adminName);
 
     int updateAdmin(AdminDO adminDO);
     String selectAdminNameByAdminId( int adminId);

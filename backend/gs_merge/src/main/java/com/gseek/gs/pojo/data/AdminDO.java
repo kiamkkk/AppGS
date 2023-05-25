@@ -14,7 +14,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AdminDO {
-    private int adminId;
+
+    private Integer adminId;
     private String adminPassword;
     private String adminName;
     private String salt;
