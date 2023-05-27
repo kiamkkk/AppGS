@@ -8,6 +8,7 @@ import com.gseek.gs.service.inter.ChatRecordService;
 import com.gseek.gs.service.inter.RedisService;
 import com.gseek.gs.service.inter.ScheduledService;
 import com.gseek.gs.websocket.message.BaseMessage;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
@@ -55,6 +56,9 @@ public class ChatRecordServiceImpl implements ChatRecordService, ScheduledServic
         if (chatDOS.size()>0){
             chatRecordMapper.insertChat(chatDOS);
         }
+    }
+    public int[] selectToUser(@Param("goodId") int goodId, @Param("userId") int userId){
+        return chatRecordMapper.selectToUser(goodId,userId);
     }
 
 }

@@ -135,7 +135,6 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
             }
         }else {
             log.info("token异常");
-            throw new TokenInvalidException("TokenInvalidException");
         }
         log.info("doFilterInternal结束");
         chain.doFilter(request, response);

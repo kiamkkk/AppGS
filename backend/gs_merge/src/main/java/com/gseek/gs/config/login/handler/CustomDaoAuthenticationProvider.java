@@ -15,7 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @since 2023/5/5-1:09
  */
 @Slf4j
-public class UserDaoAuthenticationProvider extends DaoAuthenticationProvider {
+public class CustomDaoAuthenticationProvider extends DaoAuthenticationProvider {
 
     @Override
     protected Authentication createSuccessAuthentication(Object principal, Authentication authentication,

@@ -16,4 +16,5 @@ public interface ChatRecordMapper {
     List<ChatDO> selectChat(@Param("goodId") int goodId, @Param("userId") int userId);
 
     int insertChat(@Param("chatDOs") List<ChatDO> chatDO);
+    int[] selectToUser(@Param("goodId") int goodId, @Param("userId") int userId);
 }

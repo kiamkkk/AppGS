@@ -7,6 +7,7 @@ import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.ToBeConstructed;
 import com.gseek.gs.exce.business.BusinessException;
 import com.gseek.gs.exce.business.ForbiddenException;
+import com.gseek.gs.exce.business.login.RepeatLoginException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class ExceptionController {
 
     @ExceptionHandler({IOException.class, SQLException.class})
     public String unknownExceptionHandler(Exception e,HttpServletResponse response){
-        log.error("unknownException: {}",e.getMessage());
+        log.info("unknownException: {}",e.getMessage());
         response.setStatus(500);
         ObjectNode objectNode=objectMapper.createObjectNode();
         objectNode.put("code", 50010);
@@ -43,14 +44,14 @@ public class ExceptionController {
 
     @ExceptionHandler(ToBeConstructed.class)
     public String toBeConstructedExceptionHandler(ToBeConstructed e,HttpServletResponse response){
-        log.error("ToBeConstructed: {}",e.getMsg());
+        log.info("ToBeConstructed: {}",e.getMsg());
         response.setStatus(500);
         return "后端竟然还有没写的异常！！！带着以下消息火速前去拷打廖俊煜！！！\n"+e.getMessage();
     }
 
     @ExceptionHandler(BusinessException.class)
     public String businessExceptionHandel(BusinessException e,HttpServletResponse response){
-        log.warn("BusinessException: {}",e.getMsg());
+        log.info("BusinessException: {}",e.getMsg());
         response.setStatus(e.getCode());
         return packageMessage(e);
     }
@@ -64,9 +65,20 @@ public class ExceptionController {
 
     @ExceptionHandler(ServerException.class)
     public String serverExceptionHandler(ServerException e, HttpServletResponse response){
-        log.error("ServerException: {}",e.getMsg());
+        log.info("ServerException: {}",e.getMsg());
         response.setStatus(500);
         return packageMessage(e);
+    }
+
+    @ExceptionHandler(RepeatLoginException.class)
+    public String repeatLoginExceptionHandel(RepeatLoginException e, HttpServletResponse response){
+        log.info("ServerException: {}",e.getMessage());
+        response.setStatus(403);
+
+        ObjectNode objectNode=objectMapper.createObjectNode();
+        objectNode.put("code", 403);
+        objectNode.put("message", e.getMessage());
+        return objectNode.toPrettyString();
     }
 
     /**

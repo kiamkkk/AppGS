@@ -40,6 +40,9 @@ public class RabbitMQConfig {
     public final static String KEY_NOTICE = "topic.notice";
     public final static String KEY_DELIVERY = "topic.delivery";
     public final static String KEY_CHAT = "topic.chat";
+    public final static String KEY_BLACKLIST = "topic.blacklist";
+    public final static String KEY_APPEAL = "topic.appeal";
+    public final static String KEY_ADMIN = "topic.admin";
     /**
      * 队列
      * */
@@ -47,6 +50,9 @@ public class RabbitMQConfig {
     public final static String QUEUE_NOTICE = "noticeQueue";
     public final static String QUEUE_DELIVERY = "deliveryQueue";
     public final static String QUEUE_CHAT = "chatQueue";
+    public final static String QUEUE_BLACKLIST = "blacklistQueue";
+    public final static String QUEUE_APPEAL = "appealQueue";
+    public final static String QUEUE_ADMIN = "adminQueue";
 
     @Autowired
     MessageService messageService;
@@ -72,6 +78,18 @@ public class RabbitMQConfig {
     public Queue chatQueue() {
         return new Queue(RabbitMQConfig.QUEUE_CHAT,true);
     }
+    @Bean("blacklistQueue")
+    public Queue blacklistQueue() {
+        return new Queue(RabbitMQConfig.QUEUE_BLACKLIST,true);
+    }
+    @Bean("appealQueue")
+    public Queue appealQueue() {
+        return new Queue(RabbitMQConfig.QUEUE_APPEAL,true);
+    }
+    @Bean("adminQueue")
+    public Queue adminQueue() {
+        return new Queue(RabbitMQConfig.QUEUE_ADMIN,true);
+    }
 
     @Bean
     public Binding announceQueueBindingTopicExchange() {
@@ -88,6 +106,18 @@ public class RabbitMQConfig {
     @Bean
     public Binding chatQueueBindingTopicExchange() {
         return BindingBuilder.bind(chatQueue()).to(gseekExchange()).with(KEY_CHAT);
+    }
+    @Bean
+    public Binding blacklistQueueBindingTopicExchange() {
+        return BindingBuilder.bind(chatQueue()).to(gseekExchange()).with(KEY_BLACKLIST);
+    }
+    @Bean
+    public Binding appealQueueBindingTopicExchange() {
+        return BindingBuilder.bind(chatQueue()).to(gseekExchange()).with(KEY_APPEAL);
+    }
+    @Bean
+    public Binding adminQueueBindingTopicExchange() {
+        return BindingBuilder.bind(chatQueue()).to(gseekExchange()).with(KEY_ADMIN);
     }
 
     @Bean

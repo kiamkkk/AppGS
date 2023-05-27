@@ -1,12 +1,16 @@
 package com.gseek.gs.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gseek.gs.dao.AdminMapper;
+import com.gseek.gs.dao.BlacklistMapper;
 import com.gseek.gs.pojo.bean.OrdinaryAdmin;
+import com.gseek.gs.pojo.bean.OrdinaryUser;
 import com.gseek.gs.pojo.business.*;
 import com.gseek.gs.pojo.data.AdminDO;
+
 import com.gseek.gs.pojo.data.GoodCheckedDO;
+import com.gseek.gs.pojo.data.UserPasswordDO;
 import com.gseek.gs.service.inter.AdminService;
-import com.gseek.gs.service.inter.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -45,7 +49,7 @@ public class AdminServiceImpl implements AdminService {
             log.info("AdminNameFound|"+adminName);
             throw new UsernameNotFoundException("AdminNameNotFound:"+adminName);
         }
-        admin.setPassword(UserService.PREFIX+adminDO.getSalt()+UserService.SUFFIX+adminDO.getAdminPassword());
+        admin.setPassword(adminDO.getAdminPassword());
         admin.setAdminId(adminDO.getAdminId());
         return admin;
     }
@@ -84,5 +88,8 @@ public class AdminServiceImpl implements AdminService {
     }
     public int setBuyerCheck(int appealId){
         return adminMapper.setBuyerCheck(appealId);
+    }
+    public int selectRandomAdmin(){
+        return adminMapper.selectRandomAdmin();
     }
 }
