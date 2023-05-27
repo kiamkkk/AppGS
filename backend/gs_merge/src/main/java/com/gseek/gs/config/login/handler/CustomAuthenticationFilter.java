@@ -8,9 +8,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -49,6 +51,12 @@ public class CustomAuthenticationFilter  extends AbstractAuthenticationProcessin
             //从请求体中读出userName和password
             try (InputStream is = request.getInputStream()){
                 AuthenticationBean authenticationBean = mapper.readValue(is,AuthenticationBean.class);
+                if (authenticationBean.getUserName()==null){
+                    throw new UsernameNotFoundException("UsernameNull");
+                }
+                if (authenticationBean.getPassword()==null){
+                    throw new BadCredentialsException("PasswordNull");
+                }
 
                 authRequest = new UsernamePasswordAuthenticationToken(
                         authenticationBean.getUserName(), authenticationBean.getPassword());

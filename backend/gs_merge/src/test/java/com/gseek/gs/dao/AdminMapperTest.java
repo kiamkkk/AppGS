@@ -24,6 +24,5 @@ public class AdminMapperTest {
     public void selectAdminWhenAdminExist(){
         AdminDO adminDO=adminMapper.selectAdminByAdminName("admin1");
         assert adminDO != null :"查不出管理员账号: admin1" ;
-        log.warn(adminDO.toString());
     }
 }
