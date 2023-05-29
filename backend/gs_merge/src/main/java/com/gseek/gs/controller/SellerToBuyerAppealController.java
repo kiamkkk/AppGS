@@ -35,6 +35,7 @@ import java.util.Map;
 
 
 /**
+ * 卖家申诉买家
  * @author: Isabella
  * @create: 2023-05-13 23:35
  **/
@@ -42,7 +43,7 @@ import java.util.Map;
 @RequestMapping("/after_sale/seller")
 @Slf4j
 public class SellerToBuyerAppealController {
-    //TODO 图片名字也得放进来啊
+
     @Autowired
     SellerToBuyerAppealService sellerToBuyerAppealService;
     @Autowired
@@ -57,6 +58,9 @@ public class SellerToBuyerAppealController {
     MessageController messageController;
     @Autowired
     Result result;
+    /**
+     * 新增申诉
+     * */
     @PostMapping("/complain")
     public String addSellerToBuyerAppeal(@RequestParam("pic_before") MultipartFile picBefore,@RequestParam("pic_after") MultipartFile picAfter, HttpServletRequest request,
                                          @RequestParam int billId, @RequestParam String appealReason, @RequestParam int myId,@RequestParam boolean accept) throws JsonProcessingException {
@@ -66,15 +70,22 @@ public class SellerToBuyerAppealController {
         sellerToBuyerAppealService.addSellerToBuyerAppeal(sellerToBuyerAppealDTO);
         return result.gainPostSuccess();
     }
+    /**
+     * 查看申诉
+     * */
     @GetMapping("/complain/{appealId}")
     public SellerToBuyerAppealBO queryAppeal(@PathVariable int appealId,
                                              @CurrentSecurityContext(expression = "authentication ") Authentication authentication){
+//       管理员直接查看
         if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
             return sellerToBuyerAppealService.queryAppeal(appealId);
         }
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-
-            if (sellerToBuyerAppealService.queryMyId(appealId)!=details.getUserId()){
+            int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBill_id();
+            int respondentId=billService.selectBill(billId).getBuyerId();
+//            申诉者和被申诉者才能看
+            if (sellerToBuyerAppealService.queryMyId(appealId)!=details.getUserId()
+                    && respondentId!=details.getUserId()){
                 throw new ForbiddenException();
             }
             return sellerToBuyerAppealService.queryAppeal(appealId);
@@ -84,11 +95,14 @@ public class SellerToBuyerAppealController {
         }
 
     }
+    /**
+     * 删除申诉
+    * */
     @DeleteMapping("/complain/{appealId}")
     public String deleteAppeal(@PathVariable int appealId,
                                @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws JsonProcessingException {
         if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
-
+//          如果申诉已经通过审核
             if(sellerToBuyerAppealService.queryResult(appealId).isAppeal_result()){
                 int degree=sellerToBuyerAppealService.queryResult(appealId).getDamage_degree();
                 // 余额返还
@@ -134,6 +148,9 @@ public class SellerToBuyerAppealController {
         }
 
     }
+    /**
+     * 查看申诉结果
+    * */
     @GetMapping("/query/audit/{appealId}")
     public String queryResult(@PathVariable int appealId,
                               @CurrentSecurityContext(expression = "authentication ") Authentication authentication){
@@ -143,8 +160,9 @@ public class SellerToBuyerAppealController {
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBill_id();
             int respondentId=billService.selectBill(billId).getBuyerId();
+//            被申诉者和申诉者才能查看
             if (sellerToBuyerAppealService.queryMyId(appealId)!=details.getUserId()
-                    || respondentId!=details.getUserId()){
+                    && respondentId!=details.getUserId()){
                 throw new ForbiddenException();
             }
             return sellerToBuyerAppealService.queryResult(appealId).toString();
@@ -155,6 +173,9 @@ public class SellerToBuyerAppealController {
         }
 
     }
+    /**
+     * 更新申诉
+    * */
     @PatchMapping("/complain/{appealId}")
     public String updateAppeal(@PathVariable int appealId,@RequestParam("pic_before") MultipartFile picBefore,@RequestParam("pic_after") MultipartFile picAfter, HttpServletRequest request,
                                @RequestParam int billId, @RequestParam String appealReason,@RequestParam boolean accept,
@@ -168,7 +189,8 @@ public class SellerToBuyerAppealController {
             String pathAfter=FileUtils.fileUtil(picAfter,request);
             int myId=sellerToBuyerAppealService.queryMyId(appealId);
             SellerToBuyerAppealDTO sellerToBuyerAppealDTO=new SellerToBuyerAppealDTO(appealReason,pathBefore,pathAfter,accept,billId,myId);
-            if(sellerToBuyerAppealService.queryResult(appealId).isAppeal_result()){
+//            已经被审核了无法更改
+            if(sellerToBuyerAppealService.queryResult(appealId).isChecked()){
                 throw new ServerException("已被审核，无法更改");
             }
             sellerToBuyerAppealService.updateAppeal(sellerToBuyerAppealDTO);

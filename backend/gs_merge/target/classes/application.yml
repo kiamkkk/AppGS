@@ -32,8 +32,8 @@ spring:
     port: 5672
     username: guest
     password: guest
-#    virtual-host: GseekHost
-#    relay_host: GseekHost
+    virtual-host: GseekHost
+    relay_host: GseekHost
 
 logging:
   level:

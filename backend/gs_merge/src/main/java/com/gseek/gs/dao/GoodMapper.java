@@ -73,4 +73,7 @@ public interface GoodMapper {
 
     GoodAccountBO selectGoodAccountByBillId(@Param("billId") int billId);
 
+    List<GoodsWithoutAccountAndSoldBO> queryAllCheckedGood();
+    List<GoodsWithoutAccountAndSoldBO> queryGoodByName(@Param("goodName") String goodName);
+
 }

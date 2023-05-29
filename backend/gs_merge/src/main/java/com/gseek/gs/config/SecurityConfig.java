@@ -123,7 +123,8 @@ public class SecurityConfig {
 
         filter.setAuthenticationManager(
                 new ProviderManager(
-                        userAuthenticationProvider(userService())
+//                       TODO 之前用的userAuthenticationProvider没有了，只有authenticationProvider
+                        authenticationProvider(userService())
 /*                        adminAuthenticationProvider(adminService())*/
                 )
         );

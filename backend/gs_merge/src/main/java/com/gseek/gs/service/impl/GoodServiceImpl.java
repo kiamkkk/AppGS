@@ -5,10 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.dao.*;
 import com.gseek.gs.exce.business.ParameterWrongException;
 import com.gseek.gs.pojo.bean.ParameterWrongBean;
+import com.gseek.gs.pojo.business.GoodBO;
 import com.gseek.gs.pojo.business.GoodsWithoutAccountAndSoldBO;
 import com.gseek.gs.pojo.data.GoodDO;
 import com.gseek.gs.service.inter.GoodService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -80,5 +82,18 @@ public class GoodServiceImpl implements GoodService {
         GoodsWithoutAccountAndSoldBO bo=new GoodsWithoutAccountAndSoldBO(goodDO,covers,details);
 
         return objectMapper.writeValueAsString(bo);
+    }
+    @Override
+    public String queryAllCheckedGood() throws JsonProcessingException {
+
+        List<GoodsWithoutAccountAndSoldBO> list=goodMapper.queryAllCheckedGood();
+
+        return objectMapper.writeValueAsString(list);
+    }
+    @Override
+    public String queryGoodByName(@Param("goodName") String goodName) throws JsonProcessingException {
+        goodName="%"+goodName+"%";
+        List<GoodsWithoutAccountAndSoldBO> list=goodMapper.queryGoodByName(goodName);
+        return objectMapper.writeValueAsString(list);
     }
 }

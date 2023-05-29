@@ -169,5 +169,15 @@
                 on g.good_id=b.good_id
         where b.bill_id=#{billId};
     </select>
-
+    <select id="queryAllCheckedGood" resultMap="GoodsWithoutAccountAndSoldBO">
+        select good_id,good_name,good_text,own_user_id,own_user_name,good_price,create_time,modified_time,type_tag_name
+        from good
+        where good_id=
+              (select good_id from good_checked where result=1)
+    </select>
+    <select id="queryGoodByName" parameterType="String" resultMap="GoodsWithoutAccountAndSoldBO">
+        select good_id,good_name,good_text,own_user_id,own_user_name,good_price,create_time,modified_time,type_tag_name
+        from good
+        where good_name like #{goodName};
+    </select>
 </mapper>

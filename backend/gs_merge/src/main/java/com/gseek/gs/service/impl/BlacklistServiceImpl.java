@@ -77,8 +77,8 @@ public class BlacklistServiceImpl implements BlacklistService {
     }
     public int updateCheck(int blackId){return blacklistMapper.updateCheck(blackId);}
 
-    public int updateAuditResult(BlacklistDO blacklistDO) {
-        return blacklistMapper.updateAuditResult(blacklistDO);
+    public int updateAuditResult(BlacklistResultBO blacklistResultBO) {
+        return blacklistMapper.auditReport(blacklistResultBO);
     }
     public Boolean queryByRespondentId(int respondentId){
         return blacklistMapper.queryByRespondentId(respondentId);

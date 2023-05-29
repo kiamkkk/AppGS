@@ -24,4 +24,10 @@
             (#{item.goodId}, #{item.fromUserId}, #{item.toUserId}, #{item.text}, #{item.sendTime});
         </foreach>
     </insert>
+
+    <select id="selectToUser" resultMap="int">
+        select to_user_id
+        from ( select * from chat where good_id = #{goodId} ) as cg
+        where cg.from_user_id=#{userId} ;
+    </select>
 </mapper>

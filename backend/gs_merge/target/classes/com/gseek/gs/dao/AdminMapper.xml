@@ -6,8 +6,8 @@
 
     <resultMap id="BaseResultMap" type="com.gseek.gs.pojo.data.AdminDO">
         <id column="admin_id" jdbcType="INTEGER" property="adminId" />
-        <result column="admin_name" jdbcType="VARCHAR" property="adminName" />
         <result column="admin_password" jdbcType="VARCHAR" property="adminPassword" />
+        <result column="admin_name" jdbcType="VARCHAR" property="adminName" />
         <result column="salt" jdbcType="VARCHAR" property="salt" />
     </resultMap>
 
@@ -121,4 +121,7 @@
     <update id="setBuyerCheck" parameterType="int">
         update gseek.appeal_buyer_to_seller set checked=1 where appeal_id=#{appealId};
     </update>
+    <select id="selectRandomAdmin" resultType="int">
+        select admin_id from  gseek.admin  order by   RAND() LIMIT 1;
+    </select>
 </mapper>

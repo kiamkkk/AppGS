@@ -5,6 +5,7 @@ import com.gseek.gs.pojo.business.SellerToBuyerAppealBO;
 import com.gseek.gs.pojo.business.SellerToBuyerAppealResultBO;
 import com.gseek.gs.pojo.dto.SellerToBuyerAppealDTO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.Map;
 
@@ -15,11 +16,29 @@ import java.util.Map;
 @Mapper
 public interface SellerToBuyerAppealMapper {
     //TODO 检测输入信息是否是有效信息（？
-    int addSellerToBuyerAppeal(SellerToBuyerAppealDTO sellerToBuyerAppealDTO);
-    SellerToBuyerAppealBO queryAppeal(int appealId);
-    int deleteAppeal(int appealId);
-    SellerToBuyerAppealResultBO queryResult(int appealId);
-    int updateAppeal(SellerToBuyerAppealDTO sellerToBuyerAppealDTO);
-    int queryMyId(int appealId);
+    /**
+     *增加申诉
+     * */
+    int addSellerToBuyerAppeal(@Param("sellerToBuyerAppealDTO")SellerToBuyerAppealDTO sellerToBuyerAppealDTO);
+    /**
+     *查看申诉
+     * */
+    SellerToBuyerAppealBO queryAppeal(@Param("appealId")int appealId);
+    /**
+     *删除申诉
+     * */
+    int deleteAppeal(@Param("appealId")int appealId);
+    /**
+     *查看申诉结果
+     * */
+    SellerToBuyerAppealResultBO queryResult(@Param("appealId")int appealId);
+    /**
+     *更新申诉
+     * */
+    int updateAppeal(@Param("sellerToBuyerAppealDTO")SellerToBuyerAppealDTO sellerToBuyerAppealDTO);
+    /**
+     *查看申诉人ID
+     * */
+    int queryMyId(@Param("appealId")int appealId);
 
 }

@@ -15,6 +15,7 @@ import com.gseek.gs.pojo.dto.BuyerToSellerAppealDTO;
 import com.gseek.gs.service.inter.*;
 import com.gseek.gs.util.FileUtils;
 import com.gseek.gs.websocket.controller.MessageController;
+import com.gseek.gs.websocket.message.NoticeMessage;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 /**
+ * 买家申诉卖家
  * @author: Isabella
  * @create: 2023-05-12 23:52
  **/
@@ -32,7 +34,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/after_sale/buyer")
 @Slf4j
 public class BuyerToSellerAppealController {
-    //TODO 图片名字也得放进来啊
     @Autowired
     BuyerToSellerAppealService buyerToSellerAppealService;
     @Autowired
@@ -49,13 +50,21 @@ public class BuyerToSellerAppealController {
     MessageController messageController;
     @Autowired
     Result result;
+    /**
+     * 新增申诉
+     * */
     @PostMapping("/complain")
     public String addBuyerToSellerAppeal(@RequestParam("provePic") MultipartFile provePic, HttpServletRequest request,
                                          @RequestParam int billId,@RequestParam String appealReason,@RequestParam int myId,
                                          @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws JsonProcessingException {
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             int respondentId=billMapper.selectBillByBillId(billId).getSellerId();
+//            暂时冻结被申诉人账号
             moneyService.frozenUser(respondentId);
+//            通知被申诉人
+            NoticeMessage noticeMessage=new NoticeMessage("您的账户由于被申诉已被暂时冻结",System.currentTimeMillis(),respondentId);
+            messageController.general(noticeMessage);
+//            添加申诉
             String realPath= FileUtils.fileUtil(provePic,request);
             BuyerToSellerAppealDTO buyerToSellerAppealDTO=new BuyerToSellerAppealDTO(appealReason,realPath,billId,myId);
             buyerToSellerAppealService.addBuyerToSellerAppeal(buyerToSellerAppealDTO);
@@ -67,9 +76,13 @@ public class BuyerToSellerAppealController {
         }
 
     }
+    /**
+     * 查看申诉
+    * */
     @GetMapping("/complain/{appealId}")
     public String queryAppeal(@PathVariable int appealId,
                                              @CurrentSecurityContext(expression = "authentication ") Authentication authentication){
+//        管理员直接看
         if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
             return buyerToSellerAppealService.queryAppeal(appealId).toString();
         }
@@ -77,8 +90,9 @@ public class BuyerToSellerAppealController {
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             int billId=buyerToSellerAppealService.queryAppeal(appealId).getBill_id();
             int respondentId=billService.selectBill(billId).getSellerId();
+//            申诉人和被申诉人能看
             if (buyerToSellerAppealService.queryMyId(appealId)!=details.getUserId()
-            || respondentId!=details.getUserId()){
+            && respondentId!=details.getUserId()){
                 throw new ForbiddenException();
             }
             return buyerToSellerAppealService.queryAppeal(appealId).toString();
@@ -89,16 +103,19 @@ public class BuyerToSellerAppealController {
         }
 
     }
+    /**
+     * 删除申诉
+     * */
     @DeleteMapping("/complain/{appealId}")
     public String deleteAppeal(@PathVariable int appealId,
                                @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws JsonProcessingException {
         if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
-
+//          如果已经被审核
             if(buyerToSellerAppealService.queryResult(appealId).isAppeal_result()){
                 int billId=buyerToSellerAppealService.queryAppeal(appealId).getBill_id();
 //                余额返还
                 moneyService.returnBuyerAppealMoney(billId,billService.selectBill(billId).getSellerId());
-
+//              账户解冻
                 moneyService.unfrozenUser(billService.selectBill(billId).getSellerId());
                 //从黑名单内删除
                 blacklistService.deleteReport(blacklistService.queryBlackId(billService.selectBill(billId).getBuyerId(),billService.selectBill(billId).getSellerId()));
@@ -111,11 +128,11 @@ public class BuyerToSellerAppealController {
         }
 
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-
+            //只有本人能删除
             if (buyerToSellerAppealService.queryMyId(appealId)!=details.getUserId()){
                 throw new ForbiddenException();
             }
-
+//          如果被审核
             if(buyerToSellerAppealService.queryResult(appealId).isAppeal_result()){
 
                 int billId=buyerToSellerAppealService.queryAppeal(appealId).getBill_id();
@@ -135,22 +152,24 @@ public class BuyerToSellerAppealController {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
             throw new ServerException("认证时出错");
         }
-
-
     }
+    /**
+     * 查看申诉结果
+     * */
     @GetMapping("/query/audit/{appealId}")
     public String queryResult(@PathVariable int appealId,
                                                    @CurrentSecurityContext(expression = "authentication ") Authentication authentication){
         if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
-
+//      管理员直接看
             return buyerToSellerAppealService.queryResult(appealId).toString();
 
         }
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             int billId=buyerToSellerAppealService.queryAppeal(appealId).getBill_id();
             int respondentId=billService.selectBill(billId).getSellerId();
+//            只有申诉者和被申诉者能看
             if (buyerToSellerAppealService.queryMyId(appealId)!=details.getUserId()
-                    || respondentId!=details.getUserId()){
+                    && respondentId!=details.getUserId()){
                 throw new ForbiddenException();
             }
             return buyerToSellerAppealService.queryResult(appealId).toString();
@@ -161,21 +180,23 @@ public class BuyerToSellerAppealController {
         }
 
     }
-
+    /**
+     * 更新申诉
+     * */
     @PatchMapping("/complain/{appealId}")
     public String updateAppeal(@PathVariable int appealId,@RequestParam int billId,HttpServletRequest request,
                                @RequestParam String appealReason,@RequestParam("provePic") MultipartFile provePic,
                                @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws JsonProcessingException {
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-
+//          只有本人能够更改
             if (buyerToSellerAppealService.queryMyId(appealId)!=details.getUserId()){
                 throw new ForbiddenException();
             }
             String realPath=FileUtils.fileUtil(provePic,request);
             int myId=details.getUserId();
             BuyerToSellerAppealDTO buyerToSellerAppealDTO=new BuyerToSellerAppealDTO(appealReason,realPath,billId,myId);
-
-            if(buyerToSellerAppealService.queryResult(appealId).isAppeal_result()){
+//          被审核就不能改了
+            if(buyerToSellerAppealService.queryResult(appealId).isChecked()){
                 throw new ServerException("已被审核，无法更改");
             }
             buyerToSellerAppealService.updateAppeal(buyerToSellerAppealDTO);
