@@ -66,5 +66,13 @@ public class GoodController {
         }
         return goodService.getGoodByGoodId(goodId);
     }
+    @GetMapping("/goods")
+    public String getAllCheckedGoods() throws JsonProcessingException {
+        return goodService.queryAllCheckedGood();
+    }
+    @GetMapping("/goods/{goodName}")
+    public String getGoodByGoodName(@PathVariable("goodName")String goodName) throws JsonProcessingException {
+        return goodService.queryGoodByName(goodName);
+    }
 
 }

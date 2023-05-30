@@ -50,8 +50,10 @@ public class BlacklistController {
     @Autowired
     ObjectMapper objectMapper;
 
-    SimpleDateFormat sdf=new SimpleDateFormat("yyyy/MM/dd/");
-    //TODO： 改变存图片的路径，从temp改到其他文件夹&&把处理文件的弄到一个工具类里面去
+//    SimpleDateFormat sdf=new SimpleDateFormat("yyyy/MM/dd/");
+    /**
+     * 添加黑名单举报
+     * */
     @PostMapping("/")
     public String addReport(@RequestParam("provePic") MultipartFile provePic, @RequestParam int respondentId,
                             @RequestParam String appealReason, @RequestParam int claimerId,
@@ -73,13 +75,18 @@ public class BlacklistController {
         }
 
     }
+    /**
+     * 查看黑名单举报结果
+     * */
     @GetMapping("/query_audit/{blackId}")
     public String queryResult(@PathVariable int blackId,
                                          @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws JsonProcessingException {
         if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
+//            管理员直接查看
             return objectMapper.writeValueAsString(blacklistService.queryResult(blackId));
         }
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
+//            只有用户本人可以查看
             if (blacklistService.queryReport(blackId).getClaimer_id()!=details.getUserId()){
                 throw new ForbiddenException();
             }
@@ -90,13 +97,18 @@ public class BlacklistController {
         }
 
     }
+    /**
+     * 查看黑名单举报
+     * */
     @GetMapping("/{blackId}")
     //TODO 要不要把传回去的id换成用户名
     public String queryReport(@PathVariable int blackId,
                               @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws JsonProcessingException {
         if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
+//            管理员直接查看
             return objectMapper.writeValueAsString(blacklistService.queryReport(blackId));
         }
+//        只有举报人和被举报人能查看
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             if (blacklistService.queryReport(blackId).getClaimer_id()!=details.getUserId()
             ||blacklistService.queryReport(blackId).getRespondent_id()!=details.getUserId()){
@@ -109,17 +121,26 @@ public class BlacklistController {
         }
 
     }
+    /**
+     * 删除黑名单举报
+     * */
     @DeleteMapping("/{blackId}")
     public String deleteReport(@PathVariable int blackId,
                                @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws JsonProcessingException {
+//      管理员可以直接删除
         if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
-            blacklistService.deleteReport(blackId);
+            if(blacklistService.queryResult(blackId).isAppeal_result()){
+//              删除后通知被申诉人
+                messageController.blacklistRemove(blacklistService.queryReport(blackId).getRespondent_id());
+            }blacklistService.deleteReport(blackId);
             return result.gainDeleteSuccess();
         }
+//        只有申诉者可以删除订单
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             if (blacklistService.queryReport(blackId).getClaimer_id()!=details.getUserId()){
                 throw new ForbiddenException();
             }
+//            删除后通知被申诉人
             if(blacklistService.queryResult(blackId).isAppeal_result()){
                 messageController.blacklistRemove(blacklistService.queryReport(blackId).getRespondent_id());
             }
@@ -133,24 +154,26 @@ public class BlacklistController {
 
 
     }
+    /**
+     * 更新黑名单举报
+     * */
     @PatchMapping("/{blackId}")
     public String updateReport(@RequestParam("provePic") MultipartFile provePic,@PathVariable int blackId,
                                @RequestParam String appealReason,@CurrentSecurityContext(expression = "authentication ") Authentication authentication,
                                HttpServletRequest request) throws IOException {
+//        只有申诉人本人能更新
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             if (blacklistService.queryReport(blackId).getClaimer_id()!=details.getUserId()){
                 throw new ForbiddenException();
             }
             String realPath=FileUtils.fileUtil(provePic,request);
             BlacklistDO blacklistDO =new BlacklistDO(appealReason,blackId,realPath);
-
-            if(blacklistService.updateReport(blacklistDO)!=0){
-                return result.gainPatchSuccess();
-            }
-            else {
-
+//          黑名单被审核不可以更改
+            if(blacklistService.queryResult(blackId).isChecked()){
                 throw new ServerException("已经被审核，无法更改");
             }
+            blacklistService.updateReport(blacklistDO);
+            return result.gainPatchSuccess();
 
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");

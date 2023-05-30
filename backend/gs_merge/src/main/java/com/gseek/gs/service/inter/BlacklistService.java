@@ -28,7 +28,7 @@ public interface BlacklistService {
     int auditReport(BlacklistResultBO blacklistResultBO);
     int updateCheck(int blackId);
     //    int adminId,boolean appealResult,int blackId
-    int updateAuditResult(BlacklistDO blacklistDO);
+    int updateAuditResult(BlacklistResultBO blacklistResultBO);
     Boolean queryByRespondentId(int respondentId);
     int queryBlackId(int claimerId,int respondentId);
 }
