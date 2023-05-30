@@ -12,7 +12,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -22,11 +21,12 @@ import java.io.PrintWriter;
 
 /**
  * 自定义认证成功后的流程.
+ * 登录成功后签发token.
  *
  * @author Phak
  * @since 2023/5/3-13:42
  */
-@Component
+@Component("customAuthenticationSuccessHandler")
 @Slf4j
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
@@ -40,31 +40,23 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication)
-            throws RepeatLoginException,IOException,ServerException {
+            throws RepeatLoginException, ServerException, IOException {
         log.debug("onAuthenticationSuccess开始");
-        if (authentication instanceof UsernamePasswordAuthenticationToken authenticationToken){
-            if (authenticationToken.getDetails() instanceof CustomWebAuthenticationDetails details){
-                // 根据username来构建token
-                // 不根据userId来构建token,因为JwtAuthenticationTokenFilter要根据username获取用户登录信息
-                String username =authentication.getName();
-                String userId =details.getUserId()+"";
-                String token=TokenUtil.gainToken(username, TokenGrade.USER);
-                redisService.saveToken(token, username);
 
-                ObjectNode objectNode=objectMapper.createObjectNode();
-                objectNode.put("token", token);
-                try (PrintWriter printWriter = response.getWriter()){
-                    printWriter.write(objectNode.toPrettyString());
-                }
-            }else {
-                log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-                throw new ServerException("登录时出错");
-            }
-
-        }else {
-            log.error("向下转型失败:登录时无法将Authentication转为UsernamePasswordAuthenticationToken");
-            throw new ServerException("登录时出错");
+        // 根据username来构建token
+        // 不根据userId来构建token,因为JwtAuthenticationTokenFilter要根据username获取用户登录信息
+        // String userId =details.getUserId()+"";
+        String username =authentication.getName();
+        // 创建保存token
+        String token=TokenUtil.gainToken(username, TokenGrade.USER);
+        redisService.saveToken(token, username);
+        // 返回token
+        ObjectNode objectNode=objectMapper.createObjectNode();
+        objectNode.put("token", token);
+        try (PrintWriter printWriter = response.getWriter()){
+            printWriter.write(objectNode.toPrettyString());
         }
+
         log.debug("onAuthenticationSuccess结束");
     }
 }

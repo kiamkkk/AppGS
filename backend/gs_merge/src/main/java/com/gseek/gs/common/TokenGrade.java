@@ -30,6 +30,11 @@ public enum TokenGrade {
         }
     }
 
+    /**
+     * 根据名字获取枚举.
+     *
+     * @param name 枚举名
+     * */
     public static TokenGrade gainTokenGradeByName(String name){
         return map.get(name);
     }

@@ -29,6 +29,14 @@ import java.io.IOException;
 import static com.gseek.gs.service.impl.RedisServiceImpl.*;
 
 /**
+ * 根据token进行鉴权.
+ * <ul>token在用户登录时签发,包含:用户名、过期时间、用户权限.</ul>
+ *
+ * <ul>根据token的过期时间不同分三种状态:</ul>
+ * <ol>已过期,拒绝进一步访问,抛出TokenInvalidException异常</ol>
+ * <ol>没过期但有效时间小于IMMINENT_TIME,将重新签发的token放在响应头的newToken字段中,允许访问</ol>
+ * <ol>没过期且有效时间大于IMMINENT_TIME,允许访问</ol>
+ *
  * @author Phak
  * @since 2023/5/4-21:55
  */
@@ -57,10 +65,10 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
                                     HttpServletResponse response,
                                     FilterChain chain) throws ServletException, IOException {
         String rawToken = request.getHeader("Authorization");
-        log.info("doFilterInternal开始");
+        log.debug("doFilterInternal开始");
 
         if (rawToken==null){
-            log.info("该请求无token，直接放行");
+            log.debug("该请求无token，直接放行");
             chain.doFilter(request, response);
             return;
         }
@@ -69,11 +77,11 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
             String token = rawToken.substring(TokenUtil.TOKEN_PREFIX.length());
             // token过期
             if (TokenUtil.isTokenExpired(token)){
-                log.info("token过期");
-                throw new TokenInvalidException("TokenInvalid");
+                log.info("token {} 过期",token);
+                throw new TokenInvalidException();
             }
 
-            log.info("token格式正确{}",token);
+            log.debug("token格式正确 {} ",token);
             TokenGrade grade=TokenUtil.extractTokenGrade(token);
             String userName = TokenUtil.extractClaim(token, Claims::getSubject);
             log.info("用户名{},权限为{}",userName,grade);
@@ -84,7 +92,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
                     int code=redisService.inspectToken(token);
                     switch (code) {
                         case TOKEN_VALID -> {
-                            log.info("token可用|"+token);
+                            log.debug("token {} 可用 ", token);
                         }
                         case TOKEN_REISSUE -> {
                             String newToken = tokenUtil.reissueToken(token, userName, grade);
@@ -92,19 +100,19 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
                             // 1、要么直接在这放进响应体里，controller里再读一遍响应体来改；
                             // 2、要么想想办法把新token传到controller里，统一写入响应体。
                             response.setHeader("newToken", newToken);
-                            log.info("token重签发|"+token);
+                            log.info("用户 {} 的token重签发,新token为 {}", userName, token);
                         }
                         case TOKEN_INVALID -> {
-                            log.warn("token不可用|"+token);
-                            throw new TokenInvalidException("TokenInvalid");
+                            log.debug("用户 {} 的token {} 过期", userName, token);
+                            throw new TokenInvalidException();
                         }
                         default -> {
-                            log.error("检查token是否过期时出错：出现异常状态码|" + code);
+                            log.error("检查token是否过期时出错：出现异常状态码{}", code);
                         }
                     }
-                    log.info("状态码{}",code);
+                    log.debug("状态码 {}",code);
 
-                    // todo 根据权限不同，使用不同的UserService
+                    // 根据权限不同，使用不同的UserService
                     if (grade==TokenGrade.USER){
                         OrdinaryUser user =(OrdinaryUser) this.userService.loadUserByUsername(userName);
 
@@ -113,7 +121,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
                         authentication.setDetails(new CustomWebAuthenticationDetailsSource().buildDetails(
                                 request).setUserId(user.getUserId()));
 
-                        log.info("认证用户" + userName + ",设置security context");
+                        log.debug("认证用户 {} ,设置security context", userName);
 
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     }else if (grade==TokenGrade.ADMIN){
@@ -124,7 +132,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
                         adminAuthentication.setDetails(new AdminWebAuthenticationDetailsSource().buildDetails(
                                 request).setAdminId(admin.getAdminId()));
 
-                        log.info("认证管理员" + userName + ",设置security context");
+                        log.debug("认证管理员 {} ,设置security context", userName);
 
                         SecurityContextHolder.getContext().setAuthentication(adminAuthentication);
                     }else {
@@ -134,9 +142,9 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
 
             }
         }else {
-            log.info("token异常");
+            log.info("token {} 格式异常", rawToken);
         }
-        log.info("doFilterInternal结束");
+        log.debug("doFilterInternal结束");
         chain.doFilter(request, response);
     }
 }

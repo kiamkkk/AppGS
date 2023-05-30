@@ -6,7 +6,7 @@ package com.gseek.gs.exce.business.login;
  */
 public class RepeatLoginException extends CustomAuthenticationException {
 
-    public RepeatLoginException(String message) {
-        super(message);
+    public RepeatLoginException() {
+        super("RepeatLogin");
     }
 }

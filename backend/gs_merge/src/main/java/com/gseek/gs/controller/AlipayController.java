@@ -43,8 +43,8 @@ public class AlipayController {
     public String notify(Map<String, String> paramsMap) {
         try {
             boolean signVerified = AlipaySignature
-                    .rsaCheckV1(paramsMap, AlipayConfig.ALIPAY_PUBLIC_KEY,
-                            AlipayConfig.CHARSET, AlipayConfig.SIGN_TYPE);
+                    .rsaCheckV1(paramsMap, AlipayConfig.appPublicKey,
+                            AlipayConfig.charset, AlipayConfig.signType);
             if (signVerified) {
                 log.debug("支付宝回调签名认证成功");
                 String tradeStatus= paramsMap.get("trade_status");

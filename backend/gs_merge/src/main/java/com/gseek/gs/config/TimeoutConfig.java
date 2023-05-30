@@ -10,7 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 交易延迟支付.
+ * 平台交易延迟支付.
+ * 使用死信队列实现.
  *
  * @author Phak
  * @since 2023/5/15-20:20
@@ -18,9 +19,6 @@ import java.util.Map;
 @Configuration
 public class TimeoutConfig {
 
-    /**
-     *
-     * */
     public static final String EXCHANGE_INNER_PAY="innerPayExchange";
     public static final String EXCHANGE_INNER_PAY_TIMEOUT="innerPayTimeoutExchange";
 

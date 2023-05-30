@@ -11,7 +11,6 @@ import lombok.Getter;
  */
 @Getter
 public enum ResultCode {
-    //todo 多来点状态码
     /**
      * get成功默认响应
      * */
@@ -39,14 +38,13 @@ public enum ResultCode {
     /**
      * 用户被拉黑
      * */
-    User_BLACKLISTED(403,"User_BLACKLISTED");
+    User_BLACKLISTED(403,"USER_BLACKLISTED");
 
 
     /**
      * 状态码
      * */
     private int code;
-
     /**
      * 状态信息
      * */

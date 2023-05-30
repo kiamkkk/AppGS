@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * 订单状态.
+ *
  * @author Phak
  * @since 2023/5/13-0:07
  */
@@ -55,10 +57,10 @@ public enum BillState {
     BillState(String state){
         this.state=state;
     }
-
     public String getState() {
         return state;
     }
+
     /**
      * 根据状态名获取相应的枚举.
      *

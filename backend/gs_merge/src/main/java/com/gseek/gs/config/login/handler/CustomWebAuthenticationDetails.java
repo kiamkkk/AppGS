@@ -7,6 +7,9 @@ import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import java.util.Objects;
 
 /**
+ * 用户id存在这里.
+ * 替换原有的WebAuthenticationDetails.
+ *
  * @author Phak
  * @since 2023/5/5-11:35
  */

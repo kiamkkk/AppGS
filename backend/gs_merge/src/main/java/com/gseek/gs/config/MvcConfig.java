@@ -7,6 +7,8 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
+ * mvc设置.
+ *
  * @author Phak
  * @since 2023/5/20-21:25
  */
@@ -17,8 +19,7 @@ public class MvcConfig implements WebMvcConfigurer {
     BlackListInterceptor blackListInterceptor;
 
     /**
-     * 注册自定义拦截器
-     * 指定要拦截的路径
+     * 注册自定义拦截器,指定要拦截的路径.
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

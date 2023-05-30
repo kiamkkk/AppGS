@@ -16,6 +16,8 @@ import java.io.InputStreamReader;
  *
  * @author Phak
  * @since 2023/5/4-23:30
+ *
+ * @deprecated 实际开发中没用到过
  */
 public class CustomHttpServletRequestWrapper extends HttpServletRequestWrapper {
 

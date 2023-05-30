@@ -37,16 +37,13 @@ spring:
 
 logging:
   level:
-    root: info
+    root: debug
 
 minio:
   endpoint: http://127.0.0.1:9000
   accessKey: gseek
   secretKey: gseek123456
   bucketName: gseek
-
-
-
 
 
 # 自定义参数

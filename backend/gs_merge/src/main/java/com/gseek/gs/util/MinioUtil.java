@@ -2,12 +2,15 @@ package com.gseek.gs.util;
 
 import com.gseek.gs.config.MinioConfig;
 import com.gseek.gs.config.SecurityConfig;
+import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.pojo.bean.GoodPhotoFileBean;
 import com.gseek.gs.pojo.bean.GoodPhotoPathBean;
+import com.gseek.gs.websocket.service.AnnounceService;
 import io.minio.*;
 import io.minio.http.Method;
 import io.minio.messages.DeleteError;
 import io.minio.messages.DeleteObject;
+import io.minio.messages.Item;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,7 +135,7 @@ public class MinioUtil {
     /**
      * 下载文件
      * */
-    public void downloadFile(HttpServletResponse response,String path,String filename){
+    public void downloadImg(HttpServletResponse response,String path,String filename){
         InputStream file = getFile(path,filename);
         response.setHeader("Content-Disposition", "attachment;filename=" + filename);
 
@@ -147,6 +150,23 @@ public class MinioUtil {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    //todo 能不能按时间获取？？？
+    /**
+     * 读取所有公告的文件名.
+     *
+     * */
+    public List<String> listAnnounce(){
+        List<String> announceNames=new ArrayList<>();
+        try {
+            for (Result<Item> result : listFiles(AnnounceService.ANNOUNCE_PATH)) {
+                announceNames.add(result.get().objectName());
+            }
+        }catch (Exception e){
+            throw new ServerException(e);
+        }
+        return announceNames;
     }
 
     /**
@@ -288,7 +308,7 @@ public class MinioUtil {
      * @param path 储存路径
      * @param fileName 文件名
      * */
-    private InputStream getFile(String path, String fileName) {
+    public InputStream getFile(String path, String fileName) {
         try (
                 InputStream inputStream=minioClient.getObject(
                         GetObjectArgs.builder()
@@ -301,5 +321,19 @@ public class MinioUtil {
         } catch (Exception e){
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * 获取某个文件夹下所有文件文件名.
+     *
+     * @param path 文件夹名
+     *
+     * */
+    private Iterable<Result<Item>> listFiles(String path){
+        return minioClient.listObjects(
+                ListObjectsArgs.builder()
+                        .bucket(prop.getBucketName())
+                        .prefix(path)
+                        .build());
     }
 }

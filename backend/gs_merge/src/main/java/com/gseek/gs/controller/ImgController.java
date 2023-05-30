@@ -37,7 +37,7 @@ public class ImgController {
             throws JsonProcessingException {
         String path=MinioUtil.PATH_HEAD_SCULPTURES;
         String filename = new String((picName+MinioUtil.SUFFIX_JPG).getBytes(), StandardCharsets.UTF_8);
-        minioUtil.downloadFile(response, path, filename);
+        minioUtil.downloadImg(response, path, filename);
         return result.gainGetSuccess();
     }
 
@@ -47,7 +47,7 @@ public class ImgController {
             throws JsonProcessingException {
         String path=MinioUtil.PATH_GOOD_PICTURE+goodId+"/covers/";
         String filename = new String((coverId+MinioUtil.SUFFIX_JPG).getBytes(), StandardCharsets.UTF_8);
-        minioUtil.downloadFile(response, path, filename);
+        minioUtil.downloadImg(response, path, filename);
         return result.gainGetSuccess();
     }
 
@@ -57,7 +57,7 @@ public class ImgController {
             throws JsonProcessingException {
         String path=MinioUtil.PATH_GOOD_PICTURE+goodId+"/details/";
         String filename = new String((detailId+MinioUtil.SUFFIX_JPG).getBytes(), StandardCharsets.UTF_8);
-        minioUtil.downloadFile(response, path, filename);
+        minioUtil.downloadImg(response, path, filename);
         return result.gainGetSuccess();
     }
 
@@ -67,7 +67,7 @@ public class ImgController {
             throws JsonProcessingException {
         String path=MinioUtil.PATH_CHATS+goodId+"/";
         String filename = new String((chatId+MinioUtil.SUFFIX_JPG).getBytes(), StandardCharsets.UTF_8);
-        minioUtil.downloadFile(response, path, filename);
+        minioUtil.downloadImg(response, path, filename);
         return result.gainGetSuccess();
     }
 }

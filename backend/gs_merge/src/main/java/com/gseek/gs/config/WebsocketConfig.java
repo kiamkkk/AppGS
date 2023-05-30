@@ -37,7 +37,8 @@ public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
     TokenInterceptor tokenInterceptor;
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/websocket").setAllowedOrigins("*");
+        registry.addEndpoint("/websocket")
+                .setAllowedOrigins("*");
     }
 
     @Override

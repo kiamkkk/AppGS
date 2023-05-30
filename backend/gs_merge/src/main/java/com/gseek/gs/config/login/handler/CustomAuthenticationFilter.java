@@ -1,13 +1,12 @@
 package com.gseek.gs.config.login.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gseek.gs.exce.ContentTypeWrongException;
+import com.gseek.gs.exce.business.login.ContentTypeWrongException;
 import com.gseek.gs.pojo.bean.AuthenticationBean;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,8 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- *
- * 自定义认证流程.将登陆接口设为/users
+ * 自定义认证流程.将普通用户登陆接口设为/users
  *
  * @author Phak
  * @since 2023/5/3-13:27
@@ -36,14 +34,11 @@ public class CustomAuthenticationFilter  extends AbstractAuthenticationProcessin
         super(new AntPathRequestMatcher("/users","POST"));
     }
 
-    public CustomAuthenticationFilter(AuthenticationManager authenticationManager) {
-        super(new AntPathRequestMatcher("/users","POST"), authenticationManager);
-    }
-
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-            throws AuthenticationException ,ContentTypeWrongException{
+            throws AuthenticationException {
         log.debug("attemptAuthentication开始");
+
         //仅当ContentType为application/json时进行登录
         if(request.getContentType().equals(MediaType.APPLICATION_JSON_VALUE)){
             ObjectMapper mapper = new ObjectMapper();
@@ -64,13 +59,15 @@ public class CustomAuthenticationFilter  extends AbstractAuthenticationProcessin
             }catch (IOException e) {
                 e.printStackTrace();
                 authRequest = new UsernamePasswordAuthenticationToken(
-                        "", "");
+                        "[null]", "[null]");
             }
+
             log.debug("attemptAuthentication结束");
             return this.getAuthenticationManager().authenticate(authRequest);
         }
-        //否则抛出异常
+        // ContentType异常
         else {
+            log.info("attemptAuthentication 抛出异常 ContentTypeWrongException");
             throw new ContentTypeWrongException();
         }
 

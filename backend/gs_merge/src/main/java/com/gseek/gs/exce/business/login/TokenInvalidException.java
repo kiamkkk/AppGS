@@ -9,8 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TokenInvalidException extends CustomAuthenticationException {
 
-    public TokenInvalidException(String message) {
-        super(message);
+    public TokenInvalidException() {
+        super("TokenInvalidException");
         log.error("TokenInvalidException");
     }
 }

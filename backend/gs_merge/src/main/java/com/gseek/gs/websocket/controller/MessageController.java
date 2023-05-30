@@ -13,17 +13,17 @@ import com.gseek.gs.pojo.dto.ChatBlockDTO;
 import com.gseek.gs.pojo.dto.PostChatImgDTO;
 import com.gseek.gs.service.inter.AdminService;
 import com.gseek.gs.service.inter.ChatRecordService;
+import com.gseek.gs.service.inter.RedisService;
 import com.gseek.gs.util.MinioUtil;
 import com.gseek.gs.websocket.message.*;
 import com.gseek.gs.websocket.service.MessageService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.websocket.server.ServerEndpoint;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
@@ -31,18 +31,18 @@ import org.springframework.web.bind.annotation.*;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 
-import static com.gseek.gs.websocket.message.BaseMessage.SYSTEM_GOOD_ID;
-
 /**
  * @author Phak
  * @since 2023/5/8-23:11
  */
 @Slf4j
 @RestController
+@ServerEndpoint("/websocket")
 public class MessageController {
 
     @Autowired
-    RabbitTemplate template;
+    @Qualifier("redisServiceImpl")
+    RedisService redisService;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -176,10 +176,14 @@ public class MessageController {
             if (userId != details.getUserId()){
                 throw new ForbiddenException();
             }
-            //todo 在另一个线程储存图片
+            // 储存图片
             String url=minioUtil.saveChatPicture(dto.getPicture(),dto.getTime(),goodId,userId);
 
-            //todo 在另一个线程储存聊天记录
+            // 储存聊天记录
+            chatRecordService.insertMessage(new ChatPicMessage(
+                    dto, goodId, userId, authentication.getName(),url
+                )
+            );
 
             // 推送消息
             ChatPicMessage message=new ChatPicMessage(userId, dto.getToUserId(), goodId,
@@ -224,11 +228,4 @@ public class MessageController {
         }
 
     }
-
-    @Async("")
-    private void saveChatRecode(){
-
-    }
-
-
 }

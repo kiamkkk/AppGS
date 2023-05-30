@@ -20,5 +20,6 @@ public interface ChatRecordService {
 
     @Async("async")
     void insertMessage(BaseMessage message);
+
     int[] selectToUser(@Param("goodId") int goodId, @Param("userId") int userId);
 }

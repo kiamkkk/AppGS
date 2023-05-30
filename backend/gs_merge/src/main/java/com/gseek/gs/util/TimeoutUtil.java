@@ -51,7 +51,6 @@ public class TimeoutUtil {
     public void popBill(String billId)
         throws NoNeedToPayException{
         if ( billPayState.containsKey(billId) ){
-            //todo
             billPayState.remove(billId);
         }else {
             // 该订单不需要支付

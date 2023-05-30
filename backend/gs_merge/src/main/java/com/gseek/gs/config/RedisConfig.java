@@ -67,17 +67,38 @@ public class RedisConfig {
         return poolConfig;
     }
 
+    /**
+     * 管理token.
+     * */
     @Bean("template0")
     public StringRedisTemplate stringRedisTemplate(){
-        return stringRedisTemplate(db1);
+        return new StringRedisTemplate(
+                redisConnectionFactory(db1)
+        );
     }
-
+    /**
+     * 管理聊天消息.
+     * */
     @Bean("template1")
     public RedisTemplate<String, ChatDO> chatDORedisTemplate(){
-        // 构建工厂对象
-        return chatDORedisTemplate(db2);
+        RedisTemplate<String, ChatDO> template = new RedisTemplate<>();
+        // 配置连接工厂
+        template.setConnectionFactory(redisConnectionFactory(db2));
+
+        //使用Jackson2JsonRedisSerializer来序列化和反序列化redis的value值（默认使用JDK的序列化方式）
+        Jackson2JsonRedisSerializer<ChatDO> jacksonSeial = new Jackson2JsonRedisSerializer(ChatDO.class);
+        // 值采用json序列化
+        template.setValueSerializer(jacksonSeial);
+        //使用StringRedisSerializer来序列化和反序列化redis的key值
+        template.setKeySerializer(new StringRedisSerializer());
+        template.afterPropertiesSet();
+
+        return template;
     }
 
+    /**
+     * 提供工厂.
+     * */
     private RedisConnectionFactory redisConnectionFactory(int database) {
         // 构建工厂对象
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
@@ -93,27 +114,4 @@ public class RedisConfig {
         factory.afterPropertiesSet();
         return factory;
     }
-
-    private RedisTemplate<String, ChatDO> chatDORedisTemplate(int database) {
-
-        RedisTemplate<String, ChatDO> template = new RedisTemplate<>();
-        // 配置连接工厂
-        template.setConnectionFactory(redisConnectionFactory(database));
-
-        //使用Jackson2JsonRedisSerializer来序列化和反序列化redis的value值（默认使用JDK的序列化方式）
-        Jackson2JsonRedisSerializer<ChatDO> jacksonSeial = new Jackson2JsonRedisSerializer(ChatDO.class);
-        // 值采用json序列化
-        template.setValueSerializer(jacksonSeial);
-        //使用StringRedisSerializer来序列化和反序列化redis的key值
-        template.setKeySerializer(new StringRedisSerializer());
-        template.afterPropertiesSet();
-
-        return template;
-    }
-
-    private StringRedisTemplate stringRedisTemplate(int database) {
-        return new StringRedisTemplate(redisConnectionFactory(database));
-    }
-
-
 }

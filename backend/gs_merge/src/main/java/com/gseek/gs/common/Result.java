@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Setter
 @Component
 public class Result {
-    //todo 要不要统一响应???
+
     private int code;
     private String msg;
     @JsonIgnore

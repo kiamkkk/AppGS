@@ -58,9 +58,7 @@ public interface GoodMapper {
     /**
      *
      * */
-    //todo list都是null
     List<GoodBO> selectGoodsByUserIdWithoutTypeTagId(@Param("userId") int userId);
-    //todo list都是null
     /**
      *
      * */

@@ -21,17 +21,34 @@ public class CustomerMD5PasswordEncoder implements PasswordEncoder {
 
     @Override
     public boolean matches(CharSequence rawPassword, String encodedPassword) {
-        return Objects.equals(digest(encodedPassword),digest(addSalt(rawPassword,encodedPassword)) );
+        return Objects.equals(
+                digest(encodedPassword),
+                digest(
+                        addSalt(rawPassword,encodedPassword)
+                )
+        );
     }
 
+    /**
+     * 把正确密码前的盐加到待验证密码前
+     *
+     * @param encodedPassword 正确密码,密码前有盐,格式为<code>[盐]密码</code>
+     * @param rawPassword 待验证密码
+     *
+     * @return 加盐后的待验证密码,格式为<code>[盐]密码</code>
+     * */
     private String addSalt(CharSequence rawPassword, String encodedPassword){
-        String salt=encodedPassword.substring(encodedPassword.indexOf(UserService.PREFIX),encodedPassword.indexOf(UserService.SUFFIX)+1);
-        String passwordWithSalt =salt+rawPassword;
-        return passwordWithSalt;
+        String salt=encodedPassword.substring(
+                encodedPassword.indexOf(UserService.PREFIX),
+                encodedPassword.indexOf(UserService.SUFFIX)+1
+        );
+        return salt+rawPassword;
     }
 
     /**
      * 使用MD5对原文进行加密
+     *
+     * @param rawPassword 待加密原文
      * */
     private String digest(String rawPassword) {
         MessageDigest md5 = null;

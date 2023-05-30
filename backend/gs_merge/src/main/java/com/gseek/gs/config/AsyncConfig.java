@@ -10,6 +10,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
+ * 线程设置.
+ *
  * @author Phak
  * @since 2023/5/21-18:59
  */
@@ -18,9 +20,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 @EnableScheduling
 public class AsyncConfig {
 
-
     @Bean("async")
-    public Executor doSomethingExecutor() {
+    public Executor executor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         // 核心线程数：线程池创建时候初始化的线程数
         executor.setCorePoolSize(10);

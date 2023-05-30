@@ -20,7 +20,7 @@ import java.io.PrintWriter;
  *
  * @author Phak
  * @since 2023/5/22-19:30
- * @deprecated 两个自定义的登录异常不应该在这个位置处理，而是在CustomAuthenticationFailureHandler中
+ * @deprecated 自定义的登录异常不应该在这个位置处理，而是在CustomAuthenticationFailureHandler中
  */
 
 @Slf4j
@@ -37,9 +37,11 @@ public class CustomerAuthenticationEntryPoint extends LoginUrlAuthenticationEntr
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        log.info("开始处理登录异常");
+        log.debug("开始处理登录异常");
+
         if (authException instanceof CustomAuthenticationException){
-            log.info("开始处理自定义异常");
+            log.debug("开始处理自定义异常");
+
             response.setStatus(403);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setCharacterEncoding("utf-8");
@@ -57,11 +59,13 @@ public class CustomerAuthenticationEntryPoint extends LoginUrlAuthenticationEntr
                 printWriter.write(objectNode.toPrettyString());
                 printWriter.flush();
             }
-            log.info("结束处理自定义异常");
+
+            log.debug("结束处理自定义异常");
             return;
         }
         super.commence(request, response, authException);
-        log.info("结束处理登录异常");
+
+        log.debug("结束处理登录异常");
     }
 
 }

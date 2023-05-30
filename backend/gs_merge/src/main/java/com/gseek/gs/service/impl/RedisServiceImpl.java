@@ -49,15 +49,18 @@ public class RedisServiceImpl implements RedisService {
      * token有效但要重新签发
      * */
     public static final int TOKEN_REISSUE=2;
-    
+    /**
+     * token临期时间,单位为毫秒.
+     * 若token有效时间小于这个数则重新签发
+     * */
     public static final long IMMINENT_TIME=10*60*1000;
 
     //todo 应该放在TokenUtil里
     @Override
     public void saveToken(String token,String userName) {
         if (isRepeatLogin(token,userName)){
-            log.warn("重复登录|"+token);
-            throw new RepeatLoginException("RepeatLogin");
+            log.info("username {} 重复登录",userName);
+            throw new RepeatLoginException();
         }
         addKey(userName, token, TokenUtil.EFFECTIVE_TIME,TimeUnit.MILLISECONDS);
     }
@@ -67,17 +70,17 @@ public class RedisServiceImpl implements RedisService {
     public int inspectToken(String token) {
         // token为空或null
         if (token==null||token.isBlank()){
-            log.info("token is NULL or empty");
+            log.info("token为空或null.这种情况不应该在这里才发现,检查JwtAuthenticationTokenFilter.");
             return TOKEN_INVALID;
         }
         // token过期
         if (TokenUtil.isTokenExpired(token)){
-            log.info("token timeout");
+            log.debug("token过期");
             return TOKEN_INVALID;
         }
         // token临期
         if (TokenUtil.needReissue(token)){
-            log.info("token reissue");
+            log.debug("token重新签发");
             return TOKEN_REISSUE;
         }
 

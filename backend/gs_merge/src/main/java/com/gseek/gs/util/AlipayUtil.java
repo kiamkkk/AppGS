@@ -51,9 +51,9 @@ public class AlipayUtil {
     @PostConstruct
     public void init() {
         alipayClient = new DefaultAlipayClient(
-                AlipayConfig.GATEWAY_URL, AlipayConfig.APP_ID, AlipayConfig.MERCHANT_PRIVATE_KEY,
-                "json", AlipayConfig.CHARSET,AlipayConfig.ALIPAY_PUBLIC_KEY,
-                AlipayConfig.SIGN_TYPE);
+                AlipayConfig.gatewayUrl, AlipayConfig.appId, AlipayConfig.merchantPrivateKey,
+                "json", AlipayConfig.charset,AlipayConfig.alipayPublicKey,
+                AlipayConfig.signType);
     }
 
     /**
@@ -70,11 +70,11 @@ public class AlipayUtil {
         model.setTotalAmount(amount.toString());
         model.setSubject("Gseek电脑网站充值");
         model.setProductCode("FAST_INSTANT_TRADE_PAY");
-        model.setTimeoutExpress(AlipayConfig.TIME_OUT);
+        model.setTimeoutExpress(AlipayConfig.timeOut);
         // 设置请求参数
         AlipayTradePagePayRequest alipayRequest = new AlipayTradePagePayRequest();
-        alipayRequest.setReturnUrl(AlipayConfig.RETURN_URL);
-        alipayRequest.setNotifyUrl(AlipayConfig.NOTIFY_URL);
+        alipayRequest.setReturnUrl(AlipayConfig.returnUrl);
+        alipayRequest.setNotifyUrl(AlipayConfig.notifyUrl);
         alipayRequest.setBizModel(model);
         // 请求
         AlipayTradePagePayResponse response= alipayClient.pageExecute(alipayRequest);
@@ -118,8 +118,8 @@ public class AlipayUtil {
         model.setPayeeInfo(payee);
 
         AlipayFundTransUniTransferRequest request = new AlipayFundTransUniTransferRequest();
-        request.setNotifyUrl(AlipayConfig.NOTIFY_URL);
-        request.setReturnUrl(AlipayConfig.RETURN_URL);
+        request.setNotifyUrl(AlipayConfig.notifyUrl);
+        request.setReturnUrl(AlipayConfig.returnUrl);
         request.setBizModel(model);
         AlipayFundTransUniTransferResponse response = alipayClient.certificateExecute(request);
 
@@ -142,7 +142,7 @@ public class AlipayUtil {
     public BigDecimal alipayFundAccountQuery()
             throws AlipayApiException {
         AlipayFundAccountQueryModel model = new AlipayFundAccountQueryModel();
-        model.setAlipayUserId(AlipayConfig.PID);
+        model.setAlipayUserId(AlipayConfig.pid);
         model.setAccountType("ACCTRANS_ACCOUNT");
         AlipayFundAccountQueryRequest request=new AlipayFundAccountQueryRequest();
         request.setBizModel(model);

@@ -1,6 +1,7 @@
 package com.gseek.gs.websocket.message;
 
 
+import com.gseek.gs.pojo.dto.PostChatImgDTO;
 import lombok.Getter;
 
 /**
@@ -14,4 +15,9 @@ public class ChatPicMessage extends BaseMessage{
         super(fromUserId, toUserId, goodId,
               fromUserName, MessageType.CHAT_PIC.name(), url, time);
     }
+    public ChatPicMessage(PostChatImgDTO dto, int goodId, int fromUserId, String fromUserName, String url) {
+        super(fromUserId, dto.getToUserId(), goodId,
+                fromUserName, MessageType.CHAT_PIC.name(), url, dto.getTime());
+    }
+
 }

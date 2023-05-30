@@ -14,22 +14,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
+ * rabbitmq设置.
+ *
  * @author Phak
  * @since 2023/5/15-17:18
  */
 @Configuration
 @Slf4j
 public class RabbitMQConfig {
-
-
     public static String host;
-
     public static int port;
-
     public static String username;
-
     public static String password;
-
     public static String virtualHost;
 
     public final static String EXCHANGE_TOPIC = "gseekExchange";
@@ -150,7 +146,6 @@ public class RabbitMQConfig {
     /**
      * 接受消息的监听，这个监听会接受消息队列topicQueue的消息
      * 针对消费者配置
-     * @return
      */
     @Bean
     public SimpleMessageListenerContainer messageContainer() {

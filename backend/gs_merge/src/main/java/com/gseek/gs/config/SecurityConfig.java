@@ -26,23 +26,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
-
-//    @Value("${custom.localhost}")
-//    public String localhost;
-//    @Value("${server.port}")
-//    public String port;
-//    @Value("${server.servlet.context-path}")
-//    public String contextPath;
-//    public String baseUrl="http://"+localhost+port+contextPath;
-//    public String loginFormUrl=baseUrl+"/users";
-
     private String localhost;
     private String port;
     private String contextPath;
     public String baseUrl;
     public String loginFormUrl;
-
 
     @Autowired
     @Qualifier("userServiceImpl")
@@ -69,45 +57,35 @@ public class SecurityConfig {
                 .requestMatchers("/alipay/**","/imgs/**","/users/register","/users").permitAll()
                 .requestMatchers("/report/**","/report").permitAll()
                 .requestMatchers("/after_sale/**").permitAll()
-                .requestMatchers("/users/**","/buyer/**","/buyer/**","/goods/**","/seller/**","/trade/**").hasAnyAuthority("USER","ADMIN")
+                .requestMatchers("/users/**","/buyer/**","/buyer/**","/goods/**","/seller/**","/trade/**")
+                    .hasAnyAuthority("USER","ADMIN")
                 .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
                 .anyRequest().authenticated()
 
                 .and().exceptionHandling().authenticationEntryPoint(
                         new CustomerAuthenticationEntryPoint(getLoginFormUrl())
-                );
-
-
+                )
+                ;
 
 
         httpSecurity
-
                 .addFilterAt(
-                        authenticationFilter(
+                        userAuthenticationFilter(
                                 successHandler,
                                 failureHandler
                         ),
                         UsernamePasswordAuthenticationFilter.class
                 )
-                .addFilterAt(
+                .addFilterBefore(
                         adminAuthenticationFilter(
                                 adminAuthenticationSuccessHandler,
                                 adminAuthenticationFailureHandler
                         ),
                         UsernamePasswordAuthenticationFilter.class
                 )
-
                 .addFilterBefore(jwtAuthenticationTokenFilter, CustomAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationTokenFilter, AdminAuthenticationFilter.class)
                 ;
-                /*.addFilterBefore((servletRequest, servletResponse, filterChain) -> {
-                    ServletRequest requestWrapper = new CustomHttpServletRequestWrapper((HttpServletRequest)servletRequest);
-                    filterChain.doFilter(requestWrapper, servletResponse);//requestWrapper中保存着供二次使用的请求数据
-                }, ForceEagerSessionCreationFilter.class);*/
-                /*.addFilterBefore((servletRequest, servletResponse, filterChain) -> {
-                    ServletRequest requestWrapper = new AdminHttpServletRequestWrapper((HttpServletRequest)servletRequest);
-                    filterChain.doFilter(requestWrapper, servletResponse);//requestWrapper中保存着供二次使用的请求数据
-                }, ForceEagerSessionCreationFilter.class);*/
         return httpSecurity.build();
     }
 
@@ -115,19 +93,15 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new CustomerMD5PasswordEncoder();
     }
-
     @Bean
-    public CustomAuthenticationFilter authenticationFilter(CustomAuthenticationSuccessHandler successHandler,
+    public CustomAuthenticationFilter userAuthenticationFilter(CustomAuthenticationSuccessHandler successHandler,
                                                            CustomAuthenticationFailureHandler failureHandler) {
         CustomAuthenticationFilter filter = new CustomAuthenticationFilter();
-
         filter.setAuthenticationManager(
-                new ProviderManager(
-                        userAuthenticationProvider(userService())
-/*                        adminAuthenticationProvider(adminService())*/
-                )
+            new ProviderManager(
+                    customDaoAuthenticationProvider(userService())
+            )
         );
-
         filter.setAuthenticationSuccessHandler(successHandler);
         filter.setAuthenticationFailureHandler(failureHandler);
         filter.setAuthenticationDetailsSource(new CustomWebAuthenticationDetailsSource());
@@ -148,7 +122,6 @@ public class SecurityConfig {
         filter.setAuthenticationDetailsSource(new AdminWebAuthenticationDetailsSource());
         return filter;
     }
-
     @Bean
     public UserService userService(){
         return userService;
@@ -157,10 +130,8 @@ public class SecurityConfig {
     public AdminService adminService(){
         return adminService;
     }
-
-
     @Bean
-    public CustomDaoAuthenticationProvider authenticationProvider(UserService userService) {
+    public CustomDaoAuthenticationProvider customDaoAuthenticationProvider(UserService userService) {
         CustomDaoAuthenticationProvider provider = new CustomDaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder());
         provider.setUserDetailsService(userService);
@@ -181,7 +152,6 @@ public class SecurityConfig {
     public void setLocalhost(String localhost) {
         this.localhost = localhost;
     }
-
     public String getPort() {
         return port;
     }
@@ -189,7 +159,6 @@ public class SecurityConfig {
     public void setPort(String port) {
         this.port = port;
     }
-
     public String getContextPath() {
         return contextPath;
     }
@@ -197,15 +166,12 @@ public class SecurityConfig {
     public void setContextPath(String contextPath) {
         this.contextPath = contextPath;
     }
-
-
     public String getBaseUrl() {
         if (baseUrl==null){
             baseUrl="http://"+getLocalhost()+":"+getPort()+getContextPath();
         }
         return baseUrl;
     }
-
     public String getLoginFormUrl() {
         if (loginFormUrl==null){
             loginFormUrl=getBaseUrl()+"users";

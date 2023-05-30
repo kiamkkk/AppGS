@@ -9,6 +9,7 @@ import org.springframework.web.socket.handler.WebSocketHandlerDecorator;
 import org.springframework.web.socket.handler.WebSocketHandlerDecoratorFactory;
 
 import java.security.Principal;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Phak
@@ -17,6 +18,8 @@ import java.security.Principal;
 @Slf4j
 @Component
 public class WebSocketDecoratorFactory  implements WebSocketHandlerDecoratorFactory {
+// todo 用户离线后怎么在下一次登录时推送给用户？？？
+    private static ConcurrentHashMap<String, WebSocketSession> manager = new ConcurrentHashMap<String, WebSocketSession>();
     @Override
     public WebSocketHandler decorate(WebSocketHandler handler) {
 
@@ -28,7 +31,7 @@ public class WebSocketDecoratorFactory  implements WebSocketHandlerDecoratorFact
                 if (principal != null) {
                     log.info("用户id{}接入", principal.getName());
                     // 身份校验成功，缓存socket连接
-                    SocketManager.add(principal.getName(), session);
+                    add(principal.getName(), session);
                 }
 
 
@@ -41,12 +44,26 @@ public class WebSocketDecoratorFactory  implements WebSocketHandlerDecoratorFact
                 Principal principal = session.getPrincipal();
                 if (principal != null) {
                     // 身份校验成功，移除socket连接
-                    SocketManager.remove(principal.getName());
+                    remove(principal.getName());
                 }
                 super.afterConnectionClosed(session, closeStatus);
             }
         };
     }
 
+    private void add(String key, WebSocketSession webSocketSession) {
+        log.info("新添加webSocket连接 {} ", key);
+        manager.put(key, webSocketSession);
+    }
+
+    private void remove(String key) {
+        log.info("移除webSocket连接 {} ", key);
+        manager.remove(key);
+    }
+
+    public static WebSocketSession get(String key) {
+        log.info("获取webSocket连接 {}", key);
+        return manager.get(key);
+    }
 
 }

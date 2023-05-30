@@ -110,7 +110,7 @@ public class MessageService {
         operations.convertAndSendToUser(bm.getToUserId()+"","/admin/chat",bm);
     }
     public void blockOrUnblock(ChatBlockDTO dto){
-        if (blockMap.containsKey(dto.getToUserId())){
+        if (! blockMap.containsKey(dto.getToUserId())){
             blockMap.put(dto.getFromUserId(), new HashSet<>(16));
         }
         Set<Integer> blocks=blockMap.get(dto.getToUserId());

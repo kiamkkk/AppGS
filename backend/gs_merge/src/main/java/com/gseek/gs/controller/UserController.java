@@ -52,7 +52,6 @@ public class UserController {
     @PostMapping("/register")
     public String register(@RequestBody RegisterDTO dto)
             throws JsonProcessingException, ParameterWrongException, IllegalBlockSizeException, BadPaddingException {
-        log.info("开始注册");
         dto.perService();
         return userService.register(dto);
     }
@@ -61,7 +60,6 @@ public class UserController {
     public String getUserInformation(@PathVariable("username") String userName,
                                      @CurrentSecurityContext(expression = "Authentication") Authentication authentication)
             throws ServerException, JsonProcessingException {
-        log.info("开始获取用户信息");
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
             return userService.getUserInformation(details.getUserId());
