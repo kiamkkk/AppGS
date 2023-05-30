@@ -12,19 +12,17 @@ import java.util.List;
  */
 @Mapper
 public interface GoodFavMapper {
-    //todo 补充注释
     /**
-     *
-     */
-    List<GoodFavBO> getAllFav(@Param("userId") int userId);
-
-    /**
-     *
+     * 插入收藏商品记录.
      * */
     int insertFav(@Param("userId") int userId,@Param("goodId") int goodId,@Param("time") long time);
-
     /**
-     *
+     * 获取所有收藏商品信息.
+     */
+    List<GoodFavBO> getAllFav(@Param("userId") int userId);
+    /**
+     * 删除商品收藏记录.
+     * 物理删除.
      * */
     int deleteFav(@Param("userId") int userId,@Param("goodId") int goodId);
 }

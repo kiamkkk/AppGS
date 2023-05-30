@@ -26,17 +26,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
-
-//    @Value("${custom.localhost}")
-//    public String localhost;
-//    @Value("${server.port}")
-//    public String port;
-//    @Value("${server.servlet.context-path}")
-//    public String contextPath;
-//    public String baseUrl="http://"+localhost+port+contextPath;
-//    public String loginFormUrl=baseUrl+"/users";
-
     private String localhost;
     private String port;
     private String contextPath;
@@ -64,12 +53,16 @@ public class SecurityConfig {
         httpSecurity.csrf().disable();
 
         httpSecurity.authorizeHttpRequests()
-
                 .requestMatchers(HttpMethod.OPTIONS).permitAll()
-                .requestMatchers("/alipay/**","/imgs/**","/users/register","/users").permitAll()
+                .requestMatchers(
+                        "/alipay/**","/imgs/**","/users/register","/users"
+                ).permitAll()
                 .requestMatchers("/report/**","/report").permitAll()
                 .requestMatchers("/after_sale/**").permitAll()
-                .requestMatchers("/users/**","/buyer/**","/buyer/**","/goods/**","/seller/**","/trade/**").hasAnyAuthority("USER","ADMIN")
+                .requestMatchers(
+                        "/users/**","/buyer/**","/buyer/**",
+                        "/goods/**","/seller/**","/trade/**","/goods"
+                ).hasAnyAuthority("USER","ADMIN")
                 .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
                 .anyRequest().authenticated()
 
@@ -123,9 +116,8 @@ public class SecurityConfig {
 
         filter.setAuthenticationManager(
                 new ProviderManager(
-//                       TODO 之前用的userAuthenticationProvider没有了，只有authenticationProvider
-                        authenticationProvider(userService())
-/*                        adminAuthenticationProvider(adminService())*/
+                        userAuthenticationProvider(userService()
+                        )
                 )
         );
 
@@ -161,7 +153,7 @@ public class SecurityConfig {
 
 
     @Bean
-    public CustomDaoAuthenticationProvider authenticationProvider(UserService userService) {
+    public CustomDaoAuthenticationProvider userAuthenticationProvider(UserService userService) {
         CustomDaoAuthenticationProvider provider = new CustomDaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder());
         provider.setUserDetailsService(userService);

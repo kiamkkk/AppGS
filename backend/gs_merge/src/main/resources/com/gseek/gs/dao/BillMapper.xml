@@ -38,7 +38,6 @@
                 state_modified_time=#{billDO.stateModifiedTime}
         where bill_id=#{billDO.billId} ;
 
-/*       ;*/
     </update>
 
     <select id="selectBillStateBOByBillId" resultMap="BillStateBO">

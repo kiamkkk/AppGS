@@ -20,6 +20,8 @@ import javax.crypto.IllegalBlockSizeException;
 import java.io.FileNotFoundException;
 
 /**
+ * 处理账户信息.
+ *
  * @author Phak
  * @since 2023/5/15-11:27
  */
@@ -37,7 +39,6 @@ public class AccountController {
 
     /**
      * 充值
-     *
      * */
     @PostMapping
     public String recharge(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
@@ -52,12 +53,10 @@ public class AccountController {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
             throw new ServerException("认证时出错");
         }
-
     }
 
     /**
      * 提现
-     *
      * */
     @PatchMapping
     public String withdrawals(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
@@ -77,11 +76,8 @@ public class AccountController {
 
     }
 
-
     /**
      * 获取钱包所有信息
-     *
-     *
      * */
     @GetMapping
     public String getWalletInformation(@CurrentSecurityContext(expression = "Authentication") Authentication authentication)

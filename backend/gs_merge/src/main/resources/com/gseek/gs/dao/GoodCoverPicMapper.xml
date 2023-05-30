@@ -17,6 +17,7 @@
     <insert id="insertCoverPic" parameterType="java.util.ArrayList" >
         insert into good_cover_pic (good_id, cover_picture_url)
         VALUES
+
         <foreach collection="list" item="item" index="index" separator=",">
             (#{goodId},#{item})
         </foreach>

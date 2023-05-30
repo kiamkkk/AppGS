@@ -5,4 +5,7 @@ package com.gseek.gs.exce;
  * @since 2023/5/21-23:15
  */
 public class ToBeConstructed extends BaseException{
+    public ToBeConstructed(String... info) {
+        super(info);
+    }
 }

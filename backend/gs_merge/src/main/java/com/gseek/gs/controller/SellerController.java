@@ -20,6 +20,8 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 
 /**
+ * 处理卖家操作.
+ *
  * @author Phak
  * @since 2023/5/9-22:14
  */
@@ -27,7 +29,6 @@ import javax.crypto.IllegalBlockSizeException;
 @RequestMapping("/seller")
 @Slf4j
 public class SellerController {
-    //todo 补充注释
 
     @Autowired
     ObjectMapper objectMapper;
@@ -36,6 +37,50 @@ public class SellerController {
     @Qualifier("sellerServiceImpl")
     SellerService sellerService;
 
+    /**
+     * 卖家获取名下所有商品
+     * */
+    @GetMapping("/{user_id}/goods")
+    public String getAllGoods(@CurrentSecurityContext(expression = "Authentication") Authentication authentication)
+            throws ForbiddenException, JsonProcessingException {
+        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
+
+            return sellerService.getAllGoods(details.getUserId());
+
+        }else {
+            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
+            throw new ServerException("认证时出错");
+        }
+    }
+
+    /**
+     * 卖家获取所有已卖出商品
+     * */
+    @GetMapping("/{user_id}/goods/sold")
+    public String getGoodsSold(@CurrentSecurityContext(expression = "Authentication") Authentication authentication)
+            throws ForbiddenException, JsonProcessingException {
+        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
+
+            return sellerService.getGoodsSold(details.getUserId());
+
+        }else {
+            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
+            throw new ServerException("认证时出错");
+        }
+    }
+
+    /**
+     * 卖家获取某商品出价信息
+     * */
+    @GetMapping("/{good_id}/offer_price")
+    public String getSingleGoodOfferPrice(@PathVariable("good_id") int goodId)
+            throws JsonProcessingException {
+        return sellerService.getSingleGoodOfferPrice(goodId);
+    }
+    /**
+     * 卖家发布商品
+     * Content-Type:multipart/form-data
+     * */
     @PostMapping("/goods")
     public String postGoods(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                             HttpServletRequest request)
@@ -55,6 +100,10 @@ public class SellerController {
 
     }
 
+    /**
+     * 卖家修改商品
+     * Content-Type:multipart/form-data
+     * */
     @PatchMapping("/goods")
     public String patchGoods(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                              HttpServletRequest request)
@@ -72,7 +121,9 @@ public class SellerController {
             throw new ServerException("认证时出错");
         }
     }
-
+    /**
+     * 卖家删除某一商品
+     * */
     @DeleteMapping("/goods/{good_id}")
     public String deleteGood(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                              @PathVariable("good_id") int goodId)
@@ -85,38 +136,6 @@ public class SellerController {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
             throw new ServerException("认证时出错");
         }
-    }
-
-    @GetMapping("/{user_id}/goods")
-    public String getAllGoods(@CurrentSecurityContext(expression = "Authentication") Authentication authentication)
-            throws ForbiddenException, JsonProcessingException {
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-
-            return sellerService.getAllGoods(details.getUserId());
-
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
-        }
-    }
-
-    @GetMapping("/{user_id}/goods/sold")
-    public String getGoodsSold(@CurrentSecurityContext(expression = "Authentication") Authentication authentication)
-            throws ForbiddenException, JsonProcessingException {
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-
-            return sellerService.getGoodsSold(details.getUserId());
-
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
-        }
-    }
-
-    @GetMapping("/{good_id}/offer_price")
-    public String getSingleGoodOfferPrice(@PathVariable("good_id") int goodId)
-            throws JsonProcessingException {
-        return sellerService.getSingleGoodOfferPrice(goodId);
     }
 
 }

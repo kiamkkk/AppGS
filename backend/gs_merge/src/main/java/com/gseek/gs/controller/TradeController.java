@@ -22,6 +22,8 @@ import javax.crypto.IllegalBlockSizeException;
 import java.util.Objects;
 
 /**
+ * 处理交易操作.
+ *
  * @author Phak
  * @since 2023/5/11-23:25
  */
@@ -37,7 +39,23 @@ public class TradeController {
     @Qualifier("billServiceImpl")
     BillService billService;
 
-
+    /**
+     * 查看订单情况
+     * */
+    @GetMapping("/bills/{bill_id}")
+    public String getBillState(@PathVariable("bill_id") String billId )
+            throws IllegalBlockSizeException, BadPaddingException, JsonProcessingException {
+        // 验参
+        if (billId==null || billId.isEmpty()){
+            throw new ParameterWrongException(
+                    new ParameterWrongBean().addParameters("bill_id", billId)
+            );
+        }
+        return billService.getBillState(PasswordUtil.decrypt(billId));
+    }
+    /**
+     * 买家发起订单
+     * */
     @PostMapping("/bills")
     public String postBill(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                            @RequestBody PostBillsDTO dto)
@@ -57,7 +75,9 @@ public class TradeController {
         }
 
     }
-
+    /**
+     * 买家支付订单
+     * */
     @PutMapping("/bills")
     public String putPayBill(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                              @RequestBody PayBillDTO dto)
@@ -75,6 +95,9 @@ public class TradeController {
         }
     }
 
+    /**
+     * 卖家是否决定交货
+     * */
     @PatchMapping("/bills")
     public String patchDeliveryBill(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                                     @RequestBody PatchDeliveryBillDTO dto)
@@ -91,18 +114,9 @@ public class TradeController {
 
     }
 
-    @GetMapping("/bills/{bill_id}")
-    public String getBillState(@PathVariable("bill_id") String billId )
-            throws IllegalBlockSizeException, BadPaddingException, JsonProcessingException {
-        // 验参
-        if (billId==null || billId.isEmpty()){
-            throw new ParameterWrongException(
-                    new ParameterWrongBean().addParameters("bill_id", billId)
-            );
-        }
-        return billService.getBillState(PasswordUtil.decrypt(billId));
-    }
-
+    /**
+     * 卖家是否取消交易
+     * */
     @PatchMapping("/bills/cancel")
     public String patchBillCancel(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                                   @RequestBody PatchBillCancelDTO dto)
@@ -119,6 +133,9 @@ public class TradeController {
 
     }
 
+    /**
+     * 买家验货
+     * */
     @PatchMapping("/inspect")
     public String patchBillInspect(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                                    PatchBillInspectDTO dto)

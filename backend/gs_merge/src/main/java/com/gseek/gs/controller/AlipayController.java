@@ -30,14 +30,11 @@ public class AlipayController {
     TimeoutUtil timeoutUtil;
     @Autowired
     MoneyMapper moneyMapper;
-
     @Autowired
     RechargeWithdrawMapper rwMapper;
 
     /**
      * 异步通知,充值成功后被调用.
-     *
-     * @throws Exception
      */
     @RequestMapping("/notify")
     public String notify(Map<String, String> paramsMap) {
@@ -63,7 +60,6 @@ public class AlipayController {
                     }
                 } else {
                     log.warn("没有处理支付宝回调业务，支付宝交易状态：{}", tradeStatus);
-                    //todo 这里要对支付失败做处理
                 }
                 return "success";
             } else {
@@ -79,7 +75,6 @@ public class AlipayController {
 
     /**
      * 充值成功页面
-     *
      */
     @RequestMapping("/pay_success")
     public String paySuccess(Map<String, String> paramsMap){

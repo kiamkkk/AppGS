@@ -20,6 +20,8 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 
 /**
+ * 处理买家操作.
+ *
  * @author Phak
  * @since 2023/5/11-22:17
  */
@@ -30,31 +32,14 @@ public class BuyerController {
 
     @Autowired
     ObjectMapper objectMapper;
-
     @Autowired
     @Qualifier("buyerServiceImpl")
     BuyerService buyerService;
 
 
-
-    @PostMapping("/offer_price")
-    public String postOfferPrice(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
-                                 @RequestBody PostOfferPriceDTO dto)
-            throws JsonProcessingException, ForbiddenException, IllegalBlockSizeException, BadPaddingException {
-        dto.perService();
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-
-            if (dto.getOfferUserId()!=details.getUserId()){
-                throw new ForbiddenException();
-            }
-            return buyerService.postOfferPrice(dto);
-
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
-        }
-    }
-
+    /**
+     * 买家获取所有出价记录
+     * */
     @GetMapping("/{user_id}/offer_price")
     public String getAllOfferPrice(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                                    @PathVariable("user_id") int userId)
@@ -73,6 +58,9 @@ public class BuyerController {
         }
     }
 
+    /**
+     * 买家获取所有收藏商品
+     * */
     @GetMapping("/{user_id}/fav")
     public String getAllFav(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                             @PathVariable("user_id") int userId)
@@ -91,6 +79,9 @@ public class BuyerController {
         }
     }
 
+    /**
+     * 买家获取所有已购买商品
+     * */
     @GetMapping("/{user_id}/bought")
     public String getBoughtGoods(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                                  @PathVariable("user_id") int userId)
@@ -110,6 +101,30 @@ public class BuyerController {
 
     }
 
+    /**
+     * 买家出价
+     * */
+    @PostMapping("/offer_price")
+    public String postOfferPrice(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
+                                 @RequestBody PostOfferPriceDTO dto)
+            throws JsonProcessingException, ForbiddenException, IllegalBlockSizeException, BadPaddingException {
+        dto.perService();
+        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
+
+            if (dto.getOfferUserId()!=details.getUserId()){
+                throw new ForbiddenException();
+            }
+            return buyerService.postOfferPrice(dto);
+
+        }else {
+            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
+            throw new ServerException("认证时出错");
+        }
+    }
+
+    /**
+     * 买家收藏商品
+     * */
     @PostMapping("/{user_id}/fav")
     public String postFav(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                           @PathVariable("user_id") int userId, PostFavDTO dto)
@@ -130,6 +145,9 @@ public class BuyerController {
 
     }
 
+    /**
+     * 买家取消收藏商品
+     * */
     @DeleteMapping("/{user_id}/fav")
     public String deleteFav(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                             @PathVariable("user_id") int userId, DeleteFavDTO dto)

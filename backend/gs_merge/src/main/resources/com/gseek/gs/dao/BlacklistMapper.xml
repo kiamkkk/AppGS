@@ -5,7 +5,7 @@
 <mapper namespace="com.gseek.gs.dao.BlacklistMapper">
     <insert id="addReport" parameterType="com.gseek.gs.pojo.dto.BlacklistDTO" >
         insert into gseek.blacklist(claimer_id,respondent_id,appeal_reason,provePic)
-        values (#{claimer_id},#{respondent_id},#{appeal_reason},#{provePic});
+        values (#{blacklistDTO.claimer_id},#{blacklistDTO.respondent_id},#{blacklistDTO.appeal_reason},#{blacklistDTO.provePic});
     </insert>
     <select id="queryResult" resultType="com.gseek.gs.pojo.business.BlacklistResultBO">
         select appeal_result from gseek.blacklist where black_id=#{black_id};

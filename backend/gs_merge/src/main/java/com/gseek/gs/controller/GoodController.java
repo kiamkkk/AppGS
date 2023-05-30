@@ -8,16 +8,18 @@ import com.gseek.gs.service.inter.GoodService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
+ * 处理商品信息获取.
+ *
  * @author Phak
  * @since 2023/5/9-12:36
  */
-@Controller
+@RestController
 @Slf4j
 @RequestMapping("/goods")
 public class GoodController {
@@ -25,16 +27,18 @@ public class GoodController {
     @Autowired
     ObjectMapper objectMapper;
 
-    @Autowired()
+    @Autowired
     @Qualifier("goodServiceImpl")
     GoodService goodService;
 
-
-    @GetMapping("/{type}")
+    /**
+     * 根据商品种类获取商品信息.
+     * */
+    @GetMapping("/type/{type}")
     public String getGoodsByType(@PathVariable("type") String typeName)
             throws JsonProcessingException, ParameterWrongException {
         //入参检验
-        if (typeName==null){
+        if (typeName==null || typeName.isBlank()){
             throw new ParameterWrongException(
                     new ParameterWrongBean()
                             .addParameters("type",typeName+"")
@@ -42,8 +46,10 @@ public class GoodController {
         }
         return goodService.getGoodsByType(typeName);
     }
-
-    @GetMapping("/{tag}")
+    /**
+     * 根据商品tag获取商品信息.
+     * */
+    @GetMapping("/tag/{tag}")
     public String getGoodsByTag(@PathVariable("tag") String tagName)
             throws JsonProcessingException, ParameterWrongException {
         if (tagName==null){
@@ -55,7 +61,10 @@ public class GoodController {
         return goodService.getGoodsByTag(tagName);
     }
 
-    @GetMapping("{good_id}")
+    /**
+     * 根据商品id获取商品信息.
+     * */
+    @GetMapping("/good_id/{good_id}")
     public String getGoodByGoodId(@PathVariable("good_id") int goodId)
             throws JsonProcessingException, ParameterWrongException {
         if (goodId<=0){
@@ -66,12 +75,19 @@ public class GoodController {
         }
         return goodService.getGoodByGoodId(goodId);
     }
-    @GetMapping("/goods")
+
+    /**
+     * 获取所有通过审核的商品
+     * */
+    @GetMapping
     public String getAllCheckedGoods() throws JsonProcessingException {
         return goodService.queryAllCheckedGood();
     }
-    @GetMapping("/goods/{goodName}")
-    public String getGoodByGoodName(@PathVariable("goodName")String goodName) throws JsonProcessingException {
+    /**
+     * 获取所有名字内含有关键词的商品
+     * */
+    @GetMapping("/good_name/{good_name}")
+    public String getGoodByGoodName(@PathVariable("good_name")String goodName) throws JsonProcessingException {
         return goodService.queryGoodByName(goodName);
     }
 

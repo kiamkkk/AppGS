@@ -6,7 +6,6 @@ import com.gseek.gs.exce.BaseException;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.ToBeConstructed;
 import com.gseek.gs.exce.business.BusinessException;
-import com.gseek.gs.exce.business.ForbiddenException;
 import com.gseek.gs.exce.business.login.RepeatLoginException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +17,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 /**
- * 包装发送所有业务异常
+ * 包装发送所有异常.
+ * springSecurity中的异常不会在这里处理.
  *
  * @author Phak
  * @since 2023/5/2-21:52
@@ -31,24 +31,10 @@ public class ExceptionController {
     @Autowired
     ObjectMapper objectMapper;
 
-    @ExceptionHandler({IOException.class, SQLException.class})
-    public String unknownExceptionHandler(Exception e,HttpServletResponse response){
-        log.info("unknownException: {}",e.getMessage());
-        response.setStatus(500);
-        ObjectNode objectNode=objectMapper.createObjectNode();
-        objectNode.put("code", 50010);
-        objectNode.put("message", "后端未知错误");
-        log.error(e.getMessage());
-        return objectNode.toPrettyString();
-    }
-
-    @ExceptionHandler(ToBeConstructed.class)
-    public String toBeConstructedExceptionHandler(ToBeConstructed e,HttpServletResponse response){
-        log.info("ToBeConstructed: {}",e.getMsg());
-        response.setStatus(500);
-        return "后端竟然还有没写的异常！！！带着以下消息火速前去拷打廖俊煜！！！\n"+e.getMessage();
-    }
-
+    /**
+     * 处理业务异常.
+     * 这种异常的原因是用户给出的数据不正确,根据异常中的code与msg进行响应.
+     * */
     @ExceptionHandler(BusinessException.class)
     public String businessExceptionHandel(BusinessException e,HttpServletResponse response){
         log.info("BusinessException: {}",e.getMsg());
@@ -56,20 +42,21 @@ public class ExceptionController {
         return packageMessage(e);
     }
 
-    @ExceptionHandler(ForbiddenException.class)
-    public String forbiddenExceptionHandel(ForbiddenException e,HttpServletResponse response){
-        log.info("ForbiddenException: {}",e.getMsg());
-        response.setStatus(e.getCode());
-        return packageMessage(e);
-    }
-
+    /**
+     * 处理服务器异常.
+     * 这种异常的原因是服务器自身原因,不能通过用户重新给出数据解决.
+     * */
     @ExceptionHandler(ServerException.class)
     public String serverExceptionHandler(ServerException e, HttpServletResponse response){
-        log.info("ServerException: {}",e.getMsg());
+        log.error("ServerException: {}",e.getMsg());
         response.setStatus(500);
         return packageMessage(e);
     }
 
+    /**
+     * 重复登录异常.
+     * 这个异常在用户在持有一个有效token的时候进行登录时抛出.只会由RedisService#saveToken抛出.
+     * */
     @ExceptionHandler(RepeatLoginException.class)
     public String repeatLoginExceptionHandel(RepeatLoginException e, HttpServletResponse response){
         log.info("ServerException: {}",e.getMessage());
@@ -80,6 +67,33 @@ public class ExceptionController {
         objectNode.put("message", e.getMessage());
         return objectNode.toPrettyString();
     }
+
+    /**
+     * 处理没有被包装过的异常.
+     * 这种异常不应该出现,应当被规范化为ServerException或BusinessException.
+     * */
+    @ExceptionHandler({IOException.class, SQLException.class})
+    public String unknownExceptionHandler(Exception e,HttpServletResponse response){
+        log.warn("unknownException: {}",e.getMessage());
+        response.setStatus(500);
+
+        ObjectNode objectNode=objectMapper.createObjectNode();
+        objectNode.put("code", 50010);
+        objectNode.put("message", "后端未知错误");
+
+        return objectNode.toPrettyString();
+    }
+    /**
+     * 处理尚未定义的异常.
+     * 这种异常不应该出现.这种异常是开发中认为应当在某处抛出一个异常,但暂时还没想好如何设计异常,所以先放一个ToBeConstructed占位.
+     * */
+    @ExceptionHandler(ToBeConstructed.class)
+    public String toBeConstructedExceptionHandler(ToBeConstructed e,HttpServletResponse response){
+        log.warn("ToBeConstructed: {}",e.getMsg());
+        response.setStatus(500);
+        return "后端竟然还有没写好的异常！！！带着以下消息火速前去拷打廖俊煜！！！\n"+e.getMessage();
+    }
+
 
     /**
      * 以json包装自定义异常
@@ -93,7 +107,5 @@ public class ExceptionController {
         objectNode.put("message", e.getMsg());
         return objectNode.toPrettyString();
     }
-
-
 
 }

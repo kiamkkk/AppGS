@@ -20,7 +20,8 @@ public interface SellerService {
     /**
      *
      * */
-    String patchGood(int userId, String userName, PatchGoodsDTO dto) throws JsonProcessingException, ParameterWrongException;
+    String patchGood(int userId, String userName, PatchGoodsDTO dto)
+            throws JsonProcessingException, ParameterWrongException;
 
     /**
      *

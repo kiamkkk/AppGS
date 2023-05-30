@@ -161,7 +161,7 @@ public class MessageController {
 
     /**
      * 用户聊天时发送图片
-     *
+     * Content-Type:multipart/form-data
      * */
 
     @PostMapping("/chats/imgs/{good_id}/{user_id}")

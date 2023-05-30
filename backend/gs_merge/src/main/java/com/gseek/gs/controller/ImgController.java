@@ -23,14 +23,16 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 @RequestMapping("/imgs")
 public class ImgController {
-
+// todo 能不能在一个响应中返回多个图片？？？
     @Autowired
     MinioUtil minioUtil;
     
     @Autowired
     Result result;
 
-
+    /**
+     * 获取头像.
+     * */
     @GetMapping("/profile_photos/{pic_name}.jpg")
     public String getProfile(HttpServletResponse response,
                              @PathVariable("pic_name") String picName)
@@ -40,7 +42,9 @@ public class ImgController {
         minioUtil.downloadImg(response, path, filename);
         return result.gainGetSuccess();
     }
-
+    /**
+     * 获取商品封面.
+     * */
     @GetMapping("/goods/{good_id}/covers/{cover_id}.jpg")
     public String getGoodCovers(HttpServletResponse response,
                                 @PathVariable("good_id") int goodId, @PathVariable("cover_id") int coverId)
@@ -50,7 +54,9 @@ public class ImgController {
         minioUtil.downloadImg(response, path, filename);
         return result.gainGetSuccess();
     }
-
+    /**
+     * 获取商品详情图片.
+     * */
     @GetMapping("/goods/{good_id}/details/{detail_id}.jpg")
     public String getGoodDetails(HttpServletResponse response,
                                  @PathVariable("good_id") int goodId, @PathVariable("detail_id") int detailId)
@@ -60,7 +66,9 @@ public class ImgController {
         minioUtil.downloadImg(response, path, filename);
         return result.gainGetSuccess();
     }
-
+    /**
+     * 获取聊天记录图片.
+     * */
     @GetMapping("/imgs/chats/{good_id}/{chat_id}.jpg")
     public String getGoodCovers(HttpServletResponse response,
                                 @PathVariable("good_id") int goodId, @PathVariable("chat_id") String chatId)

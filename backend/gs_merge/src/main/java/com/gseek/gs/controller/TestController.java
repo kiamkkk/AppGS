@@ -12,8 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
+ * 测试组件能否在web端运行.
+ *
  * @author Phak
  * @since 2023/5/3-22:23
+ * @deprecated 测试功能用postman或直接进行接口联调.
  */
 @Controller
 @Slf4j

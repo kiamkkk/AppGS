@@ -25,12 +25,11 @@ import javax.crypto.IllegalBlockSizeException;
 import java.util.Objects;
 
 /**
- * 对应 /users/** 下的操作
+ * 处理用户基本信息.
  *
  * @author Phak
  * @since 2023/5/2-19:00
  */
-
 @RestController
 @RequestMapping("/users")
 @Slf4j
@@ -49,13 +48,9 @@ public class UserController {
     @Autowired
     MinioUtil minioUtil;
 
-    @PostMapping("/register")
-    public String register(@RequestBody RegisterDTO dto)
-            throws JsonProcessingException, ParameterWrongException, IllegalBlockSizeException, BadPaddingException {
-        dto.perService();
-        return userService.register(dto);
-    }
-
+    /**
+     * 获取用户一般信息
+     * */
     @GetMapping("/{username}")
     public String getUserInformation(@PathVariable("username") String userName,
                                      @CurrentSecurityContext(expression = "Authentication") Authentication authentication)
@@ -71,6 +66,9 @@ public class UserController {
 
     }
 
+    /**
+     * 获取用户实名认证信息
+     * */
     @GetMapping("/{username}/real_name")
     public String getRealNameInformation(@PathVariable("username") String userName,
                                          @CurrentSecurityContext(expression = "Authentication") Authentication authentication)
@@ -91,8 +89,42 @@ public class UserController {
     }
 
     /**
-     * @RequestBody 只接受json，这里有可能接收到文件，只能用multipart/form-data，得自己接参数手动装配
-     *
+     * 注册.
+     * */
+    @PostMapping("/register")
+    public String register(@RequestBody RegisterDTO dto)
+            throws JsonProcessingException, ParameterWrongException, IllegalBlockSizeException, BadPaddingException {
+        dto.perService();
+        return userService.register(dto);
+    }
+
+    /**
+     * 上传实名验证信息.
+     * */
+    @PostMapping("/{username}/real_name")
+    public String postRealNameInformation(@PathVariable("username") String userName,
+                                          @CurrentSecurityContext(expression = "Authentication") Authentication authentication,
+                                          @RequestBody PostRealNameInformationDTO dto)
+            throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
+        dto.perService();
+        if (!Objects.equals(authentication.getName(), userName)){
+
+            throw new ForbiddenException();
+
+        }
+        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
+
+            return userService.postRealNameInformation(details.getUserId(),dto);
+
+        }else {
+            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
+            throw new ServerException("认证时出错");
+        }
+    }
+
+    /**
+     * 修改用户信息.
+     * Content-Type:multipart/form-data
      * */
     @PatchMapping("/{username}")
     public String patchUserInformation(@PathVariable("username") String userName,
@@ -112,27 +144,6 @@ public class UserController {
             int userId=details.getUserId();
             String photoPath=minioUtil.changeProfilePhoto(userId, dto.getPicture());
             return userService.patchUserInformation(userId,photoPath,dto);
-
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
-        }
-    }
-
-    @PostMapping("/{username}/real_name")
-    public String postRealNameInformation(@PathVariable("username") String userName,
-                                          @CurrentSecurityContext(expression = "Authentication") Authentication authentication,
-                                          @RequestBody PostRealNameInformationDTO dto)
-            throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
-        dto.perService();
-        if (!Objects.equals(authentication.getName(), userName)){
-
-            throw new ForbiddenException();
-
-        }
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-
-            return userService.postRealNameInformation(details.getUserId(),dto);
 
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");

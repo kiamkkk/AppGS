@@ -87,7 +87,7 @@ public class SellerServiceImpl implements SellerService {
         if (ownUserId != userId){
             throw new ForbiddenException();
         }
-
+        // todo 商品正在售出时禁止修改
         GoodDO goodDO=new GoodDO(userName,dto);
         // 更新type和tag情况
         updateTypeAndTags(dto,goodDO);
@@ -105,6 +105,7 @@ public class SellerServiceImpl implements SellerService {
         if (userId != ownUserId){
             throw new ForbiddenException();
         }
+        // todo 商品正在售出时禁止修改
         goodMapper.deleteGood(goodId);
 
         return result.gainDeleteSuccess();
