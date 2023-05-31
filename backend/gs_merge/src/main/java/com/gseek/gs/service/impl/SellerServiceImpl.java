@@ -7,6 +7,7 @@ import com.gseek.gs.dao.*;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.business.ForbiddenException;
 import com.gseek.gs.exce.business.ParameterWrongException;
+import com.gseek.gs.exce.business.seller.GoodSellingException;
 import com.gseek.gs.pojo.bean.GoodPhotoFileBean;
 import com.gseek.gs.pojo.bean.GoodPhotoPathBean;
 import com.gseek.gs.pojo.bean.ParameterWrongBean;
@@ -53,6 +54,8 @@ public class SellerServiceImpl implements SellerService {
     OfferPriceMapper offerPriceMapper;
     @Autowired
     GoodCheckMapper goodCheckMapper;
+    @Autowired
+    BillMapper billMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -87,7 +90,11 @@ public class SellerServiceImpl implements SellerService {
         if (ownUserId != userId){
             throw new ForbiddenException();
         }
-        // todo 商品正在售出时禁止修改
+        // 商品正在售出时禁止修改
+        if (billMapper.selectBillByGoodId(dto.getGoodId()) != null ){
+            throw new GoodSellingException();
+        }
+
         GoodDO goodDO=new GoodDO(userName,dto);
         // 更新type和tag情况
         updateTypeAndTags(dto,goodDO);
@@ -105,7 +112,10 @@ public class SellerServiceImpl implements SellerService {
         if (userId != ownUserId){
             throw new ForbiddenException();
         }
-        // todo 商品正在售出时禁止修改
+        // 商品正在售出时禁止删除
+        if (billMapper.selectBillByGoodId(goodId) != null ){
+            throw new GoodSellingException();
+        }
         goodMapper.deleteGood(goodId);
 
         return result.gainDeleteSuccess();
@@ -130,14 +140,19 @@ public class SellerServiceImpl implements SellerService {
     }
 
     //todo 补充注释
+    // todo 下面这两个方法不要进行方法重载,因为这两个方法处理的业务不同
     /**
-     *
-     *
+     * 修改商品时,处理商品类型、tag、图片储存路径.
+     * 首先会清除商品对应的tag、图片路径信息.
+     * 商品类型: 数据库中有这种类型,则记录入good表中; 没有则抛出异常.
+     * tag: 数据库中没有这种tag会在tag表中新建,然后获取所有tag的tagId.最后一并记录入good_tag表中.
+     * 图片: 在minio中插入后,记录图片路径.
      * */
     private void updateTypeAndTags(PatchGoodsDTO dto,GoodDO goodDO) throws JsonProcessingException {
         int goodId=goodDO.getGoodId();
         String patchType=dto.getType();
-        if (patchType !=null){
+        //todo 为什么我要在这再验一遍参数???
+        if (patchType != null && !patchType.isBlank()){
             TagDO localType=tagMapper.selectTagByTagName(patchType);
             if (localType == null ){
                 throw new ParameterWrongException(new ParameterWrongBean()
@@ -175,23 +190,31 @@ public class SellerServiceImpl implements SellerService {
 
         goodCoverPicMapper.insertCoverPic(goodId,coverAndDetailPath.getCoverPaths());
         goodDetailPicMapper.insertDetailPic(goodId,coverAndDetailPath.getDetailPaths());
-
+        // 更新商品信息
+        goodMapper.updateGoodSelect(goodDO);
     }
     /**
+     * 新建商品时,处理商品类型、tag、图片储存路径.
+     * 商品类型: 数据库中有这种类型,则记录入good表中; 没有则抛出异常.
+     * tag: 数据库中没有这种tag会在tag表中新建,然后获取所有tag的tagId.最后一并记录入good_tag表中.
+     * 图片: 在minio中插入后,记录图片路径.
      *
-     *
+     * @param dto
+     * @param goodDO
+     * @param goodId 商品id
      * */
     private void updateTypeAndTags(PostGoodsDTO dto, GoodDO goodDO, int goodId) throws JsonProcessingException {
         String patchType=dto.getType();
-        if (patchType !=null){
-            TagDO localType=tagMapper.selectTagByTagName(patchType);
-            if (localType == null ){
-                throw new ParameterWrongException(new ParameterWrongBean()
-                        .addParameters("该商品类型不存在",patchType));
-            }
-            goodDO.setTypeTagId(localType.getTagId());
-            goodDO.setTypeTagName(localType.getTagText());
+
+        // 处理商品类型
+        TagDO localType=tagMapper.selectTagByTagName(patchType);
+        if (localType == null ){
+            throw new ParameterWrongException(new ParameterWrongBean()
+                    .addParameters("该商品类型不存在",patchType));
         }
+        goodDO.setTypeTagId(localType.getTagId());
+        goodDO.setTypeTagName(localType.getTagText());
+
 
         //修改tag
         List<TagDO> tags=new ArrayList<>();
@@ -199,13 +222,13 @@ public class SellerServiceImpl implements SellerService {
             for (String tagName:dto.getTag()){
                 tags.add(new TagDO(tagName));
             }
-            //数据库中没有的tag新建
-            if (tags.size() !=0){
+            // 如果数据库中没有该tag,会新建;已有则忽略插入操作
+            if (tags.size() !=0 ){
                 tagMapper.insertTags(tags);
             }
             //数据库中已有的tag查询
             for (TagDO tagDO:tags){
-                if (tagDO.getTagId()==null){
+                if (tagDO.getTagId() == null){
                     //todo 这太逆天了，就不能放在一次查吗
                     tagDO.setTagId(tagMapper.selectTagByTagName(tagDO.getTagText()).getTagId());
                 }
@@ -221,7 +244,9 @@ public class SellerServiceImpl implements SellerService {
 
         goodCoverPicMapper.insertCoverPic(goodId,coverAndDetailPath.getCoverPaths());
         goodDetailPicMapper.insertDetailPic(goodId,coverAndDetailPath.getDetailPaths());
-
+        // 更新商品信息
+        //todo 应该在插入新商品信息(71行)前向goodDO中加入type信息,而不是在这里.
+        goodMapper.updateGoodSelect(goodDO);
     }
 
 

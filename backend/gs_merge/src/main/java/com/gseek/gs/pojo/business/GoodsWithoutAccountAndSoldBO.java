@@ -29,6 +29,7 @@ public class GoodsWithoutAccountAndSoldBO implements BOPostService{
     private Long createTime;
     private Long modifiedTime;
     private String typeTagName;
+    private List<String> tagNames;
     private List<String> coverPictures;
     private List<String> detailPictures;
 

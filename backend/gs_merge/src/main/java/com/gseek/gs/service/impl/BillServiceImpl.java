@@ -100,6 +100,7 @@ public class BillServiceImpl implements BillService {
             throws IllegalBlockSizeException, BadPaddingException {
         BillDO billDO=new BillDO(dto);
         try{
+            //todo 不应该直接依靠唯一索引,还要再判断已有bill的状态是否为交易结束
             billMapper.insertBill(billDO);
             if (billDO.getBillId()==null || billDO.getBillId()==0) {
                 log.error("主键不回显，检查BillMapper#insertBill对应的sql");
@@ -115,7 +116,7 @@ public class BillServiceImpl implements BillService {
         } catch (Exception e) {
             if(e.getCause() instanceof SQLIntegrityConstraintViolationException) {
                 // 商品已经被卖出
-                log.info("对一个商品建立多个订单|goodId={},billId={}",billDO.getGoodId(),billDO.getBillId());
+                log.info("对一个商品建立多个订单,goodId={},billId={}",billDO.getGoodId(),billDO.getBillId());
                 throw new GoodSoldException();
             }else {
                 throw e;

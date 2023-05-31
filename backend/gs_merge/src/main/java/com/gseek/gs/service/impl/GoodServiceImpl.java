@@ -2,12 +2,10 @@ package com.gseek.gs.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gseek.gs.dao.*;
-import com.gseek.gs.exce.business.ParameterWrongException;
-import com.gseek.gs.pojo.bean.ParameterWrongBean;
-import com.gseek.gs.pojo.business.GoodBO;
+import com.gseek.gs.dao.GoodMapper;
+import com.gseek.gs.dao.GoodTagMapper;
+import com.gseek.gs.dao.TagMapper;
 import com.gseek.gs.pojo.business.GoodsWithoutAccountAndSoldBO;
-import com.gseek.gs.pojo.data.GoodDO;
 import com.gseek.gs.service.inter.GoodService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Param;
@@ -27,20 +25,13 @@ public class GoodServiceImpl implements GoodService {
 
     @Autowired
     ObjectMapper objectMapper;
-
     @Autowired
     TagMapper tagMapper;
-
     @Autowired
     GoodMapper goodMapper;
-
     @Autowired
     GoodTagMapper goodTagMapper;
 
-    @Autowired
-    GoodCoverPicMapper goodCoverPicMapper;
-    @Autowired
-    GoodDetailPicMapper goodDetailPicMapper;
     @Override
     public String getGoodsByType(String typeName) throws JsonProcessingException {
         return getGoodsByTag(typeName);
@@ -52,36 +43,24 @@ public class GoodServiceImpl implements GoodService {
         //根据tagName查询goodId,同时tag的点击数加一
         int tagId=tagMapper.selectTagByTagNameThenAdd(tagName).getTagId();
         List<Integer> goodIds=goodTagMapper.selectGoodIdByTagId(tagId);
-        //根据goodId获取商品并修改
-        List<GoodsWithoutAccountAndSoldBO> goods=new ArrayList<>();
-        //todo 用批量查询
-        for (int id:goodIds){
-            GoodDO goodDO =goodMapper.selectGoodByGoodIdFully(id);
-            List<String> coverPics=goodCoverPicMapper.selectCoversByGoodId(id);
-            List<String> detailPics=goodDetailPicMapper.selectDetailsByGoodId(id);
-            GoodsWithoutAccountAndSoldBO bo=new GoodsWithoutAccountAndSoldBO(goodDO,coverPics,detailPics);
-            goods.add(bo);
-        }
+        //根据goodId获取商品
+        List<GoodsWithoutAccountAndSoldBO> goods= goodMapper.selectGoodsByGoodIdsWithoutAccountAndSold(goodIds);
 
         return objectMapper.writeValueAsString(goods);
     }
 
     @Override
     public String getGoodByGoodId(int goodId) throws JsonProcessingException {
-        //入参检验
-        if (goodId==0){
-            throw new ParameterWrongException(
-                    new ParameterWrongBean()
-                            .addParameters("goodId",goodId+"")
-            );
+
+        List<Integer> goodIds=new ArrayList<>();
+        goodIds.add(goodId);
+        List<GoodsWithoutAccountAndSoldBO> bos= goodMapper.selectGoodsByGoodIdsWithoutAccountAndSold(goodIds);
+
+        if (bos.get(0)==null){
+            return objectMapper.writeValueAsString("");
         }
 
-        GoodDO goodDO=goodMapper.selectGoodByGoodIdFully(goodId);
-        List<String> covers=goodCoverPicMapper.selectCoversByGoodId(goodId);
-        List<String> details=goodDetailPicMapper.selectDetailsByGoodId(goodId);
-        GoodsWithoutAccountAndSoldBO bo=new GoodsWithoutAccountAndSoldBO(goodDO,covers,details);
-
-        return objectMapper.writeValueAsString(bo);
+        return objectMapper.writeValueAsString(bos.get(0));
     }
     @Override
     public String queryAllCheckedGood() throws JsonProcessingException {

@@ -35,6 +35,10 @@ public class GoodDO {
     private Integer typeTagId;
     private String typeTagName;
 
+    public GoodDO(Integer goodId) {
+        this.goodId = goodId;
+    }
+
     public GoodDO(Integer goodId,boolean sold) {
         this.goodId = goodId;
         this.sold=sold;

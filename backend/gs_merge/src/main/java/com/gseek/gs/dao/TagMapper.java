@@ -33,6 +33,8 @@ public interface TagMapper {
     TagDO selectTagByTagNameThenAdd(@Param("tagText") String tagText);
 
     /**
+     *
+     * 如果数据库中没有tag,会新建;已有则忽略
      * 主键回显
      *
      */

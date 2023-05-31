@@ -88,7 +88,7 @@ public class BuyerController {
             throws JsonProcessingException,ForbiddenException  {
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
-            if (userId!=details.getUserId()){
+            if (userId != details.getUserId()){
                 throw new ForbiddenException();
             }
 
@@ -111,7 +111,7 @@ public class BuyerController {
         dto.perService();
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
-            if (dto.getOfferUserId()!=details.getUserId()){
+            if (dto.getOfferUserId() != details.getUserId()){
                 throw new ForbiddenException();
             }
             return buyerService.postOfferPrice(dto);

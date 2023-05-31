@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.common.Result;
 import com.gseek.gs.dao.BoughtGoodMapper;
 import com.gseek.gs.dao.GoodFavMapper;
-import com.gseek.gs.dao.GoodMapper;
 import com.gseek.gs.dao.OfferPriceMapper;
 import com.gseek.gs.pojo.business.BoughtGoodBO;
 import com.gseek.gs.pojo.business.GoodFavBO;
@@ -35,9 +34,6 @@ public class BuyerServiceImpl implements BuyerService {
     OfferPriceMapper offerPriceMapper;
     @Autowired
     GoodFavMapper goodFavMapper;
-    @Autowired
-    GoodMapper goodMapper;
-
     @Autowired
     BoughtGoodMapper boughtGoodMapper;
 

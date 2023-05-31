@@ -17,12 +17,12 @@ public interface GoodFavMapper {
      * */
     int insertFav(@Param("userId") int userId,@Param("goodId") int goodId,@Param("time") long time);
     /**
-     * 获取所有收藏商品信息.
-     */
-    List<GoodFavBO> getAllFav(@Param("userId") int userId);
-    /**
      * 删除商品收藏记录.
      * 物理删除.
      * */
     int deleteFav(@Param("userId") int userId,@Param("goodId") int goodId);
+    /**
+     * 获取所有收藏商品信息.
+     */
+    List<GoodFavBO> getAllFav(@Param("userId") int userId);
 }

@@ -20,14 +20,12 @@ public interface BoughtGoodMapper {
      * 买家付款后进行.
      * */
     int insertBoughtGoods(@Param("goodId") int goodId, @Param("time") long time,@Param("buyerId") int buyerId);
-
     /**
      * 删除购买商品信息.
      * 买家付款后,交易取消或交易异常时进行.
      * 物理删除.
      * */
     int deleteBoughtGoods(@Param("goodId") int goodId);
-
     /**
      * 根据用户名,获取所有用户购买过的商品.
      * */

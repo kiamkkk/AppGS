@@ -17,9 +17,6 @@ public class AdminMapperTest {
     @Autowired
     AdminMapper adminMapper;
 
-    @Autowired
-    UserPasswordMapper userPasswordMapper;
-
     @Test
     public void selectAdminWhenAdminExist(){
         AdminDO adminDO=adminMapper.selectAdminByAdminName("admin1");

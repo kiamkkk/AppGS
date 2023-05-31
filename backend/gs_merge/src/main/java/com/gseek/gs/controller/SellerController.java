@@ -41,10 +41,16 @@ public class SellerController {
      * 卖家获取名下所有商品
      * */
     @GetMapping("/{user_id}/goods")
-    public String getAllGoods(@CurrentSecurityContext(expression = "Authentication") Authentication authentication)
-            throws ForbiddenException, JsonProcessingException {
+    public String getAllGoods(
+            @CurrentSecurityContext(expression = "Authentication") Authentication authentication,
+            @PathVariable("user_id") int userId
+        ) throws ForbiddenException, JsonProcessingException {
+
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
+            if (userId != details.getUserId() ){
+                throw new ForbiddenException();
+            }
             return sellerService.getAllGoods(details.getUserId());
 
         }else {
@@ -57,10 +63,15 @@ public class SellerController {
      * 卖家获取所有已卖出商品
      * */
     @GetMapping("/{user_id}/goods/sold")
-    public String getGoodsSold(@CurrentSecurityContext(expression = "Authentication") Authentication authentication)
-            throws ForbiddenException, JsonProcessingException {
+    public String getGoodsSold(
+            @CurrentSecurityContext(expression = "Authentication") Authentication authentication,
+            @PathVariable("user_id") int userId
+    ) throws ForbiddenException, JsonProcessingException {
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
+            if (userId != details.getUserId() ){
+                throw new ForbiddenException();
+            }
             return sellerService.getGoodsSold(details.getUserId());
 
         }else {
@@ -101,7 +112,8 @@ public class SellerController {
     }
 
     /**
-     * 卖家修改商品
+     * 卖家修改商品.
+     * 商品正在交易时禁止修改.
      * Content-Type:multipart/form-data
      * */
     @PatchMapping("/goods")
@@ -123,6 +135,7 @@ public class SellerController {
     }
     /**
      * 卖家删除某一商品
+     * 商品正在交易时禁止删除.
      * */
     @DeleteMapping("/goods/{good_id}")
     public String deleteGood(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,

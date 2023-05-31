@@ -15,12 +15,12 @@ import java.util.List;
 public interface GoodDetailPicMapper {
 
     /**
+     * 通过商品id,获取商品详情图片储存路径.
+     * */
+    int insertDetailPic(@Param("goodId") int goodId,@Param("list") List<String> paths);
+    /**
      * 记录商品详情图片储存路径
      * 应该在插入新商品时使用.
      * */
     List<String> selectDetailsByGoodId(@Param("goodId") int goodId);
-    /**
-     * 通过商品id,获取商品详情图片储存路径.
-     * */
-    int insertDetailPic(@Param("goodId") int goodId,@Param("list") List<String> paths);
 }

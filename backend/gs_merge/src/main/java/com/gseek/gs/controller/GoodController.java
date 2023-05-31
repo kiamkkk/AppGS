@@ -52,10 +52,11 @@ public class GoodController {
     @GetMapping("/tag/{tag}")
     public String getGoodsByTag(@PathVariable("tag") String tagName)
             throws JsonProcessingException, ParameterWrongException {
-        if (tagName==null){
+        //入参检验
+        if (tagName==null || tagName.isBlank()){
             throw new ParameterWrongException(
                     new ParameterWrongBean()
-                            .addParameters("type",tagName+"")
+                            .addParameters("tag",tagName+"")
             );
         }
         return goodService.getGoodsByTag(tagName);
@@ -67,10 +68,11 @@ public class GoodController {
     @GetMapping("/good_id/{good_id}")
     public String getGoodByGoodId(@PathVariable("good_id") int goodId)
             throws JsonProcessingException, ParameterWrongException {
+        //入参检验
         if (goodId<=0){
             throw new ParameterWrongException(
                     new ParameterWrongBean()
-                            .addParameters("type",goodId+"")
+                            .addParameters("good_id",goodId+"")
             );
         }
         return goodService.getGoodByGoodId(goodId);

@@ -62,5 +62,10 @@
     <select id="selectBill" resultType="com.gseek.gs.pojo.data.BillDO">
         select * from bill where bill_id=#{billId};
     </select>
+    <select id="selectBillByGoodId" resultMap="BaseResultMap">
+        select *
+        from bill
+        where good_id=#{goodId} and state not in ('TRADE_END', 'TRADE_CANCEL');
+    </select>
 
 </mapper>
