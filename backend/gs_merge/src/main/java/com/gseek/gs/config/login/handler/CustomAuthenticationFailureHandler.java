@@ -2,7 +2,7 @@ package com.gseek.gs.config.login.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.gseek.gs.exce.business.login.CustomAuthenticationException;
+import com.gseek.gs.exce.login.CustomAuthenticationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +40,7 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
         if (exception instanceof UsernameNotFoundException) {
             response.setStatus(400);
             objectNode.put("code", 400);
-            objectNode.put("message", "UsernameNotFound");
+            objectNode.put("message", "UserNotFound");
         }
         if (exception instanceof BadCredentialsException) {
             response.setStatus(400);

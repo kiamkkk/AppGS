@@ -12,6 +12,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
+ * 操作good表.
+ *
  * @author Phak
  * @since 2023/5/9-12:38
  */
@@ -19,6 +21,7 @@ import java.util.List;
 public interface GoodMapper {
     /**
      * 插入商品信息.
+     * 主键回显.
      * */
     int insertGood(@Param("goodDO") GoodDO goodDO);
     /**

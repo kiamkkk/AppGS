@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.config.login.handler.CustomWebAuthenticationDetails;
 import com.gseek.gs.exce.ServerException;
-import com.gseek.gs.exce.business.ForbiddenException;
+import com.gseek.gs.exce.business.common.ForbiddenException;
 import com.gseek.gs.pojo.dto.PatchGoodsDTO;
 import com.gseek.gs.pojo.dto.PostGoodsDTO;
 import com.gseek.gs.service.inter.SellerService;
@@ -16,9 +16,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-
 /**
  * 处理卖家操作.
  *
@@ -28,7 +25,7 @@ import javax.crypto.IllegalBlockSizeException;
 @RestController
 @RequestMapping("/seller")
 @Slf4j
-public class SellerController {
+public class SellerController implements Controller {
 
     @Autowired
     ObjectMapper objectMapper;
@@ -45,18 +42,13 @@ public class SellerController {
             @CurrentSecurityContext(expression = "Authentication") Authentication authentication,
             @PathVariable("user_id") int userId
         ) throws ForbiddenException, JsonProcessingException {
-
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-
-            if (userId != details.getUserId() ){
-                throw new ForbiddenException();
-            }
-            return sellerService.getAllGoods(details.getUserId());
-
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+        CustomWebAuthenticationDetails details =perService(authentication);
+        // 鉴权
+        if (userId != details.getUserId() ){
+            throw new ForbiddenException();
         }
+
+        return sellerService.getAllGoods(details.getUserId());
     }
 
     /**
@@ -67,17 +59,13 @@ public class SellerController {
             @CurrentSecurityContext(expression = "Authentication") Authentication authentication,
             @PathVariable("user_id") int userId
     ) throws ForbiddenException, JsonProcessingException {
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-
-            if (userId != details.getUserId() ){
-                throw new ForbiddenException();
-            }
-            return sellerService.getGoodsSold(details.getUserId());
-
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+        CustomWebAuthenticationDetails details =perService(authentication);
+        // 鉴权
+        if (userId != details.getUserId() ){
+            throw new ForbiddenException();
         }
+
+        return sellerService.getGoodsSold(details.getUserId());
     }
 
     /**
@@ -95,20 +83,13 @@ public class SellerController {
     @PostMapping("/goods")
     public String postGoods(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                             HttpServletRequest request)
-            throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
+            throws JsonProcessingException, ServerException {
 
+        CustomWebAuthenticationDetails details =perService(authentication);
         PostGoodsDTO dto=new PostGoodsDTO(request);
         dto.perService();
 
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-            
-            return sellerService.postGood(details.getUserId(),dto.getOwnUserName(),dto);
-
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
-        }
-
+        return sellerService.postGood(details.getUserId(),dto.getOwnUserName(),dto);
     }
 
     /**
@@ -119,19 +100,13 @@ public class SellerController {
     @PatchMapping("/goods")
     public String patchGoods(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                              HttpServletRequest request)
-            throws JsonProcessingException, ForbiddenException, IllegalBlockSizeException, BadPaddingException {
+            throws JsonProcessingException, ForbiddenException, ServerException {
+        CustomWebAuthenticationDetails details =perService(authentication);
 
         PatchGoodsDTO dto =new PatchGoodsDTO(request);
         dto.perService();
 
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-
-            return sellerService.patchGood(details.getUserId(),dto.getOwnUserName(),dto);
-
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
-        }
+        return sellerService.patchGood(details.getUserId(),dto.getOwnUserName(),dto);
     }
     /**
      * 卖家删除某一商品
@@ -141,14 +116,8 @@ public class SellerController {
     public String deleteGood(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                              @PathVariable("good_id") int goodId)
             throws ForbiddenException, JsonProcessingException {
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
+        CustomWebAuthenticationDetails details = perService(authentication);
 
-            return sellerService.deleteGood(details.getUserId(), goodId);
-
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
-        }
+        return sellerService.deleteGood(details.getUserId(), goodId);
     }
-
 }

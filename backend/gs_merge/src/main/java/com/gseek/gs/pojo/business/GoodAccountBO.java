@@ -1,17 +1,14 @@
 package com.gseek.gs.pojo.business;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.util.PasswordUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
 
 /**
  * @author Phak
@@ -30,7 +27,7 @@ public class GoodAccountBO implements BOPostService{
     private String accountPassword;
 
     @Override
-    public void autoEncrypt() throws IllegalBlockSizeException, BadPaddingException, JsonProcessingException {
+    public void autoEncrypt() throws ServerException {
         account= PasswordUtil.decrypt(account);
         accountPassword=PasswordUtil.decrypt(accountPassword);
     }

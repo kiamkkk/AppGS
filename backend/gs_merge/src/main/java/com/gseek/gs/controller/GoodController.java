@@ -2,7 +2,7 @@ package com.gseek.gs.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gseek.gs.exce.business.ParameterWrongException;
+import com.gseek.gs.exce.business.common.ParameterWrongException;
 import com.gseek.gs.pojo.bean.ParameterWrongBean;
 import com.gseek.gs.service.inter.GoodService;
 import lombok.extern.slf4j.Slf4j;

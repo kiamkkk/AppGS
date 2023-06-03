@@ -38,11 +38,16 @@ public class CustomerMD5PasswordEncoder implements PasswordEncoder {
      * @return 加盐后的待验证密码,格式为<code>[盐]密码</code>
      * */
     private String addSalt(CharSequence rawPassword, String encodedPassword){
-        String salt=encodedPassword.substring(
-                encodedPassword.indexOf(UserService.PREFIX),
-                encodedPassword.indexOf(UserService.SUFFIX)+1
-        );
-        return salt+rawPassword;
+        // 确认encodedPassword中有正确的盐
+        if (encodedPassword.contains(UserService.PREFIX) && encodedPassword.contains(UserService.SUFFIX) ) {
+            int prefix=encodedPassword.indexOf(UserService.PREFIX);
+            int suffix=encodedPassword.indexOf(UserService.SUFFIX)+1;
+            if (prefix < suffix){
+                String salt=encodedPassword.substring(prefix, suffix);
+                return salt+rawPassword;
+            }
+        }
+        return (String) rawPassword;
     }
 
     /**

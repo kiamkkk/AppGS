@@ -4,9 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.common.Result;
 import com.gseek.gs.dao.*;
-import com.gseek.gs.exce.ServerException;
-import com.gseek.gs.exce.business.ForbiddenException;
-import com.gseek.gs.exce.business.ParameterWrongException;
+import com.gseek.gs.exce.business.common.ForbiddenException;
+import com.gseek.gs.exce.business.common.ParameterWrongException;
 import com.gseek.gs.exce.business.seller.GoodSellingException;
 import com.gseek.gs.pojo.bean.GoodPhotoFileBean;
 import com.gseek.gs.pojo.bean.GoodPhotoPathBean;
@@ -23,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,23 +60,27 @@ public class SellerServiceImpl implements SellerService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String postGood(int userId, String userName, PostGoodsDTO dto) throws JsonProcessingException {
+        // 只允许插入已有type
         TagDO type=tagMapper.selectTagByTagName(dto.getType());
         if (type==null){
             throw new ParameterWrongException(new ParameterWrongBean()
                     .addParameters("该商品类型不存在",dto.getType()));
         }
 
+        // 记录商品信息
         GoodDO goodDO=new GoodDO(userId,userName,dto,type);
         goodMapper.insertGood(goodDO);
-        int goodId=goodDO.getGoodId();
 
-        if (goodId==0) {
-            throw new ServerException("good主键不回显,发生时间{}",System.currentTimeMillis()+"");
-        }
-        // 更新type和tag情况
-        updateTypeAndTags(dto,goodDO,goodId);
+        Integer goodId=goodDO.getGoodId();
+        // 记录商品与tag关系
+        recordGoodToTags(dto.getTag(), goodId);
+
+        // 新增图片
+        saveGoodPhotos(goodId, dto.getCoverPicture(), dto.getDetailPictures());
+
         // 把good加入待审核名单
         goodCheckMapper.insertNewGood(goodId);
+
 
         return result.gainPostSuccess();
     }
@@ -85,37 +89,60 @@ public class SellerServiceImpl implements SellerService {
     @Transactional(rollbackFor = Exception.class)
     public String patchGood(int userId, String userName, PatchGoodsDTO dto)
             throws JsonProcessingException, ParameterWrongException {
-        // 鉴权
-        int ownUserId=goodMapper.selectOwnUserIdByGoodId(dto.getGoodId());
-        if (ownUserId != userId){
+        int goodId=dto.getGoodId();
+        GoodDO goodDO=new GoodDO(userName,dto);
+        // 非商品所有人不能操作
+        if (goodMapper.selectOwnUserIdByGoodId(goodId) != userId){
             throw new ForbiddenException();
         }
-        // 商品正在售出时禁止修改
-        if (billMapper.selectBillByGoodId(dto.getGoodId()) != null ){
+        // 商品正在交易时禁止修改
+        if (isGoodSelling(goodId)){
             throw new GoodSellingException();
         }
 
-        GoodDO goodDO=new GoodDO(userName,dto);
-        // 更新type和tag情况
-        updateTypeAndTags(dto,goodDO);
+        // 确定type信息要不要修改
+        String oldType = dto.getType();
+        if ( oldType ==null || oldType.isBlank() ){
+            // 只允许插入已有type
+            TagDO type=tagMapper.selectTagByTagName(oldType);
+            if (type==null){
+                throw new ParameterWrongException(new ParameterWrongBean()
+                        .addParameters("该商品类型不存在",dto.getType()));
+            }
+            goodDO.setTypeTagId(type.getTagId());
+            goodDO.setTypeTagName(type.getTagText());
+        }
 
+        // 更新商品信息
         goodMapper.updateGoodSelect(goodDO);
+
+        // 更新商品与tag关系: 先删除全部tag信息,后存入新信息
+        goodTagMapper.deleteAllGoodTagsByGoodId(goodId);
+        recordGoodToTags(dto.getTag(), goodId);
+
+        // 更新图片情况
+        // 先删除
+        minioUtil.removeGoodPhotos( new GoodPhotoFileBean(
+                goodId, dto.getCoverPicture(), dto.getDetailPictures()
+            )
+        );
+        // 后新增
+        saveGoodPhotos(goodId, dto.getCoverPicture(), dto.getDetailPictures());
 
         return result.gainPatchSuccess();
     }
 
     @Override
     public String deleteGood(int userId, int goodId) throws JsonProcessingException {
-
-        // 鉴权
-        Integer ownUserId=goodMapper.selectOwnUserIdByGoodId(goodId);
-        if (userId != ownUserId){
+        // 非商品所有人不能操作
+        if (goodMapper.selectOwnUserIdByGoodId(goodId) != userId){
             throw new ForbiddenException();
         }
-        // 商品正在售出时禁止删除
-        if (billMapper.selectBillByGoodId(goodId) != null ){
+        // 商品正在交易时禁止修改
+        if (isGoodSelling(goodId)){
             throw new GoodSellingException();
         }
+
         goodMapper.deleteGood(goodId);
 
         return result.gainDeleteSuccess();
@@ -139,115 +166,73 @@ public class SellerServiceImpl implements SellerService {
         return objectMapper.writeValueAsString(bos);
     }
 
-    //todo 补充注释
-    // todo 下面这两个方法不要进行方法重载,因为这两个方法处理的业务不同
     /**
-     * 修改商品时,处理商品类型、tag、图片储存路径.
-     * 首先会清除商品对应的tag、图片路径信息.
-     * 商品类型: 数据库中有这种类型,则记录入good表中; 没有则抛出异常.
-     * tag: 数据库中没有这种tag会在tag表中新建,然后获取所有tag的tagId.最后一并记录入good_tag表中.
-     * 图片: 在minio中插入后,记录图片路径.
-     * */
-    private void updateTypeAndTags(PatchGoodsDTO dto,GoodDO goodDO) throws JsonProcessingException {
-        int goodId=goodDO.getGoodId();
-        String patchType=dto.getType();
-        //todo 为什么我要在这再验一遍参数???
-        if (patchType != null && !patchType.isBlank()){
-            TagDO localType=tagMapper.selectTagByTagName(patchType);
-            if (localType == null ){
-                throw new ParameterWrongException(new ParameterWrongBean()
-                        .addParameters("该商品类型不存在",patchType));
-            }
-            goodDO.setTypeTagId(localType.getTagId());
-            goodDO.setTypeTagName(localType.getTagText());
-        }
-
-        //修改tag
-        List<TagDO> tags=new ArrayList<>();
-        if (dto.getTag() !=null && !dto.getTag().isEmpty()){
-            for (String tagName:dto.getTag()){
-                tags.add(new TagDO(tagName));
-            }
-            //数据库中没有的tag新建
-            if (tags.size() !=0){
-                tagMapper.insertTags(tags);
-            }
-            //数据库中已有的tag查询
-            for (TagDO tagDO:tags){
-                if (tagDO.getTagId()==null){
-                    //todo 这太逆天了，就不能放在一次查吗
-                    tagDO.setTagId(tagMapper.selectTagByTagName(tagDO.getTagText()).getTagId());
-                }
-            }
-
-            goodTagMapper.updateGoodTag(goodId,tags);
-        }
-
-        //储存图片
-        GoodPhotoPathBean coverAndDetailPath=minioUtil.saveGoodsPhoto(new GoodPhotoFileBean(
-                goodId,dto.getCoverPicture(),dto.getDetailPictures())
-        );
-
-        goodCoverPicMapper.insertCoverPic(goodId,coverAndDetailPath.getCoverPaths());
-        goodDetailPicMapper.insertDetailPic(goodId,coverAndDetailPath.getDetailPaths());
-        // 更新商品信息
-        goodMapper.updateGoodSelect(goodDO);
-    }
-    /**
-     * 新建商品时,处理商品类型、tag、图片储存路径.
-     * 商品类型: 数据库中有这种类型,则记录入good表中; 没有则抛出异常.
-     * tag: 数据库中没有这种tag会在tag表中新建,然后获取所有tag的tagId.最后一并记录入good_tag表中.
-     * 图片: 在minio中插入后,记录图片路径.
+     * 记录商品与tag的关系.
+     * 先确定数据库中是否已有tag,没有则在tag表里新增; 再记录tag与商品的关系.
      *
-     * @param dto
-     * @param goodDO
      * @param goodId 商品id
+     * @param tagNames tag内容
      * */
-    private void updateTypeAndTags(PostGoodsDTO dto, GoodDO goodDO, int goodId) throws JsonProcessingException {
-        String patchType=dto.getType();
+    private void recordGoodToTags(List<String> tagNames, int goodId){
 
-        // 处理商品类型
-        TagDO localType=tagMapper.selectTagByTagName(patchType);
-        if (localType == null ){
-            throw new ParameterWrongException(new ParameterWrongBean()
-                    .addParameters("该商品类型不存在",patchType));
-        }
-        goodDO.setTypeTagId(localType.getTagId());
-        goodDO.setTypeTagName(localType.getTagText());
-
-
-        //修改tag
-        List<TagDO> tags=new ArrayList<>();
-        if (dto.getTag() !=null && !dto.getTag().isEmpty()){
-            for (String tagName:dto.getTag()){
+        if (tagNames !=null && ! tagNames.isEmpty()){
+            List<TagDO> tags=new ArrayList<>();
+            for (String tagName: tagNames){
                 tags.add(new TagDO(tagName));
             }
             // 如果数据库中没有该tag,会新建;已有则忽略插入操作
-            if (tags.size() !=0 ){
-                tagMapper.insertTags(tags);
-            }
-            //数据库中已有的tag查询
-            for (TagDO tagDO:tags){
-                if (tagDO.getTagId() == null){
-                    //todo 这太逆天了，就不能放在一次查吗
-                    tagDO.setTagId(tagMapper.selectTagByTagName(tagDO.getTagText()).getTagId());
+            tagMapper.insertTags(tags);
+            // 确定有无新增tag
+            List<String> newTags=new ArrayList<>();
+            TagDO tagDO;
+            // 使用固定值tagsSize作为边界条件,使得移除tags的元素后循环正常进行
+            int tagsSize=tags.size();
+            for (int i=0 ; i < tagsSize;i++){
+                tagDO=tags.get(i);
+                if ( tagDO.getTagId() == null ){
+                    newTags.add(tagDO.getTagText());
+                    tags.remove(i);
                 }
+            }
+
+            // 如果有新tag, 把新tag加入tags中
+            if (newTags.size() > 0){
+                List<TagDO> oldTags = tagMapper.selectTagsByTagNames(newTags);
+                tags.addAll(oldTags);
             }
 
             goodTagMapper.updateGoodTag(goodId,tags);
         }
-
-        //储存图片
-        GoodPhotoPathBean coverAndDetailPath=minioUtil.saveGoodsPhoto(new GoodPhotoFileBean(
-                goodId,dto.getCoverPicture(),dto.getDetailPictures())
-        );
-
-        goodCoverPicMapper.insertCoverPic(goodId,coverAndDetailPath.getCoverPaths());
-        goodDetailPicMapper.insertDetailPic(goodId,coverAndDetailPath.getDetailPaths());
-        // 更新商品信息
-        //todo 应该在插入新商品信息(71行)前向goodDO中加入type信息,而不是在这里.
-        goodMapper.updateGoodSelect(goodDO);
     }
 
+    /**
+     * 向minio中插入新图片,记录图片路径
+     * */
+    private void saveGoodPhotos(int goodId, List<MultipartFile> coverPics, List<MultipartFile> detailPics){
+        // 向minio插入图片
+        GoodPhotoPathBean bean = minioUtil.saveGoodPhotos(
+                new GoodPhotoFileBean(
+                        goodId, coverPics, detailPics
+                )
+        );
+
+        // 记录路径
+        List<String> coverPaths=bean.getCoverPaths();
+        List<String> detailPaths=bean.getCoverPaths();
+
+        if (coverPaths.size() > 0){
+            goodCoverPicMapper.insertCoverPic(goodId, coverPaths);
+        }
+        if (detailPaths.size() > 0){
+            goodDetailPicMapper.insertDetailPic(goodId, detailPaths);
+        }
+    }
+
+    /**
+     * 确定商品是否正在交易
+     * */
+    private boolean isGoodSelling(int goodId){
+        return billMapper.selectBillByGoodId(goodId) != null;
+    }
 
 }

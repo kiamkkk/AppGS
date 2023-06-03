@@ -9,19 +9,28 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
+ * 操作offer_price表.
+ *
  * @author Phak
  * @since 2023/5/11-16:49
  */
 @Mapper
 public interface OfferPriceMapper {
-//todo 补充注释
+
     /**
-     *
+     * 新增出价信息.
+     * */
+    // todo 这里是不是用offerPriceDO更好?
+    int insertOfferPrice(@Param("dto") PostOfferPriceDTO dto);
+
+    /**
+     * 根据商品id,获取所有出价信息.
      * */
     List<OfferPriceBO> selectOfferPriceByGoodId(@Param("goodId") int goodId);
 
-    int insertOfferPrice(@Param("dto")PostOfferPriceDTO dto);
-
-    List<GoodOfferPriceBO> getAllOfferPrice(@Param("userId") int userId);
+    /**
+     * 根据用户id,获取买家的所有出价记录.
+     * */
+    List<GoodOfferPriceBO> selectAllOfferPrice(@Param("userId") int userId);
 
 }

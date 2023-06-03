@@ -46,7 +46,7 @@ public class BuyerServiceImpl implements BuyerService {
 
     @Override
     public String getAllOfferPrice(int userId) throws JsonProcessingException {
-        List<GoodOfferPriceBO> bos=offerPriceMapper.getAllOfferPrice(userId);
+        List<GoodOfferPriceBO> bos=offerPriceMapper.selectAllOfferPrice(userId);
         return objectMapper.writeValueAsString(bos);
     }
 

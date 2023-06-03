@@ -47,6 +47,4 @@ public class CustomDaoAuthenticationProvider extends DaoAuthenticationProvider {
         return result;
     }
 
-
-
 }

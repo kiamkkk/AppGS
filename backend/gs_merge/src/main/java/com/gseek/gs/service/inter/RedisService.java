@@ -1,6 +1,6 @@
 package com.gseek.gs.service.inter;
 
-import com.gseek.gs.exce.business.login.RepeatLoginException;
+import com.gseek.gs.exce.login.RepeatLoginException;
 import com.gseek.gs.pojo.data.ChatDO;
 import com.gseek.gs.websocket.message.BaseMessage;
 

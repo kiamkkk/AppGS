@@ -55,7 +55,7 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests()
                 .requestMatchers(HttpMethod.OPTIONS).permitAll()
                 .requestMatchers(
-                        "/alipay/**","/imgs/**","/users/register","/users"
+                        "/alipay/**","/imgs/**","/users/register","/users","/error","/error/**"
                 ).permitAll()
                 .requestMatchers("/report/**","/report").permitAll()
                 .requestMatchers("/after_sale/**").permitAll()
@@ -67,11 +67,8 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
 
                 .and().exceptionHandling().authenticationEntryPoint(
-                        new CustomerAuthenticationEntryPoint(getLoginFormUrl())
+                        customerAuthenticationEntryPoint()
                 );
-
-
-
 
         httpSecurity
 
@@ -93,14 +90,6 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationTokenFilter, CustomAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationTokenFilter, AdminAuthenticationFilter.class)
                 ;
-                /*.addFilterBefore((servletRequest, servletResponse, filterChain) -> {
-                    ServletRequest requestWrapper = new CustomHttpServletRequestWrapper((HttpServletRequest)servletRequest);
-                    filterChain.doFilter(requestWrapper, servletResponse);//requestWrapper中保存着供二次使用的请求数据
-                }, ForceEagerSessionCreationFilter.class);*/
-                /*.addFilterBefore((servletRequest, servletResponse, filterChain) -> {
-                    ServletRequest requestWrapper = new AdminHttpServletRequestWrapper((HttpServletRequest)servletRequest);
-                    filterChain.doFilter(requestWrapper, servletResponse);//requestWrapper中保存着供二次使用的请求数据
-                }, ForceEagerSessionCreationFilter.class);*/
         return httpSecurity.build();
     }
 
@@ -141,7 +130,6 @@ public class SecurityConfig {
         filter.setAuthenticationDetailsSource(new AdminWebAuthenticationDetailsSource());
         return filter;
     }
-
     @Bean
     public UserService userService(){
         return userService;
@@ -151,12 +139,12 @@ public class SecurityConfig {
         return adminService;
     }
 
-
     @Bean
     public CustomDaoAuthenticationProvider userAuthenticationProvider(UserService userService) {
         CustomDaoAuthenticationProvider provider = new CustomDaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder());
         provider.setUserDetailsService(userService);
+        provider.setHideUserNotFoundExceptions(false);
         return provider;
     }
     @Bean
@@ -165,6 +153,14 @@ public class SecurityConfig {
         provider.setPasswordEncoder(passwordEncoder());
         provider.setUserDetailsService(adminService);
         return provider;
+    }
+
+    @Bean
+    public CustomerAuthenticationEntryPoint customerAuthenticationEntryPoint(){
+        CustomerAuthenticationEntryPoint caep=new CustomerAuthenticationEntryPoint(getLoginFormUrl());
+        caep.setForceHttps(false);
+        caep.setUseForward(false);
+        return caep;
     }
 
     public String getLocalhost() {

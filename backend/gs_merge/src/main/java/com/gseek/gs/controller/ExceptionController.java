@@ -6,10 +6,11 @@ import com.gseek.gs.exce.BaseException;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.ToBeConstructed;
 import com.gseek.gs.exce.business.BusinessException;
-import com.gseek.gs.exce.business.login.RepeatLoginException;
+import com.gseek.gs.exce.login.RepeatLoginException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -43,12 +44,23 @@ public class ExceptionController {
     }
 
     /**
+     * 这个异常由userService抛出
+     * */
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public String usernameNotFoundExceptionHandel(BusinessException e,HttpServletResponse response){
+        log.info("UsernameNotFoundException: {}",e.getMsg());
+        response.setStatus(e.getCode());
+        return "UserNotFound";
+    }
+
+    /**
      * 处理服务器异常.
      * 这种异常的原因是服务器自身原因,不能通过用户重新给出数据解决.
      * */
     @ExceptionHandler(ServerException.class)
     public String serverExceptionHandler(ServerException e, HttpServletResponse response){
         log.error("ServerException: {}",e.getMsg());
+        e.printStackTrace();
         response.setStatus(500);
         return packageMessage(e);
     }
@@ -85,7 +97,7 @@ public class ExceptionController {
     }
     /**
      * 处理尚未定义的异常.
-     * 这种异常不应该出现.这种异常是开发中认为应当在某处抛出一个异常,但暂时还没想好如何设计异常,所以先放一个ToBeConstructed占位.
+     * 这种异常不应该出现.
      * */
     @ExceptionHandler(ToBeConstructed.class)
     public String toBeConstructedExceptionHandler(ToBeConstructed e,HttpServletResponse response){

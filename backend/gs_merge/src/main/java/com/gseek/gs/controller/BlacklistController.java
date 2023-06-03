@@ -7,9 +7,7 @@ import com.gseek.gs.common.Result;
 import com.gseek.gs.config.login.handler.CustomWebAuthenticationDetails;
 import com.gseek.gs.config.login.handler.admin.AdminWebAuthenticationDetails;
 import com.gseek.gs.exce.ServerException;
-import com.gseek.gs.exce.business.ForbiddenException;
-import com.gseek.gs.pojo.business.BlacklistBO;
-import com.gseek.gs.pojo.business.BlacklistResultBO;
+import com.gseek.gs.exce.business.common.ForbiddenException;
 import com.gseek.gs.pojo.data.BlacklistDO;
 import com.gseek.gs.pojo.dto.BlacklistDTO;
 import com.gseek.gs.service.inter.BlacklistService;
@@ -24,11 +22,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.UUID;
 
 /**
  * 对应 /report/** 下的操作

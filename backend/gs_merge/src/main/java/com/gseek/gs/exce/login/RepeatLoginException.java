@@ -1,4 +1,4 @@
-package com.gseek.gs.exce.business.login;
+package com.gseek.gs.exce.login;
 
 /**
  * @author Phak

@@ -50,7 +50,8 @@ public class AnnounceService {
             // 本地有没有储存这个公告
             if ( ! announces.containsKey(name) ){
                 // 没有发布过的公告，储存到本地并发布
-                InputStream inputStream=  minioUtil.getFile(ANNOUNCE_PATH, name);
+                // 从minio取出的文件名自带路径
+                InputStream inputStream=  minioUtil.getFile("", name);
                 AnnounceMessage announceMessage =objectMapper.readValue(inputStream, AnnounceMessage.class);
                 messageController.announce(announceMessage);
                 announces.put(name, announceMessage);

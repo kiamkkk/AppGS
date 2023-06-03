@@ -1,9 +1,6 @@
 package com.gseek.gs.pojo.business;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
+import com.gseek.gs.exce.ServerException;
 
 /**
  * 包含BO传出service前要执行的操作.
@@ -18,10 +15,9 @@ public interface BOPostService {
      * BO传出service前必须要执行的操作放在这里.
      * 现在包括：加密.
      *
-     * @throws IllegalBlockSizeException 解密时异常
-     * @throws BadPaddingException 解密时异常
+     * @throws ServerException 解密时异常
      * */
-    default void postService() throws IllegalBlockSizeException, BadPaddingException, JsonProcessingException {
+    default void postService() throws ServerException {
         autoEncrypt();
     }
 
@@ -35,9 +31,8 @@ public interface BOPostService {
      *     ......
      * </code>
      *
-     * @throws IllegalBlockSizeException 解密时异常
-     * @throws BadPaddingException 解密时异常
+     * @throws ServerException 解密时异常
      * */
-    default void autoEncrypt() throws IllegalBlockSizeException, BadPaddingException, JsonProcessingException {}
+    default void autoEncrypt() throws ServerException {}
 
 }

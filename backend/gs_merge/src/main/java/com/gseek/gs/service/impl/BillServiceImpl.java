@@ -11,7 +11,7 @@ import com.gseek.gs.dao.BoughtGoodMapper;
 import com.gseek.gs.dao.GoodMapper;
 import com.gseek.gs.dao.UserPasswordMapper;
 import com.gseek.gs.exce.ServerException;
-import com.gseek.gs.exce.business.ForbiddenException;
+import com.gseek.gs.exce.business.common.ForbiddenException;
 import com.gseek.gs.exce.business.trade.BillStateNotAllowException;
 import com.gseek.gs.exce.business.trade.GoodSoldException;
 import com.gseek.gs.exce.business.trade.NoNeedToPayException;
@@ -35,8 +35,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Objects;
 
@@ -96,8 +94,7 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
-    public String postBill(PostBillsDTO dto)
-            throws IllegalBlockSizeException, BadPaddingException {
+    public String postBill(PostBillsDTO dto) throws ServerException, GoodSoldException{
         BillDO billDO=new BillDO(dto);
         try{
             //todo 不应该直接依靠唯一索引,还要再判断已有bill的状态是否为交易结束
@@ -119,7 +116,7 @@ public class BillServiceImpl implements BillService {
                 log.info("对一个商品建立多个订单,goodId={},billId={}",billDO.getGoodId(),billDO.getBillId());
                 throw new GoodSoldException();
             }else {
-                throw e;
+                throw new ServerException("服务器异常", e);
             }
         }
     }
@@ -161,7 +158,7 @@ public class BillServiceImpl implements BillService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public String deliveryBill(PatchDeliveryBillDTO dto, int userId)
-            throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
+            throws JsonProcessingException, ServerException {
         int billId=dto.getIntBillId();
         // 非该订单卖家，则拒绝操作
         BillDO billDO=userHasRight(billId, userId, ROLE_SELLER);
@@ -190,7 +187,7 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public String getBillState(String billId)
-            throws IllegalBlockSizeException, BadPaddingException, JsonProcessingException {
+            throws ServerException, JsonProcessingException {
 
         BillStateBO bo=billMapper.selectBillStateBOByBillId(Integer.parseInt(billId));
         bo.postService();

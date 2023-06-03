@@ -1,9 +1,8 @@
 package com.gseek.gs.pojo.dto;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.gseek.gs.exce.business.ParameterWrongException;
+import com.gseek.gs.exce.business.common.ParameterWrongException;
 import com.gseek.gs.pojo.bean.ParameterWrongBean;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,7 +14,6 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 public class PostFavDTO implements DTOPerService{
 
     private Integer goodId;
@@ -34,5 +32,21 @@ public class PostFavDTO implements DTOPerService{
         if(! bean.getWrongParameters().isEmpty()){
             throw new ParameterWrongException(bean);
         }
+    }
+
+    public Integer getGoodId() {
+        return goodId;
+    }
+
+    public void setGoodId(Integer goodId) {
+        this.goodId = goodId;
+    }
+
+    public Long getTime() {
+        return time;
+    }
+
+    public void setTime(Long time) {
+        this.time = time;
     }
 }

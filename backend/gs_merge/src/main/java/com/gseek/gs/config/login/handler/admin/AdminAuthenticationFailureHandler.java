@@ -2,8 +2,8 @@ package com.gseek.gs.config.login.handler.admin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.gseek.gs.exce.business.login.RepeatLoginException;
-import com.gseek.gs.exce.business.login.TokenInvalidException;
+import com.gseek.gs.exce.login.RepeatLoginException;
+import com.gseek.gs.exce.login.TokenInvalidException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;

@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.config.login.handler.CustomWebAuthenticationDetails;
 import com.gseek.gs.exce.ServerException;
-import com.gseek.gs.exce.business.ForbiddenException;
-import com.gseek.gs.exce.business.ParameterWrongException;
+import com.gseek.gs.exce.business.common.ForbiddenException;
+import com.gseek.gs.exce.business.common.ParameterWrongException;
 import com.gseek.gs.pojo.bean.ParameterWrongBean;
 import com.gseek.gs.pojo.dto.*;
 import com.gseek.gs.service.inter.BillService;
@@ -17,8 +17,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
 import java.util.Objects;
 
 /**
@@ -30,7 +28,7 @@ import java.util.Objects;
 @RestController
 @Slf4j
 @RequestMapping("/trade")
-public class TradeController {
+public class TradeController implements Controller{
 
     @Autowired
     ObjectMapper objectMapper;
@@ -44,7 +42,7 @@ public class TradeController {
      * */
     @GetMapping("/bills/{bill_id}")
     public String getBillState(@PathVariable("bill_id") String billId )
-            throws IllegalBlockSizeException, BadPaddingException, JsonProcessingException {
+            throws ServerException, JsonProcessingException {
         // 验参
         if (billId==null || billId.isEmpty()){
             throw new ParameterWrongException(
@@ -59,21 +57,16 @@ public class TradeController {
     @PostMapping("/bills")
     public String postBill(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                            @RequestBody PostBillsDTO dto)
-            throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
+            throws ServerException {
+        CustomWebAuthenticationDetails details =perService(authentication);
 
         dto.perService();
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-            if (! Objects.equals(details.getUserId(),dto.getBuyerId()) ) {
-                throw new ForbiddenException();
-            }
-
-            return billService.postBill(dto);
-
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+        // 鉴权
+        if (! Objects.equals(details.getUserId(),dto.getBuyerId()) ) {
+            throw new ForbiddenException();
         }
 
+        return billService.postBill(dto);
     }
     /**
      * 买家支付订单
@@ -81,18 +74,11 @@ public class TradeController {
     @PutMapping("/bills")
     public String putPayBill(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                              @RequestBody PayBillDTO dto)
-            throws JsonProcessingException, ForbiddenException, IllegalBlockSizeException, BadPaddingException {
-
+            throws JsonProcessingException, ForbiddenException, ServerException {
+        CustomWebAuthenticationDetails details =perService(authentication);
         dto.perService();
 
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-
-            return billService.payBill(dto,details.getUserId());
-
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
-        }
+        return billService.payBill(dto,details.getUserId());
     }
 
     /**
@@ -101,17 +87,11 @@ public class TradeController {
     @PatchMapping("/bills")
     public String patchDeliveryBill(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                                     @RequestBody PatchDeliveryBillDTO dto)
-            throws IllegalBlockSizeException, BadPaddingException, JsonProcessingException {
+            throws ServerException, JsonProcessingException {
+        CustomWebAuthenticationDetails details =perService(authentication);
         dto.perService();
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
-            return billService.deliveryBill(dto,details.getUserId());
-
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
-        }
-
+        return billService.deliveryBill(dto,details.getUserId());
     }
 
     /**
@@ -120,17 +100,11 @@ public class TradeController {
     @PatchMapping("/bills/cancel")
     public String patchBillCancel(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                                   @RequestBody PatchBillCancelDTO dto)
-            throws IllegalBlockSizeException, BadPaddingException, JsonProcessingException {
+            throws ServerException, JsonProcessingException {
+        CustomWebAuthenticationDetails details =perService(authentication);
         dto.perService();
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
-            return billService.patchBillCancel(dto, details.getUserId());
-
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
-        }
-
+        return billService.patchBillCancel(dto, details.getUserId());
     }
 
     /**
@@ -138,17 +112,12 @@ public class TradeController {
      * */
     @PatchMapping("/inspect")
     public String patchBillInspect(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
-                                   PatchBillInspectDTO dto)
-            throws IllegalBlockSizeException, BadPaddingException, JsonProcessingException {
+                                   @RequestBody PatchBillInspectDTO dto)
+            throws ServerException, JsonProcessingException {
+        CustomWebAuthenticationDetails details =perService(authentication);
         dto.perService();
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
-            return billService.patchBillInspect(dto, details.getUserId());
-
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
-        }
-
+        return billService.patchBillInspect(dto, details.getUserId());
     }
+
 }

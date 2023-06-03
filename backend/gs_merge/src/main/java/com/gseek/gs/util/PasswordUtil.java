@@ -1,7 +1,7 @@
 package com.gseek.gs.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.gseek.gs.exce.business.ParameterWrongException;
+import com.gseek.gs.exce.ServerException;
+import com.gseek.gs.exce.business.common.ParameterWrongException;
 import com.gseek.gs.pojo.bean.ParameterWrongBean;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -92,8 +92,7 @@ public class PasswordUtil {
      * @param toDecrypt 待加密字段,格式为base64
      * @return result 解密结果,格式为UTF-8
      * */
-    public static String decrypt(String toDecrypt)
-            throws BadPaddingException, JsonProcessingException, IllegalBlockSizeException {
+    public static String decrypt(String toDecrypt) throws ServerException {
         try {
             // 判断是否为base64格式
             if (StrUtil.checkBase64(toDecrypt)){
@@ -107,8 +106,8 @@ public class PasswordUtil {
             // 采用UTF-8编码转化为字符串
             return new String(result, StandardCharsets.UTF_8);
         }catch (Exception e){
-            log.error("加密时出错：\n"+e.getMessage(),e);
-            throw e;
+            log.error("加密时出错：\n{}", e.getMessage());
+            throw new ServerException("服务器异常", e);
         }
     }
 

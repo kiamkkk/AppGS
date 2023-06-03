@@ -1,13 +1,12 @@
 package com.gseek.gs.pojo.business;
 
+import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.util.PasswordUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
 import java.math.BigDecimal;
 
 /**
@@ -30,7 +29,11 @@ public class BillStateBO implements BOPostService{
     private Long stateModifiedTime;
 
     @Override
-    public void autoEncrypt() throws IllegalBlockSizeException, BadPaddingException {
-        billId= PasswordUtil.encrypt(billId);
+    public void autoEncrypt() throws ServerException {
+        try {
+            billId= PasswordUtil.encrypt(billId);
+        }catch (Exception e){
+            throw new ServerException("服务器异常", e);
+        }
     }
 }

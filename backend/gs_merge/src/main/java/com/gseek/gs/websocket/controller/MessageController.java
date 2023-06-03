@@ -4,8 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.common.Result;
 import com.gseek.gs.config.login.handler.CustomWebAuthenticationDetails;
+import com.gseek.gs.controller.Controller;
 import com.gseek.gs.exce.ServerException;
-import com.gseek.gs.exce.business.ForbiddenException;
+import com.gseek.gs.exce.business.common.ForbiddenException;
 import com.gseek.gs.pojo.bean.AppealMessageBean;
 import com.gseek.gs.pojo.business.BlacklistBO;
 import com.gseek.gs.pojo.business.GoodAccountBO;
@@ -38,7 +39,7 @@ import javax.crypto.IllegalBlockSizeException;
 @Slf4j
 @RestController
 @ServerEndpoint("/websocket")
-public class MessageController {
+public class MessageController implements Controller {
 
     @Autowired
     @Qualifier("redisServiceImpl")
@@ -123,7 +124,6 @@ public class MessageController {
 
     /**
      * 用户聊天
-     *
      * */
     @MessageMapping("/user/chat")
     public void chat(@Payload BaseMessage message) throws JsonProcessingException {
@@ -168,34 +168,28 @@ public class MessageController {
     public String postChatImg(@CurrentSecurityContext(expression = "authentication ") Authentication authentication,
                               HttpServletRequest request,
                               @PathVariable("good_id") int goodId,@PathVariable("user_id") int userId)
-            throws JsonProcessingException, com.gseek.gs.exce.ServerException, IllegalBlockSizeException, BadPaddingException {
+            throws JsonProcessingException, ServerException, IllegalBlockSizeException, BadPaddingException {
+        CustomWebAuthenticationDetails details = perService(authentication);
         PostChatImgDTO dto=new PostChatImgDTO(request);
         dto.perService();
 
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-            if (userId != details.getUserId()){
-                throw new ForbiddenException();
-            }
-            // 储存图片
-            String url=minioUtil.saveChatPicture(dto.getPicture(),dto.getTime(),goodId,userId);
-
-            // 储存聊天记录
-            chatRecordService.insertMessage(new ChatPicMessage(
-                    dto, goodId, userId, authentication.getName(),url
-                )
-            );
-
-            // 推送消息
-            ChatPicMessage message=new ChatPicMessage(userId, dto.getToUserId(), goodId,
-                    authentication.getName(), url, dto.getTime());
-            chat(message);
-
-            return result.gainPostSuccess();
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+        if (userId != details.getUserId()){
+            throw new ForbiddenException();
         }
 
+        // 储存图片
+        String url=minioUtil.saveChatPicture(dto.getPicture(),dto.getTime(),goodId,userId);
+        // 储存聊天记录
+        chatRecordService.insertMessage(new ChatPicMessage(
+                        dto, goodId, userId, authentication.getName(),url
+                )
+        );
+        // 推送消息
+        ChatPicMessage message=new ChatPicMessage(userId, dto.getToUserId(), goodId,
+                authentication.getName(), url, dto.getTime());
+        chat(message);
+
+        return result.gainPostSuccess();
     }
 
     @GetMapping("/chats/records/{good_id}/{user_id}")
@@ -210,22 +204,20 @@ public class MessageController {
     }
 
     @PatchMapping("/chats/block")
-    public String getChatBlock(@CurrentSecurityContext(expression = "authentication ") Authentication authentication,
+    public String getChatBlock(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                ChatBlockDTO dto)
-            throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
+            throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException, ServerException {
 
+        CustomWebAuthenticationDetails details = perService(authentication);
         dto.perService();
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-            if (dto.getFromUserId() != details.getUserId()){
-                throw new ForbiddenException();
-            }
-            // 拉黑
-            messageService.blockOrUnblock(dto);
-            return result.gainPatchSuccess();
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+
+        if (dto.getFromUserId() != details.getUserId()){
+            throw new ForbiddenException();
         }
+
+        // 拉黑
+        messageService.blockOrUnblock(dto);
+        return result.gainPatchSuccess();
 
     }
 }

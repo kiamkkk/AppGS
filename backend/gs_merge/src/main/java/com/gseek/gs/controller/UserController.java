@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.common.Result;
 import com.gseek.gs.config.login.handler.CustomWebAuthenticationDetails;
 import com.gseek.gs.exce.ServerException;
-import com.gseek.gs.exce.business.ForbiddenException;
-import com.gseek.gs.exce.business.ParameterWrongException;
+import com.gseek.gs.exce.business.common.ForbiddenException;
+import com.gseek.gs.exce.business.common.ParameterWrongException;
 import com.gseek.gs.pojo.dto.PatchUserInformationDTO;
 import com.gseek.gs.pojo.dto.PostRealNameInformationDTO;
 import com.gseek.gs.pojo.dto.RegisterDTO;
@@ -33,7 +33,7 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/users")
 @Slf4j
-public class UserController {
+public class UserController implements Controller{
 
     @Autowired
     Result result;
@@ -55,15 +55,9 @@ public class UserController {
     public String getUserInformation(@PathVariable("username") String userName,
                                      @CurrentSecurityContext(expression = "Authentication") Authentication authentication)
             throws ServerException, JsonProcessingException {
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
+        CustomWebAuthenticationDetails details =perService(authentication);
 
-            return userService.getUserInformation(details.getUserId());
-
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
-        }
-
+        return userService.getUserInformation(details.getUserId());
     }
 
     /**
@@ -73,19 +67,13 @@ public class UserController {
     public String getRealNameInformation(@PathVariable("username") String userName,
                                          @CurrentSecurityContext(expression = "Authentication") Authentication authentication)
             throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
+        CustomWebAuthenticationDetails details =perService(authentication);
+        // 鉴权
         if (!Objects.equals(authentication.getName(), userName)){
             throw new ForbiddenException();
         }
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
-            int userId=details.getUserId();
-            return userService.getRealNameInformation(userId);
-
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
-        }
-
+        return userService.getRealNameInformation(details.getUserId());
     }
 
     /**
@@ -106,20 +94,14 @@ public class UserController {
                                           @CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                                           @RequestBody PostRealNameInformationDTO dto)
             throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
+        CustomWebAuthenticationDetails details =perService(authentication);
         dto.perService();
+        // 鉴权
         if (!Objects.equals(authentication.getName(), userName)){
-
             throw new ForbiddenException();
-
         }
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
-            return userService.postRealNameInformation(details.getUserId(),dto);
-
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
-        }
+        return userService.postRealNameInformation(details.getUserId(),dto);
     }
 
     /**
@@ -132,24 +114,17 @@ public class UserController {
                                        HttpServletRequest request)
 
             throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException, com.gseek.gs.exce.ServerException  {
-
+        CustomWebAuthenticationDetails details =perService(authentication);
         PatchUserInformationDTO dto=new PatchUserInformationDTO(request);
         dto.perService();
-
+        // 鉴权
         if (!Objects.equals(authentication.getName(), userName)){
             throw new ForbiddenException();
         }
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 
-            int userId=details.getUserId();
-            String photoPath=minioUtil.changeProfilePhoto(userId, dto.getPicture());
-            return userService.patchUserInformation(userId,photoPath,dto);
-
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
-        }
+        int userId=details.getUserId();
+        String photoPath=minioUtil.changeProfilePhoto(userId, dto.getPicture());
+        return userService.patchUserInformation(userId,photoPath,dto);
     }
-
 
 }

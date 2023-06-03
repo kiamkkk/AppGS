@@ -3,16 +3,16 @@ package com.gseek.gs.util;
 import com.gseek.gs.config.MinioConfig;
 import com.gseek.gs.config.SecurityConfig;
 import com.gseek.gs.exce.ServerException;
+import com.gseek.gs.pojo.bean.CoverOrDetailPhotoFileBean;
 import com.gseek.gs.pojo.bean.GoodPhotoFileBean;
 import com.gseek.gs.pojo.bean.GoodPhotoPathBean;
 import com.gseek.gs.websocket.service.AnnounceService;
 import io.minio.*;
-import io.minio.http.Method;
 import io.minio.messages.DeleteError;
 import io.minio.messages.DeleteObject;
 import io.minio.messages.Item;
-import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.*;
 
 /**
@@ -27,9 +28,11 @@ import java.util.*;
  * @since 2023/5/2-21:09
  */
 @Component
+@Slf4j
 public class MinioUtil {
+    // todo 对文件进行操作时检查文件是否存在
+    //todo RuntimeException替换为ServletException
     //todo 增、删、改、根据路径获取文件流。要有批量操作。
-
     /**
      * jpg文件后缀
      * */
@@ -37,24 +40,34 @@ public class MinioUtil {
     /**
      * 头像储存路径
      * */
-    public static final String PATH_HEAD_SCULPTURES="/imgs/profile_photos/";
+    public static final String PATH_HEAD_SCULPTURES="imgs/profile_photos/";
     /**
      * 默认头像
      * */
-    public static final String DEFAULT_PROFILE_PHOTO="/imgs/profile_photos/default_profile_photo.jpg";
+    public static final String DEFAULT_PROFILE_PHOTO="imgs/profile_photos/default_profile_photo.jpg";
     /**
      * 黑名单头像
      * */
-    public static final String BLACKLIST_PROFILE_PHOTO="/imgs/profile_photos/blacklist_profile_photo.jpg";
+    public static final String BLACKLIST_PROFILE_PHOTO="imgs/profile_photos/blacklist_profile_photo.jpg";
     /**
      * 商品图片总储存路径
      * */
-    public static final String PATH_GOOD_PICTURE="/imgs/goods/";
+    public static final String PATH_GOOD_PICTURE="imgs/goods/";
     /**
      * 聊天记录图片储存路径
      * */
-    public static final String PATH_CHATS="/imgs/chats/";
+    public static final String PATH_CHATS="imgs/chats/";
 
+    /**
+     * 储存商品封面时,路径的一部分
+     * 使用例: /imgs/goods/{商品id}/cover/{图片名}.jpg
+     * */
+    public static final String PATH_GOOD_COVER="/covers/";
+    /**
+     * 储存商品详情图片时,路径的一部分
+     * 使用例: /imgs/goods/{商品id}/detail/{图片名}.jpg
+     * */
+    public static final String PATH_GOOD_DETAIL="/details/";
     @Autowired
     private MinioConfig prop;
     @Autowired
@@ -64,7 +77,26 @@ public class MinioUtil {
     private MinioClient minioClient;
 
     /**
+     * 修改头像.
+     * 先删除原有头像，后存入新头像.
+     *
+     * @param userId 用户id
+     * @param file 新头像
+     * @return 图片路径
+     */
+    public String changeProfilePhoto(int userId, MultipartFile file)
+            throws  com.gseek.gs.exce.ServerException {
+        if (file==null) {
+            return DEFAULT_PROFILE_PHOTO;
+        }
+        removeFile(userId+SUFFIX_JPG, PATH_HEAD_SCULPTURES);
+        return saveProfilePhoto(userId, file);
+    }
+    /**
      * 储存头像.
+     *
+     * @param userId 用户id
+     * @param profilePhoto 头像
      * */
     public String saveProfilePhoto(int userId, MultipartFile profilePhoto)
             throws com.gseek.gs.exce.ServerException {
@@ -77,51 +109,51 @@ public class MinioUtil {
         }
 
     }
+
+
     /**
-     * 修改头像.
-     * 先删除原有头像，后存入新头像.
-     *
-     * @param userId 用户id
-     * @param file 新头像
-     * @return 图片路径
-     */
-    public String changeProfilePhoto(int userId, MultipartFile file)
-            throws  com.gseek.gs.exce.ServerException {
-        removeFile(userId+SUFFIX_JPG, PATH_HEAD_SCULPTURES);
-        return saveProfilePhoto(userId, file);
-    }
-    /**
-     * 储存商品封面详情图片.
+     * 储存商品封面与详情图片.
      * */
-    public GoodPhotoPathBean saveGoodsPhoto(GoodPhotoFileBean bean){
-        Map<Map<String,String>,MultipartFile> covers=new HashMap<>(16);
-        Map<Map<String,String>,MultipartFile> details=new HashMap<>(16);
-        Map<String,String> coverPathAndName=new HashMap<>(16);
-        Map<String,String> detailPathAndName=new HashMap<>(16);
+    public GoodPhotoPathBean saveGoodPhotos(GoodPhotoFileBean bean){
+        Integer goodId=bean.getGoodId();
 
-        int goodId=bean.getGoodId();
-        List<MultipartFile> coverPic=bean.getCovers();
-        List<MultipartFile> detailPic=bean.getDetails();
-
-        List<String> coverPaths=new ArrayList<>();
-        List<String> detailPaths=new ArrayList<>();
-
-        for (int i=0; i <= coverPic.size(); i++){
-            coverPathAndName.put(PATH_GOOD_PICTURE+goodId+"/covers/",i+SUFFIX_JPG);
-            coverPaths.add(PATH_GOOD_PICTURE+goodId+"/covers/"+i+SUFFIX_JPG);
-            covers.put(coverPathAndName, coverPic.get(i));
-        }
-
-        for (int j=0; j <= detailPic.size(); j++){
-            detailPathAndName.put(PATH_GOOD_PICTURE+goodId+"/details/",j+SUFFIX_JPG);
-            detailPaths.add(PATH_GOOD_PICTURE+goodId+"/details/"+j+SUFFIX_JPG);
-            details.put(detailPathAndName, detailPic.get(j));
-        }
-
-        putFile(covers);
-        putFile(details);
+        List<String> coverPaths = saveGoodCoverOrDetail(
+                new CoverOrDetailPhotoFileBean(goodId, bean.getCovers()) , PATH_GOOD_COVER
+        );
+        List<String> detailPaths = saveGoodCoverOrDetail(
+                new CoverOrDetailPhotoFileBean(goodId, bean.getDetails()) , PATH_GOOD_DETAIL
+        );
 
         return new GoodPhotoPathBean(goodId,coverPaths,detailPaths);
+    }
+
+    /**
+     * 删除商品旧有的全部图片.
+     * */
+    public void removeGoodPhotos(GoodPhotoFileBean bean){
+        // 查询商品下所有图片路径
+        List<String> names = listFiles(PATH_GOOD_PICTURE+bean.getGoodId()+PATH_GOOD_COVER);
+        names.addAll(
+                listFiles(PATH_GOOD_PICTURE+bean.getGoodId()+PATH_GOOD_DETAIL)
+        );
+        // 删除
+        removeFile(names);
+    }
+
+    /**
+     * 修改商品封面与详情图片.
+     * 先全部删除旧有的图片,再储存传入的图片.
+     * */
+    public GoodPhotoPathBean updateGoodPhotos(GoodPhotoFileBean bean){
+        // 查询商品下所有图片路径
+        List<String> names = listFiles(PATH_GOOD_PICTURE+bean.getGoodId()+PATH_GOOD_COVER);
+        names.addAll(
+                listFiles(PATH_GOOD_PICTURE+bean.getGoodId()+PATH_GOOD_DETAIL)
+        );
+        // 删除
+        removeFile(names);
+        // 保存新图片
+        return saveGoodPhotos(bean);
     }
     /**
      * 储存聊天时图片.
@@ -135,66 +167,61 @@ public class MinioUtil {
     /**
      * 下载文件
      * */
-    public void downloadImg(HttpServletResponse response,String path,String filename){
+    public void downloadImg(HttpServletResponse response,String path,String filename)
+            throws com.gseek.gs.exce.business.imgs.FileNotFoundException {
         InputStream file = getFile(path,filename);
         response.setHeader("Content-Disposition", "attachment;filename=" + filename);
+        response.setContentType("application/octet-stream");
+        response.setCharacterEncoding("UTF-8");
 
-        try(ServletOutputStream servletOutputStream = response.getOutputStream(); ) {
-            int len;
+        try(OutputStream outputStream = response.getOutputStream()) {
+            int len ;
             byte[] buffer = new byte[1024];
             while((len=file.read(buffer)) > 0){
-                servletOutputStream.write(buffer, 0, len);
+                outputStream.write(buffer, 0, len);
             }
-            servletOutputStream.flush();
-            file.close();
         } catch (IOException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
-
-    //todo 能不能按时间获取？？？
     /**
      * 读取所有公告的文件名.
-     *
      * */
     public List<String> listAnnounce(){
-        List<String> announceNames=new ArrayList<>();
-        try {
-            for (Result<Item> result : listFiles(AnnounceService.ANNOUNCE_PATH)) {
-                announceNames.add(result.get().objectName());
-            }
-        }catch (Exception e){
-            throw new ServerException(e);
-        }
-        return announceNames;
+        return listFiles(AnnounceService.ANNOUNCE_PATH);
     }
 
     /**
-     * 预览图片.
+     * 储存封面图片或详情图片.
      *
-     * @param path 路径
-     * @param fileName 文件名
-     * @return url 预览文件url
-     */
-    //todo 好像没用？？？
-    public String previewFile(String path,String fileName){
-        // 查看文件地址
-        GetPresignedObjectUrlArgs build =
-                GetPresignedObjectUrlArgs.builder()
-                        .bucket(prop.getBucketName())
-                        .object(path+fileName)
-                        .method(Method.GET)
-                        .build();
-        try {
-            return minioClient.getPresignedObjectUrl(build);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+     * @param bean 图片文件、商品id
+     * @param coverOrDetail 表示要存的是封面还是详情图片,必须使用常量PATH_GOOD_COVER或PATH_GOOD_DETAIL
+     * @return photoPaths 每张图片的储存路径
+     * */
+    private List<String> saveGoodCoverOrDetail(CoverOrDetailPhotoFileBean bean, String coverOrDetail){
+        assert (
+                PATH_GOOD_COVER.equals(coverOrDetail) ||
+                        PATH_GOOD_DETAIL.equals(coverOrDetail)
+        ) : "coverOrDetail必须使用常量PATH_GOOD_COVER或PATH_GOOD_DETAIL";
 
+        // todo 用bean传参!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        Map<Map<String,String>,MultipartFile> photoBean=new HashMap<>(16);
+        Map<String,String> photoPathAndName=new HashMap<>(16);
+        int goodId=bean.getGoodId();
+        List<MultipartFile> pic=bean.getPhotos();
+        List<String> photoPaths=new ArrayList<>();
+        for (int i=0; i < pic.size(); i++){
+            photoPathAndName.put(PATH_GOOD_PICTURE+goodId+coverOrDetail,i+SUFFIX_JPG);
+            photoPaths.add(PATH_GOOD_PICTURE+goodId+coverOrDetail+i+SUFFIX_JPG);
+            photoBean.put(photoPathAndName, pic.get(i));
+        }
+        putFile(photoBean);
+
+        return photoPaths;
+    }
     /**
      * 构造聊天图片记录路径和文件名
-     *
      * */
     private String[] createChatImgPathAndFileName(int goodId,int fromUserId,long time){
         String[] pathAndFileName=new String[2];
@@ -220,7 +247,7 @@ public class MinioUtil {
                             .build()
             );
         }catch (Exception e){
-            throw new com.gseek.gs.exce.ServerException(e);
+            throw new com.gseek.gs.exce.ServerException("服务器异常", e);
         }
     }
     /**
@@ -258,12 +285,61 @@ public class MinioUtil {
         }
     }
     /**
+     * 获取单个文件
+     *
+     * @param path 储存路径
+     * @param fileName 文件名
+     * */
+    public InputStream getFile(String path, String fileName)
+            throws com.gseek.gs.exce.business.imgs.FileNotFoundException {
+        if (! isFileExist(path, fileName)){
+            throw new com.gseek.gs.exce.business.imgs.FileNotFoundException();
+        }
+        try {
+           return minioClient.getObject(
+                GetObjectArgs.builder()
+                        .bucket(prop.getBucketName())
+                        .object(path+fileName)
+                        .build()
+            );
+        } catch (Exception e){
+            throw new RuntimeException(e);
+        }
+    }
+    /**
+     * 获取某个文件夹下所有文件文件名.
+     *
+     * @param path 文件夹名
+     * */
+    private List<String> listFiles(String path){
+        List<String> objectNames=new ArrayList<>();
+
+        Iterable<Result<Item>> iterable = minioClient
+                .listObjects(
+                    ListObjectsArgs.builder()
+                            .bucket(prop.getBucketName())
+                            .prefix(path)
+                            .build()
+                );
+
+        try {
+            for (Result<Item> result : iterable ) {
+                objectNames.add(result.get().objectName());
+            }
+        }catch (Exception e){
+            throw new ServerException("服务器异常", e);
+        }
+
+        return objectNames;
+    }
+    /**
      * 删除单个文件
+     * 我不希望这个方法对外暴露,但是需要对这个方法进行单元测试.
      *
      * @param filename 文件名
      * @param path 储存路径
      * */
-    private void removeFile(String filename,String path) {
+    protected void removeFile(String filename,String path) {
         try {
             minioClient.removeObject(
                     RemoveObjectArgs.builder()
@@ -276,16 +352,15 @@ public class MinioUtil {
     }
     /**
      * 删除多个文件
+     * 我不希望这个方法对外暴露,但是需要对这个方法进行单元测试.
      *
-     * @param files 文件：
-     *              <code>Map(文件路径,文件名)</code>
-     *
+     * @param objectNames 路径名+文件名
      * */
-    private void removeFile(Map<String,String> files) {
+    protected void removeFile(List<String> objectNames) {
         //todo 用bean传参！！！！！！！！！！！！！！！！！！！
         List<DeleteObject> objects = new LinkedList<>();
-        for (Map.Entry<String,String> entry:files.entrySet()){
-            objects.add(new DeleteObject(entry.getKey()+entry.getValue()));
+        for (String name : objectNames){
+            objects.add(new DeleteObject(name));
         }
 
         Iterable<Result<DeleteError>> results =
@@ -303,37 +378,20 @@ public class MinioUtil {
         }
     }
     /**
-     * 获取单个文件
-     *
-     * @param path 储存路径
-     * @param fileName 文件名
+     * 检查文件是否存在
+     * 我不希望这个方法对外暴露,但是MinioUtilTest中需要这个方法来检查其他方法是否成功执行.
      * */
-    public InputStream getFile(String path, String fileName) {
-        try (
-                InputStream inputStream=minioClient.getObject(
-                        GetObjectArgs.builder()
-                                .bucket(prop.getBucketName())
-                                .object(path+fileName)
-                                .build()
-                )
-        ){
-            return inputStream;
+    protected boolean isFileExist(String path, String fileName){
+        try {
+            minioClient.statObject(
+                    StatObjectArgs.builder()
+                            .bucket(prop.getBucketName())
+                            .object(path+fileName)
+                            .build()
+            );
         } catch (Exception e){
-            throw new RuntimeException(e);
+            return false;
         }
-    }
-
-    /**
-     * 获取某个文件夹下所有文件文件名.
-     *
-     * @param path 文件夹名
-     *
-     * */
-    private Iterable<Result<Item>> listFiles(String path){
-        return minioClient.listObjects(
-                ListObjectsArgs.builder()
-                        .bucket(prop.getBucketName())
-                        .prefix(path)
-                        .build());
+        return true;
     }
 }

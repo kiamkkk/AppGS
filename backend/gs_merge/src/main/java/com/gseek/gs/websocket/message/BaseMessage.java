@@ -3,6 +3,7 @@ package com.gseek.gs.websocket.message;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -12,6 +13,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class BaseMessage {
     @JsonIgnore
     public final static Integer SYSTEM_FROM_USER_ID =-1;

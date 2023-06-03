@@ -1,15 +1,13 @@
 package com.gseek.gs.pojo.business;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.util.PasswordUtil;
 import com.gseek.gs.util.StrUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
 
 /**
  * 封装实名认证信息
@@ -28,8 +26,13 @@ public class UserIdentificationBO implements BOPostService{
     private String idNumber;
 
     @Override
-    public void autoEncrypt() throws IllegalBlockSizeException, BadPaddingException {
-        idNumber= StrUtil.desensitizeIdNumber(idNumber);
-        idNumber=PasswordUtil.encrypt(idNumber);
+    public void autoEncrypt() throws ServerException {
+        try {
+            idNumber= StrUtil.desensitizeIdNumber(idNumber);
+            idNumber=PasswordUtil.encrypt(idNumber);
+        }catch (Exception e){
+            throw new ServerException("服务器异常", e);
+        }
+
     }
 }

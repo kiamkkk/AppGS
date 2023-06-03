@@ -1,7 +1,7 @@
 package com.gseek.gs.config.login.handler.admin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gseek.gs.exce.business.login.ContentTypeWrongException;
+import com.gseek.gs.exce.login.ContentTypeWrongException;
 import com.gseek.gs.pojo.bean.AuthenticationBean;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

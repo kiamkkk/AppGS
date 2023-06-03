@@ -1,7 +1,7 @@
 package com.gseek.gs.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gseek.gs.exce.business.login.RepeatLoginException;
+import com.gseek.gs.exce.login.RepeatLoginException;
 import com.gseek.gs.pojo.data.ChatDO;
 import com.gseek.gs.service.inter.RedisService;
 import com.gseek.gs.util.TokenUtil;

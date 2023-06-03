@@ -1,7 +1,8 @@
-package com.gseek.gs.exce.business;
+package com.gseek.gs.exce.business.common;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gseek.gs.exce.business.BusinessException;
 import com.gseek.gs.pojo.bean.ParameterWrongBean;
 
 /**
@@ -22,7 +23,7 @@ public class ParameterWrongException extends BusinessException {
      * */
     public ParameterWrongException(ParameterWrongBean bo)
             throws JsonProcessingException {
-        super();
+        super("参数有误");
         msg=bo.wrapWrongParameters(objectMapper);
         code=400;
     }

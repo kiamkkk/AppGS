@@ -1,7 +1,7 @@
 package com.gseek.gs.pojo.dto;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.gseek.gs.exce.business.ParameterWrongException;
+import com.gseek.gs.exce.business.common.ParameterWrongException;
 import com.gseek.gs.pojo.bean.ParameterWrongBean;
 import com.gseek.gs.util.PasswordUtil;
 import lombok.AllArgsConstructor;

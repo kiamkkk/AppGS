@@ -2,8 +2,9 @@ package com.gseek.gs.config.login.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Objects;
+import com.gseek.gs.config.login.handler.admin.AdminWebAuthenticationDetails;
 import com.gseek.gs.exce.ServerException;
-import com.gseek.gs.exce.business.ForbiddenException;
+import com.gseek.gs.exce.business.common.ForbiddenException;
 import com.gseek.gs.service.inter.BlacklistService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,6 +19,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 /**
  * 确定用户是否在黑名单内 并 拒绝黑名单用户的部分操作.
  * 黑名单用户只能访问：
+ * <code>[post]/users</code>
  * <code>[get]/users/account</code>
  * <code>[post]/users/account</code>
  * <code>[patch]/users/account</code>
@@ -43,6 +45,10 @@ public class BlackListInterceptor implements HandlerInterceptor {
         if (Objects.equal("/users/account", path) ){
             return true;
         }
+        // 不对登录进行拦截
+        if (Objects.equal("/users", path) && request.getMethod().equals("POST")){
+            return true;
+        }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
@@ -60,7 +66,9 @@ public class BlackListInterceptor implements HandlerInterceptor {
             }else {
                 log.debug("用户{}还不是黑名单用户",userId);
             }
-        }else {
+        }else if (authentication.getDetails() instanceof AdminWebAuthenticationDetails details) {
+            log.debug("管理员{}不可能是黑名单用户", details.getAdminId());
+        } else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
             throw new ServerException("认证时出错");
         }

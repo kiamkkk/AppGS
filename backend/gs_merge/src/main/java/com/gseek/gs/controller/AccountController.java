@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.config.login.handler.CustomWebAuthenticationDetails;
 import com.gseek.gs.exce.ServerException;
+import com.gseek.gs.exce.business.BusinessException;
 import com.gseek.gs.pojo.dto.RechargeDTO;
 import com.gseek.gs.pojo.dto.WithdrawalDTO;
 import com.gseek.gs.service.inter.MoneyService;
@@ -15,8 +16,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
 import java.io.FileNotFoundException;
 
 /**
@@ -28,7 +27,7 @@ import java.io.FileNotFoundException;
 @RestController
 @Slf4j
 @RequestMapping("/users/account")
-public class AccountController {
+public class AccountController implements Controller{
 
     @Autowired
     @Qualifier("moneyServiceImpl")
@@ -43,16 +42,11 @@ public class AccountController {
     @PostMapping
     public String recharge(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                            @RequestBody RechargeDTO dto)
-            throws IllegalBlockSizeException, BadPaddingException, AlipayApiException, JsonProcessingException {
+            throws BusinessException, ServerException, AlipayApiException, JsonProcessingException {
+        CustomWebAuthenticationDetails details=perService(authentication);
         dto.perService();
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-            dto.perService();
-            return moneyService.recharge(details.getUserId(),dto);
 
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
-        }
+        return moneyService.recharge(details.getUserId(),dto);
     }
 
     /**
@@ -61,19 +55,12 @@ public class AccountController {
     @PatchMapping
     public String withdrawals(@CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                               @RequestBody WithdrawalDTO dto)
-            throws IllegalBlockSizeException, BadPaddingException, AlipayApiException, JsonProcessingException, FileNotFoundException {
-
+            throws BusinessException, ServerException, AlipayApiException,
+                    JsonProcessingException, FileNotFoundException {
+        CustomWebAuthenticationDetails details=perService(authentication);
         dto.perService();
 
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-
-            return moneyService.withdrawal(details.getUserId(),dto);
-
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
-        }
-
+        return moneyService.withdrawal(details.getUserId(),dto);
     }
 
     /**
@@ -82,15 +69,9 @@ public class AccountController {
     @GetMapping
     public String getWalletInformation(@CurrentSecurityContext(expression = "Authentication") Authentication authentication)
             throws JsonProcessingException {
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
+        CustomWebAuthenticationDetails details=perService(authentication);
 
-            return moneyService.getWalletInformation(details.getUserId());
-
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
-        }
+        return moneyService.getWalletInformation(details.getUserId());
     }
-
 
 }

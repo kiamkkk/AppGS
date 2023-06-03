@@ -1,6 +1,6 @@
 package com.gseek.gs.exce.business.money;
 
-import com.gseek.gs.exce.business.ForbiddenException;
+import com.gseek.gs.exce.business.common.ForbiddenException;
 
 /**
  * 账户余额不足异常.

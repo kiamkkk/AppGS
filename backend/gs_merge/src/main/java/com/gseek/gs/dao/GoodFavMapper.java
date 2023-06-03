@@ -7,6 +7,8 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
+ * 操作good_fav表.
+ *
  * @author Phak
  * @since 2023/5/9-13:00
  */

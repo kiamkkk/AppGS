@@ -51,7 +51,7 @@
                 #{dto.offerPrice} ,#{dto.goodId} , #{dto.time} );
     </insert>
 
-    <select id="getAllOfferPrice" parameterType="int" resultMap="GoodAndOfferPriceBO">
+    <select id="selectAllOfferPrice" parameterType="int" resultMap="GoodAndOfferPriceBO">
         select g.good_id, g.good_name, g.good_text, g.own_user_name, g.good_price, g.type_tag_name, op.offer_price
         from offer_price op
              left join good as g

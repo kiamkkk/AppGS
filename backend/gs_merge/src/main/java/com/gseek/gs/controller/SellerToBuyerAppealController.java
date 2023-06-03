@@ -1,19 +1,15 @@
 package com.gseek.gs.controller;
 
 
-import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gseek.gs.common.Result;
 import com.gseek.gs.config.login.handler.CustomWebAuthenticationDetails;
 import com.gseek.gs.config.login.handler.admin.AdminWebAuthenticationDetails;
 import com.gseek.gs.dao.BillMapper;
-import com.gseek.gs.dao.MoneyMapper;
 import com.gseek.gs.exce.ServerException;
-import com.gseek.gs.exce.business.ForbiddenException;
+import com.gseek.gs.exce.business.common.ForbiddenException;
 import com.gseek.gs.pojo.bean.AppealMessageBean;
 import com.gseek.gs.pojo.business.SellerToBuyerAppealBO;
-import com.gseek.gs.pojo.business.SellerToBuyerAppealResultBO;
-import com.gseek.gs.pojo.dto.BuyerToSellerAppealDTO;
 import com.gseek.gs.pojo.dto.SellerToBuyerAppealDTO;
 import com.gseek.gs.service.inter.BillService;
 import com.gseek.gs.service.inter.BlacklistService;
@@ -28,10 +24,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.HashMap;
-import java.util.Map;
-
 
 
 /**

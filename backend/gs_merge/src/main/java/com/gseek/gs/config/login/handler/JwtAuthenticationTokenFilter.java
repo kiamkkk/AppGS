@@ -3,7 +3,7 @@ package com.gseek.gs.config.login.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.common.TokenGrade;
 import com.gseek.gs.config.login.handler.admin.AdminWebAuthenticationDetailsSource;
-import com.gseek.gs.exce.business.login.TokenInvalidException;
+import com.gseek.gs.exce.login.TokenInvalidException;
 import com.gseek.gs.pojo.bean.OrdinaryAdmin;
 import com.gseek.gs.pojo.bean.OrdinaryUser;
 import com.gseek.gs.service.inter.AdminService;
@@ -64,6 +64,8 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain chain) throws ServletException, IOException {
+
+
         String rawToken = request.getHeader("Authorization");
         log.debug("doFilterInternal开始");
 

@@ -1,7 +1,7 @@
 package com.gseek.gs.service.inter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.gseek.gs.exce.business.ParameterWrongException;
+import com.gseek.gs.exce.business.common.ParameterWrongException;
 import com.gseek.gs.pojo.dto.PatchGoodsDTO;
 import com.gseek.gs.pojo.dto.PostGoodsDTO;
 

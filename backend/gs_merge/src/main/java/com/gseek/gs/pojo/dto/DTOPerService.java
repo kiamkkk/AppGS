@@ -1,7 +1,8 @@
 package com.gseek.gs.pojo.dto;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.gseek.gs.exce.business.ParameterWrongException;
+import com.gseek.gs.exce.ServerException;
+import com.gseek.gs.exce.business.common.ParameterWrongException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -20,13 +21,20 @@ public interface DTOPerService {
      * 现在包括：验参、解密.
      *
      * @throws ParameterWrongException 参数异常被封装在这里,具体格式查看ParameterWrongBean
-     * @throws IllegalBlockSizeException 解密时异常
-     * @throws BadPaddingException 解密时异常
+     * @throws ServerException 其他异常均视为服务器异常:
+     *                         IllegalBlockSizeException | BadPaddingException | JsonProcessingException 来源于解密时.
+     *                         Exception 为未知异常.
      * */
     default void perService()
-            throws IllegalBlockSizeException, BadPaddingException, ParameterWrongException, JsonProcessingException {
-        validateParameters();
-        autoDecrypt();
+            throws ParameterWrongException, ServerException{
+        try {
+            validateParameters();
+            autoDecrypt();
+        }catch (IllegalBlockSizeException | BadPaddingException | JsonProcessingException se){
+            throw new ServerException("接收时出错", se);
+        }catch (Exception e){
+            throw new ServerException("服务器异常", e);
+        }
     }
 
     /**

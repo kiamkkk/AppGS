@@ -14,7 +14,7 @@ public class BillStateNotAllowException extends BusinessException {
      *
      * */
     public BillStateNotAllowException(BillState state) {
-        super();
+        super("交易状态为不允许");
         code=400;
         msg="交易状态为: "+state.getState()+" ,不可进行该操作";
     }

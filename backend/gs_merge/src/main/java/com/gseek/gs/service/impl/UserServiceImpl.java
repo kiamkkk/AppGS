@@ -7,7 +7,7 @@ import com.gseek.gs.dao.MoneyMapper;
 import com.gseek.gs.dao.UserIdentificationMapper;
 import com.gseek.gs.dao.UserInformationMapper;
 import com.gseek.gs.dao.UserPasswordMapper;
-import com.gseek.gs.exce.business.ParameterWrongException;
+import com.gseek.gs.exce.business.common.ParameterWrongException;
 import com.gseek.gs.pojo.bean.OrdinaryUser;
 import com.gseek.gs.pojo.business.UserIdentificationBO;
 import com.gseek.gs.pojo.business.UserInformationBO;
@@ -58,8 +58,6 @@ public class UserServiceImpl implements UserService {
     MoneyMapper moneyMapper;
     @Autowired
     ObjectMapper objectMapper;
-
-
 
     /**
      * 一般用户权限
@@ -129,8 +127,8 @@ public class UserServiceImpl implements UserService {
         OrdinaryUser user=new OrdinaryUser(username,authorities);
 
         UserPasswordDO userPasswordDO =userPasswordMapper.selectUserPasswordByUsername(username);
-        if (userPasswordDO ==null){
-            log.debug("UsernameNotFound|"+username);
+        if (userPasswordDO == null){
+            log.debug("UsernameNotFound {}", username);
             throw new UsernameNotFoundException("UsernameNotFound:"+username);
         }
 
