@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gseek.gs.dao.TagMapper">
+
+    <resultMap id="BaseResultMap" type="com.gseek.gs.pojo.data.TagDO">
+        <id column="tag_id" jdbcType="INTEGER" property="tagId" />
+        <result column="tag_text" jdbcType="VARCHAR" property="tagText" />
+        <result column="click" jdbcType="INTEGER" property="click" />
+    </resultMap>
+
+    <select id="selectTagByTagName" parameterType="string" resultMap="BaseResultMap">
+        select * from tag where tag_text=#{tagText};
+    </select>
+
+    <select id="selectTagsByTagNames" resultMap="BaseResultMap">
+        select * from tag
+        where tag_text in
+        <foreach collection="tags" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        ;
+    </select>
+
+    <select id="selectTagByTagNameThenAdd" parameterType="string" resultMap="BaseResultMap">
+        select * from tag where tag_text=#{tagText};
+
+        update tag set click=tag.click+1 where tag_id=(
+            select tag_id from tag where tag_text=#{tagText}
+        );
+    </select>
+
+    <insert id="insertTags" parameterType="list"
+            useGeneratedKeys="true" keyColumn="tag_id" keyProperty="tagId">
+        insert ignore into tag (tag_text)
+        VALUES
+        <foreach collection="tags" item="item" index="index" separator=",">
+            (#{item.tagText})
+        </foreach>
+    </insert>
+
+</mapper>

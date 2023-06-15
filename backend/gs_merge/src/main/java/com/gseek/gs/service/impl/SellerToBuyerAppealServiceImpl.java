@@ -1,5 +1,6 @@
 package com.gseek.gs.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gseek.gs.dao.BillMapper;
 import com.gseek.gs.dao.GoodMapper;
 import com.gseek.gs.dao.SellerToBuyerAppealMapper;
@@ -7,8 +8,12 @@ import com.gseek.gs.pojo.bean.AppealMessageBean;
 import com.gseek.gs.pojo.business.SellerToBuyerAppealBO;
 import com.gseek.gs.pojo.business.SellerToBuyerAppealResultBO;
 import com.gseek.gs.pojo.dto.SellerToBuyerAppealDTO;
+import com.gseek.gs.service.inter.BillService;
+import com.gseek.gs.service.inter.BlacklistService;
+import com.gseek.gs.service.inter.MoneyService;
 import com.gseek.gs.service.inter.SellerToBuyerAppealService;
 
+import com.gseek.gs.websocket.controller.MessageController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +31,14 @@ public class SellerToBuyerAppealServiceImpl implements SellerToBuyerAppealServic
     BillMapper billMapper;
     @Autowired
     GoodMapper goodMapper;
+    @Autowired
+    MoneyService moneyService;
+    @Autowired
+    BillService billService;
+    @Autowired
+    BlacklistService blacklistService;
+    @Autowired
+    MessageController messageController;
 
     public void setSellerToBuyerAppealMapper(SellerToBuyerAppealMapper sellerToBuyerAppealMapper) {
         this.sellerToBuyerAppealMapper = sellerToBuyerAppealMapper;
@@ -44,7 +57,20 @@ public class SellerToBuyerAppealServiceImpl implements SellerToBuyerAppealServic
 
 
 
-    public int deleteAppeal(int appealId) {
+    public int deleteAppeal(int appealId) throws JsonProcessingException {
+        //          如果申诉已经通过审核
+        if(queryResult(appealId).isAppeal_result()){
+            int degree=queryResult(appealId).getDamage_degree();
+            // 余额返还
+            int billId=queryAppeal(appealId).getBill_id();
+            moneyService.returnSellerAppealMoney(billId,billService.selectBill(billId).getBuyerId(),degree);
+            moneyService.unfrozenUser(billService.selectBill(billId).getSellerId());
+            //从黑名单内删除
+            blacklistService.deleteReport(blacklistService.queryBlackId(billService.selectBill(billId).getBuyerId(),billService.selectBill(billId).getBuyerId()));
+            //通知
+            AppealMessageBean appealMessageBean=message(appealId);
+            messageController.appealRemove(appealMessageBean);
+        }
             return sellerToBuyerAppealMapper.deleteAppeal(appealId);
     }
 

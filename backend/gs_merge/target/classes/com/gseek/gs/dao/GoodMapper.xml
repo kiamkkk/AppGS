@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace=绑定一个对应的Dao/Mapper接口-->
+<mapper namespace="com.gseek.gs.dao.GoodMapper">
+
+    <resultMap id="BaseResultMap" type="com.gseek.gs.pojo.data.GoodDO">
+        <id column="good_id" jdbcType="INTEGER" property="goodId" />
+        <result column="good_name" jdbcType="VARCHAR" property="goodName" />
+        <result column="account" jdbcType="VARCHAR" property="account" />
+        <result column="account_password" jdbcType="VARCHAR" property="accountPassword" />
+        <result column="good_text" jdbcType="VARCHAR" property="goodText" />
+        <result column="own_user_name" jdbcType="VARCHAR" property="ownUserName"/>
+        <result column="own_user_id" jdbcType="INTEGER" property="ownUserId" />
+        <result column="good_price" jdbcType="DECIMAL" property="goodPrice" />
+        <result column="create_time" jdbcType="BIGINT" property="createTime" />
+        <result column="modified_time" jdbcType="BIGINT" property="modifiedTime" />
+        <result column="sold" jdbcType="BIT" property="sold" />
+        <result column="type_tag_id" jdbcType="INTEGER" property="typeTagId" />
+        <result column="type_tag_name" jdbcType="VARCHAR" property="typeTagName" />
+    </resultMap>
+
+    <resultMap id="GoodsWithoutAccountAndSoldBO" type="com.gseek.gs.pojo.business.GoodsWithoutAccountAndSoldBO">
+        <id column="good_id" jdbcType="INTEGER" property="goodId" />
+        <result column="good_name" jdbcType="VARCHAR" property="goodName" />
+        <result column="good_text" jdbcType="VARCHAR" property="goodText" />
+        <result column="own_user_name" jdbcType="VARCHAR" property="ownUserName"/>
+        <result column="own_user_id" jdbcType="INTEGER" property="ownUserId" />
+        <result column="good_price" jdbcType="DECIMAL" property="goodPrice" />
+        <result column="create_time" jdbcType="BIGINT" property="createTime" />
+        <result column="modified_time" jdbcType="BIGINT" property="modifiedTime" />
+        <result column="type_tag_name" jdbcType="VARCHAR" property="typeTagName" />
+        <collection property="tagNames" ofType="String"
+                    select="com.gseek.gs.dao.GoodTagMapper.selectTagNamesByGoodId" column="good_id" />
+        <collection property="coverPictures" ofType="String"
+                    select="com.gseek.gs.dao.GoodCoverPicMapper.selectCoversByGoodId" column="good_id" />
+        <collection property="detailPictures" ofType="String"
+                    select="com.gseek.gs.dao.GoodDetailPicMapper.selectDetailsByGoodId" column="good_id" />
+    </resultMap>
+
+    <resultMap id="GoodBO" type="com.gseek.gs.pojo.business.GoodBO">
+        <id column="good_id" jdbcType="INTEGER" property="goodId" />
+        <result column="good_name" jdbcType="VARCHAR" property="goodName" />
+        <result column="account" jdbcType="VARCHAR" property="account" />
+        <result column="account_password" jdbcType="VARCHAR" property="accountPassword" />
+        <result column="good_text" jdbcType="VARCHAR" property="goodText" />
+        <result column="own_user_name" jdbcType="VARCHAR" property="ownUserName"/>
+        <result column="own_user_id" jdbcType="INTEGER" property="ownUserId" />
+        <result column="good_price" jdbcType="DECIMAL" property="goodPrice" />
+        <result column="create_time" jdbcType="BIGINT" property="createTime" />
+        <result column="modified_time" jdbcType="BIGINT" property="modifiedTime" />
+        <result column="sold" jdbcType="BIT" property="sold" />
+        <result column="type_tag_name" jdbcType="VARCHAR" property="typeTagName"/>
+        <collection property="tagNames" ofType="String"
+                    select="com.gseek.gs.dao.GoodTagMapper.selectTagNamesByGoodId" column="good_id" />
+        <collection property="coverPictures" ofType="String"
+                    select="com.gseek.gs.dao.GoodCoverPicMapper.selectCoversByGoodId" column="good_id" />
+        <collection property="detailPictures" ofType="String"
+                    select="com.gseek.gs.dao.GoodDetailPicMapper.selectDetailsByGoodId" column="good_id" />
+    </resultMap>
+
+    <resultMap id="GoodAccountBO" type="com.gseek.gs.pojo.business.GoodAccountBO">
+        <id column="good_id" jdbcType="INTEGER" property="goodId" />
+        <result column="buyer_id" jdbcType="INTEGER" property="buyerId"/>
+        <result column="good_name" jdbcType="VARCHAR" property="goodName"/>
+        <result column="account" jdbcType="VARCHAR" property="account"/>
+        <result column="account_password" jdbcType="VARCHAR" property="accountPassword"/>
+    </resultMap>
+
+    <insert id="insertGood" parameterType="com.gseek.gs.pojo.data.GoodDO"
+            useGeneratedKeys="true" keyColumn="good_id" keyProperty="goodId">
+        insert into good(good_name, account, account_password, good_text,
+                         own_user_name, own_user_id, good_price, create_time,
+                         modified_time, sold, type_tag_id, type_tag_name)
+        values
+            (#{goodDO.goodName},#{goodDO.account},#{goodDO.accountPassword},#{goodDO.goodText},
+             #{goodDO.ownUserName},#{goodDO.ownUserId},#{goodDO.goodPrice},#{goodDO.createTime},
+             #{goodDO.modifiedTime},#{goodDO.sold},#{goodDO.typeTagId},#{goodDO.typeTagName});
+    </insert>
+
+    <delete id="deleteGood" >
+        delete from good where good_id=#{goodId};
+        delete from good_tag where good_id=#{goodId};
+        delete from good_fav where good_id=#{goodId};
+        delete from good_cover_pic where good_id=#{goodId};
+        delete from good_detail_pic where good_id=#{goodId};
+        delete from bill where good_id=#{goodId};
+    </delete>
+
+    <update id="updateGoodSelect" parameterType="com.gseek.gs.pojo.data.GoodDO">
+        update good
+        <set>
+            <if test="goodName != null">
+                good_name = #{good.goodName},
+            </if>
+            <if test="account != null">
+                account = #{good.account},
+            </if>
+            <if test="accountPassword != null">
+                account_password = #{good.accountPassword},
+            </if>
+            <if test="goodText != null">
+                good_text=#{good.goodText},
+            </if>
+            <if test="ownUserName != null">
+                own_user_name=#{good.ownUserName},
+            </if>
+            <if test="ownUserId != null">
+                own_user_id=#{good.ownUserId},
+            </if>
+            <if test="modifiedTime != null">
+                modified_time=#{good.modifiedTime},
+            </if>
+            <if test="typeTagId != null">
+                type_tag_id=#{good.typeTagId},
+            </if>
+            <if test="typeTagName != null">
+                type_tag_name=#{good.typeTagName},
+            </if>
+            <if test="sold !=null">
+                sold=#{good.sold},
+            </if>
+        </set>
+        <where>
+            good_id = #{good.goodId};
+        </where>
+    </update>
+
+    <select id="selectGoodByGoodIdFully" parameterType="int" resultMap="BaseResultMap">
+        select * from good where
+            good_id=#{goodId}
+            and
+            true = (
+                select result from good_checked where good_id=#{goodId}
+            );
+    </select>
+
+    <select id="selectGoodByGoodIdWithoutAccount" resultMap="GoodsWithoutAccountAndSoldBO">
+        select good_id, good_name, good_text, own_user_id, own_user_name,
+               good_price, create_time, modified_time, type_tag_name
+        from good
+        where
+            good_id=#{goodId}
+            and
+            true = (
+                select result from good_checked where good_id=#{goodId}
+            );
+    </select>
+
+    <select id="selectOwnUserIdByGoodId" parameterType="int" resultType="integer">
+        select own_user_id
+        from good
+        where good_id=#{goodId};
+    </select>
+
+    <select id="selectGoodsByUserIdWithoutTypeTagId" resultMap="GoodBO">
+        select good_id,good_name, account, account_password, good_text,
+               own_user_id, own_user_name, good_price, create_time,
+               modified_time, sold, type_tag_name
+        from good 
+        where good_id= ANY(SELECT good_id FROM good WHERE own_user_id = #{userId});
+    </select>
+
+    <select id="selectGoodsSoldByUserIdWithoutTypeTagId" parameterType="int" resultMap="GoodBO">
+        select good_id,good_name, account, account_password, good_text,
+               own_user_name, own_user_id, good_price, create_time,
+               modified_time, sold, type_tag_name
+        from good
+        where good_id= ANY(SELECT good_id FROM good WHERE own_user_id = #{userId})
+              and
+              sold = true ;
+    </select>
+
+    <select id="selectPriceByBillId" resultType="decimal">
+        select good_price from good
+        where good_id=
+            (select good_id from bill where bill_id=#{billId})
+    </select>
+
+    <select id="selectGoodAccountByBillId" resultMap="GoodAccountBO">
+        select g.good_id, g.good_name, g.account, g.account_password, b.buyer_id
+        from bill as b
+            left join good as g
+                on g.good_id=b.good_id
+        where b.bill_id=#{billId};
+    </select>
+
+    <select id="queryAllCheckedGood" resultMap="GoodsWithoutAccountAndSoldBO">
+        select good_id, good_name, good_text, own_user_id, own_user_name,
+               good_price, create_time, modified_time, type_tag_name
+        from good
+        where good_id=
+              (select good_id from good_checked where result=1)
+    </select>
+
+    <select id="queryGoodByName" parameterType="String" resultMap="GoodsWithoutAccountAndSoldBO">
+        select good_id, good_name, good_text, own_user_id, own_user_name,
+               good_price, create_time, modified_time, type_tag_name
+        from good
+        where good_name like #{goodName};
+    </select>
+
+    <select id="selectGoodsByGoodIdsWithoutAccountAndSold"  resultMap="GoodsWithoutAccountAndSoldBO">
+        select good_id, good_name, good_text, own_user_id, own_user_name,
+               good_price, create_time, modified_time, type_tag_name
+        from good
+        where good_id in (
+            select good_id from good_checked where result = true and good_id in
+                <foreach collection="goodIds" item="item" index="index" separator=" , " open="(" close=")">
+                    ${item}
+                </foreach>
+        );
+    </select>
+</mapper>

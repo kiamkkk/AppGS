@@ -94,21 +94,6 @@ public class SellerToBuyerAppealController {
     public String deleteAppeal(@PathVariable int appealId,
                                @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws JsonProcessingException {
         if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
-//          如果申诉已经通过审核
-            if(sellerToBuyerAppealService.queryResult(appealId).isAppeal_result()){
-                int degree=sellerToBuyerAppealService.queryResult(appealId).getDamage_degree();
-                // 余额返还
-                int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBill_id();
-                moneyService.returnSellerAppealMoney(billId,billService.selectBill(billId).getBuyerId(),degree);
-                moneyService.unfrozenUser(billService.selectBill(billId).getSellerId());
-
-                //从黑名单内删除
-
-                blacklistService.deleteReport(blacklistService.queryBlackId(billService.selectBill(billId).getBuyerId(),billService.selectBill(billId).getBuyerId()));
-                //通知
-                AppealMessageBean appealMessageBean=sellerToBuyerAppealService.message(appealId);
-                messageController.appealRemove(appealMessageBean);
-            }
             sellerToBuyerAppealService.deleteAppeal(appealId);
             return result.gainDeleteSuccess();
         }
@@ -116,21 +101,6 @@ public class SellerToBuyerAppealController {
 
             if (sellerToBuyerAppealService.queryMyId(appealId)!=details.getUserId()){
                 throw new ForbiddenException();
-            }
-
-            if(sellerToBuyerAppealService.queryResult(appealId).isAppeal_result()){
-                int degree=sellerToBuyerAppealService.queryResult(appealId).getDamage_degree();
-                // 余额返还
-                int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBill_id();
-                moneyService.returnSellerAppealMoney(billId,billService.selectBill(billId).getBuyerId(),degree);
-                moneyService.unfrozenUser(billService.selectBill(billId).getSellerId());
-
-                //从黑名单内删除
-
-                blacklistService.deleteReport(blacklistService.queryBlackId(details.getUserId(),billService.selectBill(billId).getBuyerId()));
-                //通知
-                AppealMessageBean appealMessageBean=sellerToBuyerAppealService.message(appealId);
-                messageController.appealRemove(appealMessageBean);
             }
             sellerToBuyerAppealService.deleteAppeal(appealId);
             return result.gainDeleteSuccess();

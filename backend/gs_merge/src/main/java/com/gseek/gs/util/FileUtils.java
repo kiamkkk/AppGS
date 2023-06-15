@@ -12,6 +12,10 @@ import java.util.UUID;
 
 
 public class FileUtils {
+    /**
+     * 存图片的方法
+     * @param file 要储存的图片
+    * */
     public static String fileUtil(MultipartFile file, HttpServletRequest request){
         SimpleDateFormat sdf=new SimpleDateFormat("yyyy/MM/dd/");
         String realPath = request.getSession().getServletContext().getRealPath("/upload");

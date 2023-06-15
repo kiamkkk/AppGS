@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gseek.gs.dao.SellerToBuyerAppealMapper">
+
+    <select id="queryAppeal" resultType="com.gseek.gs.pojo.business.SellerToBuyerAppealBO">
+        select appeal_id,appeal_reason,checked,pic_before,pic_after,accept,bill_id,my_id from gseek.appeal_seller_to_buyer where `appeal_id`=#{appealId};
+    </select>
+    <insert id="addSellerToBuyerAppeal" parameterType="com.gseek.gs.pojo.dto.SellerToBuyerAppealDTO">
+        insert into gseek.appeal_seller_to_buyer(appeal_reason,pic_before,pic_after,accept,bill_id,my_id)
+        values (#{appealReason},#{picBefore},#{picAfter},#{accept},#{billId},#{myId});
+    </insert>
+    <delete id="deleteAppeal" parameterType="int">
+        delete from gseek.appeal_seller_to_buyer where `appeal_id`=#{appealId};
+    </delete>
+    <select id="queryResult" resultType="com.gseek.gs.pojo.business.SellerToBuyerAppealResultBO">
+        select checked,admin_id,appeal_result,damage_degree,accept,appeal_id from gseek.appeal_seller_to_buyer where `appeal_id`=#{appealId};
+    </select>
+    <update id="updateAppeal" parameterType="com.gseek.gs.pojo.dto.SellerToBuyerAppealDTO">
+        update gseek.appeal_seller_to_buyer
+        <set>
+            <if test="appealReason != null">
+                appeal_reason = #{appealReason},
+            </if>
+            <if test="picBefore != null">
+                pic_before = #{picBefore},
+            </if>
+            <if test="picAfter != null">
+                pic_after = #{picAfter},
+            </if>
+            <if test="accept != null">
+                accept = #{accept},
+            </if>
+            <if test="billId != null">
+                bill_id = #{billId}
+            </if>
+        </set>
+        where appeal_id=#{appealId};
+    </update>
+
+    <select id="queryMyId" resultType="int">
+        select my_id from gseek.appeal_seller_to_buyer where `appeal_id`=#{appealId};
+    </select>
+</mapper>

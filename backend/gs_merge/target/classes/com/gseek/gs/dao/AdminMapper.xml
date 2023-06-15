@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gseek.gs.dao.AdminMapper">
+
+    <resultMap id="BaseResultMap" type="com.gseek.gs.pojo.data.AdminDO">
+        <id column="admin_id" jdbcType="INTEGER" property="adminId" />
+        <result column="admin_password" jdbcType="VARCHAR" property="adminPassword" />
+        <result column="admin_name" jdbcType="VARCHAR" property="adminName" />
+        <result column="salt" jdbcType="VARCHAR" property="salt" />
+    </resultMap>
+
+    <insert id="insertAdmin" parameterType="com.gseek.gs.pojo.data.AdminDO"
+            useGeneratedKeys="true" keyColumn="admin_id" keyProperty="adminId">
+        insert into gseek.admin (admin_password, salt,admin_name)
+        values (#{adminPassword},#{salt},#{adminName});
+    </insert>
+
+    <select id="selectAdminByAdminName" parameterType="string" resultMap="BaseResultMap">
+        select * from gseek.admin where admin_name=#{adminName};
+    </select>
+
+    <update id="updateAdmin" parameterType="com.gseek.gs.pojo.data.AdminDO">
+
+        update gseek.admin
+        <set>
+            <if test="adminName != null">
+                admin_name = #{adminName},
+            </if>
+            <if test="adminPassword != null">
+                admin_password = #{adminPassword},
+            </if>
+            <if test="salt != null">
+                salt = #{salt},
+            </if>
+
+        </set>
+
+        <where >
+            admin_id=#{adminId};
+        </where>
+
+    </update>
+
+    <select id="selectAdminNameByAdminId" parameterType="int" resultType="string">
+        select admin_name from gseek.admin where admin_id=#{adminId};
+    </select>
+    <select id="queryUnCheckedProduct"  resultType="com.gseek.gs.pojo.business.GoodBO">
+        select * from gseek.good_checked where checked=0;
+    </select>
+    <select id="queryUnCheckedSellerAppeal"  resultType="com.gseek.gs.pojo.business.SellerToBuyerAppealBO">
+        select * from gseek.appeal_seller_to_buyer where checked=0;
+    </select>
+    <select id="queryUnCheckedBuyerAppeal"  resultType="com.gseek.gs.pojo.business.BuyerToSellerAppealBO">
+        select * from gseek.appeal_buyer_to_seller where checked=0;
+    </select>
+    <select id="querySellerAppealById" parameterType="int" resultType="com.gseek.gs.pojo.business.SellerToBuyerAppealBO">
+        select appeal_id,appeal_reason,checked,pic_before,pic_after,accept,bill_id from gseek.appeal_seller_to_buyer where `appeal_id`=#{appealId};;
+    </select>
+    <select id="queryBuyerAppealById" parameterType="int" resultType="com.gseek.gs.pojo.business.BuyerToSellerAppealBO">
+        select appeal_id,appeal_reason,checked,provePic,bill_id from gseek.appeal_buyer_to_seller where `appeal_id`=#{appealId};
+    </select>
+    <update id="auditGood" parameterType="com.gseek.gs.pojo.data.GoodCheckedDO">
+        update gseek.good_checked
+        <set>
+            <if test="adminId != null">
+                admin_id = #{adminId},
+            </if>
+            <if test="checkTime != null">
+                check_time = #{checkTime},
+            </if>
+            <if test="result != null">
+                `result` = #{result},
+            </if>
+            <if test="disapproveReason != null">
+                disapprove_reason = #{disapproveReason},
+            </if>
+        </set>
+        <where >
+            good_id=#{goodId};
+        </where>
+    </update>
+    <update id="auditSellerAppeal" parameterType="com.gseek.gs.pojo.business.SellerToBuyerAppealResultBO">
+        update gseek.appeal_seller_to_buyer
+        <set>
+            <if test="adminId != null">
+                admin_id = #{admin_id},
+            </if>
+            <if test="appealResult != null">
+                appeal_result = #{appeal_result},
+            </if>
+            <if test="damageDegree != null">
+                `damage_degree` = #{damage_degree},
+            </if>
+        </set>
+        <where >
+            appeal_id=#{appealId};
+        </where>
+    </update>
+    <update id="auditBuyerAppeal" parameterType="com.gseek.gs.pojo.business.BuyerToSellerAppealResultBO">
+        update gseek.appeal_buyer_to_seller
+        <set>
+            <if test="adminId != null">
+                admin_id = #{admin_id},
+            </if>
+            <if test="appealResult != null">
+                appeal_result = #{appeal_result},
+            </if>
+        </set>
+        <where >
+            appeal_id=#{appealId};
+        </where>
+    </update>
+    <update id="setGoodCheck" parameterType="int">
+        update gseek.good_checked set checked=1 where good_id=#{goodId};
+    </update>
+    <update id="setSellerCheck" parameterType="int">
+        update gseek.appeal_seller_to_buyer set checked=1 where appeal_id=#{appealId};
+    </update>
+    <update id="setBuyerCheck" parameterType="int">
+        update gseek.appeal_buyer_to_seller set checked=1 where appeal_id=#{appealId};
+    </update>
+    <select id="selectRandomAdmin" resultType="int">
+        select admin_id from  gseek.admin  order by   RAND() LIMIT 1;
+    </select>
+</mapper>

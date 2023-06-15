@@ -1,7 +1,6 @@
 package com.gseek.gs.websocket.message;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gseek.gs.pojo.business.BlacklistBO;
 import com.gseek.gs.pojo.business.GoodAccountBO;
 
 /**

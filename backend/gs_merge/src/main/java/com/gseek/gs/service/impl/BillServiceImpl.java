@@ -101,7 +101,7 @@ public class BillServiceImpl implements BillService {
             billMapper.insertBill(billDO);
             if (billDO.getBillId()==null || billDO.getBillId()==0) {
                 log.error("主键不回显，检查BillMapper#insertBill对应的sql");
-                throw new ServerException();
+                throw new ServerException("sql error");
             }
             //启动订单待支付倒计时
             timeoutUtil.offerBill(billDO.getBillId()+"");

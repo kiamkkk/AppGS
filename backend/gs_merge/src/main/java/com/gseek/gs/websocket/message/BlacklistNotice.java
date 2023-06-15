@@ -1,15 +1,14 @@
 package com.gseek.gs.websocket.message;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gseek.gs.pojo.business.BlacklistBO;
-import com.gseek.gs.pojo.business.BlacklistResultBO;
+import com.gseek.gs.pojo.bean.BlacklistBean;
 
 /**
  * @author: Isabella
  * @create: 2023-05-24 22:39
  **/
 public class BlacklistNotice extends BlacklistMessageBase{
-    public BlacklistNotice(BlacklistBO bo, ObjectMapper objectMapper){
+    public BlacklistNotice(BlacklistBean bo, ObjectMapper objectMapper){
         super(SYSTEM_FROM_USER_ID,bo.getRespondent_id(), bo.getAppeal_reason(), MessageType.BLACKLIST.name(), bo.toMessage(objectMapper));
     }
     public BlacklistNotice(String message,int toUserId){

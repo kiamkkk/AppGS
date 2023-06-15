@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gseek.gs.dao.MoneyMapper">
+
+    <resultMap id="BaseResultMap" type="com.gseek.gs.pojo.data.MoneyDO">
+        <id column="user_id" jdbcType="INTEGER" property="userId" />
+        <result column="money" jdbcType="DECIMAL" property="remain" />
+        <result column="frozen" jdbcType="BOOLEAN" property="frozen" />
+    </resultMap>
+
+    <resultMap id="MoneyBO" type="com.gseek.gs.pojo.business.MoneyBO">
+        <result column="money" jdbcType="DECIMAL" property="remain" />
+        <result column="frozen" jdbcType="BOOLEAN" property="frozen" />
+    </resultMap>
+
+    <insert id="insertMoney" parameterType="com.gseek.gs.pojo.data.MoneyDO">
+        insert into money (user_id)
+            VALUES (#{moneyDO.userId});
+    </insert>
+
+    <select id="selectRemainByUserId" parameterType="int" resultType="decimal">
+        select money from money where user_id=#{userId};
+    </select>
+
+    <update id="minusRemainByUserId" >
+        update money
+            set money = money-#{price}
+        where user_id=#{userId};
+    </update>
+
+    <update id="addRemainByUserId" >
+        update money
+        set money = money+#{price}
+        where user_id=#{userId};
+    </update>
+
+    <update id="returnMoney">
+        update money
+            set money = money +
+                        (select good_price from good where good_id =
+                              (select good_id from bill where bill_id=#{billId})
+                        )*1.01
+        where user_id=
+              (select buyer_id from bill where bill_id=#{billId}) ;
+
+        update money
+        set money = money -
+                    (select good_price from good where good_id =
+                                                       (select good_id from bill where bill_id=#{billId})
+                    )
+        where user_id=
+              (select seller_id from bill where bill_id=#{billId}) ;
+
+    </update>
+
+    <update id="payToSeller">
+        update money
+        set money = money +
+                    (select good_price from good where good_id =
+                             (select good_id from bill where bill_id=#{billId})
+                    )
+        where user_id=
+              (select seller_id from bill where bill_id=#{billId}) ;
+
+        update money
+        set money = money -
+                    (select good_price from good where good_id =
+                                                       (select good_id from bill where bill_id=#{billId})
+                    )*1.01
+        where user_id=
+              (select buyer_id from bill where bill_id=#{billId}) ;
+
+    </update>
+
+    <update id="updateAllRemainToBuyer">
+        update money
+        set money = money +
+                    (select good_price from good where good_id =
+                                                       (select good_id from bill where bill_id=#{billId})
+                    )
+        where user_id=
+              (select buyer_id from bill where bill_id=#{billId}) ;
+
+        update money
+        set money = 0.00
+        where user_id=
+              (select buyer_id from bill where bill_id=#{billId}) ;
+    </update>
+
+    <select id="selectMoneyBOByUserId" resultMap="MoneyBO">
+        select money,frozen
+        from money
+        where user_id=#{userId};
+    </select>
+    <update id="frozenUser" >
+        update money
+        set frozen =1
+        where user_id=#{userId};
+    </update>
+    <update id="unfrozenUser" >
+        update money
+        set frozen =0
+        where user_id=#{userId};
+    </update>
+    <update id="returnMoneyByDegree">
+        update money
+        set money = money -
+                    (select good_price from good where good_id =
+                                                       (select good_id from bill where bill_id=#{billId})
+                    )*#{rate}*1.01
+        where user_id=
+              (select buyer_id from bill where bill_id=#{billId}) ;
+
+        update money
+        set money = money +
+                    (select good_price from good where good_id =
+                                                       (select good_id from bill where bill_id=#{billId})
+                    )*#{rate}
+        where user_id=
+              (select seller_id from bill where bill_id=#{billId}) ;
+
+    </update>
+    <update id="returnBuyerAppealMoney">
+        update money
+        set money = money -
+                    (select good_price from good where good_id =
+                                                       (select good_id from bill where bill_id=#{billId})
+                    )*1.01
+        where user_id=
+              (select buyer_id from bill where bill_id=#{billId}) ;
+
+        update money
+        set money = money +
+                    (select good_price from good where good_id =
+                                                       (select good_id from bill where bill_id=#{billId})
+                    )
+        where user_id=
+              (select seller_id from bill where bill_id=#{billId}) ;
+
+    </update>
+    <update id="returnSellerAppealMoney">
+        update money
+        set money = money +
+                    (select good_price from good where good_id =
+                                                       (select good_id from bill where bill_id=#{billId})
+                    )*#{rate}*1.01
+        where user_id=
+              (select buyer_id from bill where bill_id=#{billId}) ;
+
+        update money
+        set money = money -
+                    (select good_price from good where good_id =
+                                                       (select good_id from bill where bill_id=#{billId})
+                    )*#{rate}
+        where user_id=
+              (select seller_id from bill where bill_id=#{billId}) ;
+
+    </update>
+</mapper>
