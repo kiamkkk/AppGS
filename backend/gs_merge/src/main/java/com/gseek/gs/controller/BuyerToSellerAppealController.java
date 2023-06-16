@@ -60,16 +60,10 @@ public class BuyerToSellerAppealController {
                                          @RequestParam int billId,@RequestParam String appealReason,@RequestParam int myId,
                                          @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws JsonProcessingException {
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-            int respondentId=billMapper.selectBillByBillId(billId).getSellerId();
-//            暂时冻结被申诉人账号
-            moneyService.frozenUser(respondentId);
-//            通知被申诉人
-            NoticeMessage noticeMessage=new NoticeMessage("您的账户由于被申诉已被暂时冻结",System.currentTimeMillis(),respondentId);
-            messageController.general(noticeMessage);
-//            添加申诉
             String realPath= FileUtils.fileUtil(provePic,request);
+//            添加申诉
             BuyerToSellerAppealDTO buyerToSellerAppealDTO=new BuyerToSellerAppealDTO(appealReason,realPath,billId,myId);
-            buyerToSellerAppealService.addBuyerToSellerAppeal(buyerToSellerAppealDTO);
+            buyerToSellerAppealService.addBuyerToSellerAppeal(buyerToSellerAppealDTO,billId);
             return result.gainPostSuccess();
 
         }else {
@@ -112,19 +106,6 @@ public class BuyerToSellerAppealController {
     public String deleteAppeal(@PathVariable int appealId,
                                @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws JsonProcessingException {
         if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
-//          如果已经被审核
-            if(buyerToSellerAppealService.queryResult(appealId).isAppeal_result()){
-                int billId=buyerToSellerAppealService.queryAppeal(appealId).getBill_id();
-//                余额返还
-                moneyService.returnBuyerAppealMoney(billId,billService.selectBill(billId).getSellerId());
-//              账户解冻
-                moneyService.unfrozenUser(billService.selectBill(billId).getSellerId());
-                //从黑名单内删除
-                blacklistService.deleteReport(blacklistService.queryBlackId(billService.selectBill(billId).getBuyerId(),billService.selectBill(billId).getSellerId()));
-                //通知
-                AppealMessageBean appealMessageBean=buyerToSellerAppealService.message(appealId);
-                messageController.appealRemove(appealMessageBean);
-            }
             buyerToSellerAppealService.deleteAppeal(appealId);
             return result.gainDeleteSuccess();
         }
@@ -133,20 +114,6 @@ public class BuyerToSellerAppealController {
             //只有本人能删除
             if (buyerToSellerAppealService.queryMyId(appealId)!=details.getUserId()){
                 throw new ForbiddenException();
-            }
-//          如果被审核
-            if(buyerToSellerAppealService.queryResult(appealId).isAppeal_result()){
-
-                int billId=buyerToSellerAppealService.queryAppeal(appealId).getBill_id();
-                //                余额返还
-                moneyService.returnBuyerAppealMoney(billId,billService.selectBill(billId).getSellerId());
-
-                moneyService.unfrozenUser(billService.selectBill(billId).getSellerId());
-                //从黑名单内删除
-                blacklistService.deleteReport(blacklistService.queryBlackId(details.getUserId(),billService.selectBill(billId).getSellerId()));
-                //通知
-                AppealMessageBean appealMessageBean=buyerToSellerAppealService.message(appealId);
-                messageController.appealRemove(appealMessageBean);
             }
             buyerToSellerAppealService.deleteAppeal(appealId);
             return result.gainDeleteSuccess();
@@ -205,7 +172,7 @@ public class BuyerToSellerAppealController {
             return result.gainPatchSuccess();
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            throw new ServerException("已被审核，无法更改");
         }
 
 

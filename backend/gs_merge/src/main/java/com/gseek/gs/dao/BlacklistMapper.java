@@ -1,7 +1,7 @@
 package com.gseek.gs.dao;
 
 
-import com.gseek.gs.pojo.business.BlacklistBO;
+import com.gseek.gs.pojo.bean.BlacklistBean;
 import com.gseek.gs.pojo.business.BlacklistResultBO;
 import com.gseek.gs.pojo.data.BlacklistDO;
 import com.gseek.gs.pojo.dto.BlacklistDTO;
@@ -33,7 +33,7 @@ public interface BlacklistMapper {
     /**
      *查看举报信息
      * */
-    BlacklistBO queryReport(@Param("blackId")int blackId);
+    BlacklistBean queryReport(@Param("blackId")int blackId);
     /**
      *删除举报
      * */
@@ -67,4 +67,8 @@ public interface BlacklistMapper {
      * */
     //todo 有没有更好的查法
     int queryBlackId(@Param("claimerId")int claimerId,@Param("respondentId")int respondentId);
+    /**
+     *插入添加申诉时添加的黑名单
+     * */
+    int insertAuditedBlacklist(BlacklistDO blacklistDO);
 }

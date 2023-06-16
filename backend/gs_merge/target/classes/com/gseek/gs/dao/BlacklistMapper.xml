@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gseek.gs.dao.BlacklistMapper">
+    <insert id="addReport" parameterType="com.gseek.gs.pojo.dto.BlacklistDTO" >
+        insert into gseek.blacklist(claimer_id,respondent_id,appeal_reason,provePic)
+        values (#{blacklistDTO.claimer_id},#{blacklistDTO.respondent_id},#{blacklistDTO.appeal_reason},#{blacklistDTO.provePic});
+    </insert>
+    <select id="queryResult" resultType="com.gseek.gs.pojo.business.BlacklistResultBO">
+        select appeal_result from gseek.blacklist where black_id=#{black_id};
+    </select>
+    <select id="queryChecked" resultType="boolean">
+        select checked from gseek.blacklist where black_id=#{black_id};
+    </select>
+    <select id="queryReport" resultType="com.gseek.gs.pojo.business.BlacklistBO">
+        select * from gseek.blacklist where black_id=#{black_id};
+    </select>
+    <delete id="deleteReport" parameterType="int">
+        delete from gseek.blacklist where black_id=#{black_id} ;
+    </delete>
+    <update id="updateReport" parameterType="com.gseek.gs.pojo.data.BlacklistDO" >
+        update gseek.blacklist
+            <set>
+                    <if test="appeal_reason != null">
+                        appeal_reason = #{appeal_reason},
+                    </if>
+                    <if test="provePic != null">
+                        provePic = #{provePic},
+                    </if>
+            </set>
+        where black_id=#{black_id};
+    </update>
+    <select id="queryAllUnchecked" resultType="com.gseek.gs.pojo.data.BlacklistDO">
+        select * from gseek.blacklist where checked=0;
+    </select>
+    <update id="auditReport" parameterType="com.gseek.gs.pojo.business.BlacklistResultBO" >
+        update gseek.blacklist
+        <set>
+            <if test="admin_id != null">
+                admin_id = #{admin_id},
+            </if>
+            <if test="disapprove_reason != null">
+                disapprove_reason = #{disapprove_reason},
+            </if>
+            <if test="appeal_result != null">
+                appeal_result = #{appeal_result}
+            </if>
+
+        </set>
+        where black_id = #{black_id};
+    </update>
+    <update id="updateCheck" parameterType="int" >
+        update gseek.blacklist set checked=1 where black_id=#{black_id};
+    </update>
+    <select id="queryByRespondentId" resultType="boolean">
+        select appeal_result from gseek.blacklist where respondent_id=#{respondentId};
+    </select>
+    <select id="queryBlackId" resultType="int">
+        select black_id from gseek.blacklist where respondent_id=#{respondentId},claimer_id=#{claimerId},checked=0;
+    </select>
+<!--    <update id="updateAuditResult" parameterType="com.gseek.gs.pojo.data.BlacklistDODO" >-->
+<!--        update gseek.blacklistDO set appeal_result=#{appeal_result} where black_id=#{black_id};-->
+<!--    </update>-->
+</mapper>

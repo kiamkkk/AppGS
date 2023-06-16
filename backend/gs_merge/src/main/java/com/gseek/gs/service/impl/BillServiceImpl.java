@@ -101,7 +101,7 @@ public class BillServiceImpl implements BillService {
             billMapper.insertBill(billDO);
             if (billDO.getBillId()==null || billDO.getBillId()==0) {
                 log.error("主键不回显，检查BillMapper#insertBill对应的sql");
-                throw new ServerException("服务器异常");
+                throw new ServerException("sql error");
             }
             //启动订单待支付倒计时
             timeoutUtil.offerBill(billDO.getBillId()+"");
@@ -281,7 +281,7 @@ public class BillServiceImpl implements BillService {
         }
 
         log.info("用户id{}非订单号{}的卖家或买家，拒绝操作",userId,billId);
-        throw ForbiddenException.gainNotAccess();
+        throw new ForbiddenException();
     }
 
     /**

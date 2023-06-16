@@ -8,7 +8,7 @@ import com.gseek.gs.controller.Controller;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.business.common.ForbiddenException;
 import com.gseek.gs.pojo.bean.AppealMessageBean;
-import com.gseek.gs.pojo.business.BlacklistBO;
+import com.gseek.gs.pojo.bean.BlacklistBean;
 import com.gseek.gs.pojo.business.GoodAccountBO;
 import com.gseek.gs.pojo.dto.ChatBlockDTO;
 import com.gseek.gs.pojo.dto.PostChatImgDTO;
@@ -92,7 +92,7 @@ public class MessageController implements Controller {
      * 被加入黑名单通知
      *
      * */
-    public void blacklist(BlacklistBO blacklistBO) {
+    public void blacklist(BlacklistBean blacklistBO) {
         BlacklistNotice message=new BlacklistNotice(blacklistBO,objectMapper);
         messageService.sendMessage(message);
     }

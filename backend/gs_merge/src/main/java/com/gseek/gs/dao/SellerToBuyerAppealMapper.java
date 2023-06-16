@@ -15,7 +15,6 @@ import java.util.Map;
  **/
 @Mapper
 public interface SellerToBuyerAppealMapper {
-    //TODO 检测输入信息是否是有效信息（？
     /**
      *增加申诉
      * */

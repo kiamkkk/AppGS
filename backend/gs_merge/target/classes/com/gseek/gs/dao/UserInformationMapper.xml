@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gseek.gs.dao.UserInformationMapper">
+
+    <resultMap id="UserInformationDO" type="com.gseek.gs.pojo.data.UserInformationDO">
+        <id column="user_id" jdbcType="INTEGER" property="userId" />
+        <result column="email" jdbcType="VARCHAR" property="email" />
+        <result column="profile_photo" jdbcType="VARCHAR" property="profilePhoto" />
+    </resultMap>
+
+    <resultMap id="UserInformationBO" type="com.gseek.gs.pojo.business.UserInformationBO">
+        <id column="user_id" javaType="INTEGER" property="userId"/>
+        <result column="email" jdbcType="VARCHAR" property="email" />
+        <result column="profile_photo" jdbcType="VARCHAR" property="headSculpture" />
+        <result column="money" javaType="DECIMAL" property="remain"/>
+    </resultMap>
+
+    <insert id="insertUserInformation" parameterType="com.gseek.gs.pojo.data.UserInformationDO">
+        insert into user_information (user_id, email)
+            values (#{userInformationDO.userId},
+                    #{userInformationDO.email});
+    </insert>
+
+    <select id="selectUserInformationByUserId" parameterType="int" resultMap="UserInformationBO">
+        select ui.user_id,ui.email, ui.profile_photo, m.money
+        from user_information as ui
+            left join money as m
+                on ui.user_id=m.user_id
+        where ui.user_id=#{userId};
+    </select>
+
+    <update id="updateUserInformation" >
+
+        update user_information
+        <set>
+            <if test="userInformationDO.email != null">
+                email=#{userInformationDO.email},
+            </if>
+            <if test="userInformationDO.profilePhoto != null">
+                profile_photo=#{userInformationDO.profilePhoto},
+            </if>
+        </set>
+        <where>
+            user_id=#{userInformationDO.userId};
+        </where>
+
+    </update>
+
+
+
+</mapper>

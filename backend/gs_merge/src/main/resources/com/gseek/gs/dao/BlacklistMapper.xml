@@ -13,7 +13,7 @@
     <select id="queryChecked" resultType="boolean">
         select checked from gseek.blacklist where black_id=#{black_id};
     </select>
-    <select id="queryReport" resultType="com.gseek.gs.pojo.business.BlacklistBO">
+    <select id="queryReport" resultType="com.gseek.gs.pojo.bean.BlacklistBean">
         select * from gseek.blacklist where black_id=#{black_id};
     </select>
     <delete id="deleteReport" parameterType="int">
@@ -62,4 +62,8 @@
 <!--    <update id="updateAuditResult" parameterType="com.gseek.gs.pojo.data.BlacklistDODO" >-->
 <!--        update gseek.blacklistDO set appeal_result=#{appeal_result} where black_id=#{black_id};-->
 <!--    </update>-->
+    <insert id="insertAuditedBlacklist" parameterType="com.gseek.gs.pojo.data.BlacklistDO">
+        insert into gseek.blacklist(claimer_id,respondent_id,appeal_reason,provePic,appeal_result,checked,admin_id)
+        values (#{claimerId},#{respondentId},#{appealReason},#{provePic},#{appealResult},1,#{adminId})
+    </insert>
 </mapper>
