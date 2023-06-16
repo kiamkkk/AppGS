@@ -61,6 +61,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
     UserService userService;
     @Autowired
     @Qualifier("adminServiceImpl")
+    @Lazy
     AdminService adminService;
 
     String logoutPath="/users/logout";

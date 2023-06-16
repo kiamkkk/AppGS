@@ -2,23 +2,19 @@ package com.gseek.gs.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gseek.gs.dao.AdminMapper;
-import com.gseek.gs.dao.BlacklistMapper;
 import com.gseek.gs.dao.GoodMapper;
 import com.gseek.gs.dao.MoneyMapper;
 import com.gseek.gs.pojo.bean.AppealMessageBean;
 import com.gseek.gs.pojo.bean.OrdinaryAdmin;
-import com.gseek.gs.pojo.bean.OrdinaryUser;
 import com.gseek.gs.pojo.business.*;
 import com.gseek.gs.pojo.data.AdminDO;
-
 import com.gseek.gs.pojo.data.GoodCheckedDO;
-import com.gseek.gs.pojo.data.UserPasswordDO;
-import com.gseek.gs.pojo.dto.BlacklistDTO;
 import com.gseek.gs.service.inter.*;
 import com.gseek.gs.websocket.controller.MessageController;
 import com.gseek.gs.websocket.message.NoticeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -43,6 +39,7 @@ public class AdminServiceImpl implements AdminService {
     @Autowired
     MessageController messageController;
     @Autowired
+    @Lazy
     BuyerToSellerAppealService buyerToSellerAppealService;
     @Autowired
     SellerToBuyerAppealService sellerToBuyerAppealService;

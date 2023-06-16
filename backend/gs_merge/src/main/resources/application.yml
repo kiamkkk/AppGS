@@ -37,7 +37,7 @@ spring:
 
 logging:
   level:
-    root: debug
+    root: info
 
 minio:
   endpoint: http://127.0.0.1:9000
