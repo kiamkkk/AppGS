@@ -43,7 +43,7 @@ public class BuyerController implements Controller{
         CustomWebAuthenticationDetails details =perService(authentication);
         // 鉴权
         if (userId!=details.getUserId()){
-            throw new ForbiddenException();
+            throw ForbiddenException.gainNotAccess();
         }
 
         return buyerService.getAllOfferPrice(userId);
@@ -59,7 +59,7 @@ public class BuyerController implements Controller{
         CustomWebAuthenticationDetails details =perService(authentication);
         // 鉴权
         if (userId!=details.getUserId()){
-            throw new ForbiddenException();
+            throw ForbiddenException.gainNotAccess();
         }
 
         return buyerService.getAllFav(userId);
@@ -75,7 +75,7 @@ public class BuyerController implements Controller{
         CustomWebAuthenticationDetails details =perService(authentication);
         // 鉴权
         if (userId != details.getUserId()){
-            throw new ForbiddenException();
+            throw ForbiddenException.gainNotAccess();
         }
 
         return buyerService.getBoughtGoods(userId);
@@ -92,7 +92,7 @@ public class BuyerController implements Controller{
         dto.perService();
         // 鉴权
         if (dto.getOfferUserId() != details.getUserId()){
-            throw new ForbiddenException();
+            throw ForbiddenException.gainNotAccess();
         }
 
         return buyerService.postOfferPrice(dto);
@@ -109,7 +109,7 @@ public class BuyerController implements Controller{
         dto.perService();
         // 鉴权
         if (userId!=details.getUserId()){
-            throw new ForbiddenException();
+            throw ForbiddenException.gainNotAccess();
         }
 
         return buyerService.postFav(userId,dto);
@@ -126,7 +126,7 @@ public class BuyerController implements Controller{
         dto.perService();
         // 鉴权
         if (userId!=details.getUserId()){
-            throw new ForbiddenException();
+            throw ForbiddenException.gainNotAccess();
         }
 
         return buyerService.deleteFav(userId,dto);

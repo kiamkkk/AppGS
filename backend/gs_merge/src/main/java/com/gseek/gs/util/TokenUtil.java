@@ -1,6 +1,8 @@
 package com.gseek.gs.util;
 
+import com.gseek.gs.common.Token;
 import com.gseek.gs.common.TokenGrade;
+import com.gseek.gs.exce.business.common.TokenExpiredException;
 import com.gseek.gs.service.impl.RedisServiceImpl;
 import com.gseek.gs.service.inter.RedisService;
 import io.jsonwebtoken.Claims;
@@ -8,6 +10,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.impl.JwtMap;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -25,6 +28,7 @@ import java.util.function.Function;
  * @since 2023/5/3-13:47
  */
 @Component
+@Slf4j
 public class TokenUtil extends JwtMap {
     /**
      * token默认有效时间2小时
@@ -34,6 +38,19 @@ public class TokenUtil extends JwtMap {
      * token前缀
      * */
     public static final String TOKEN_PREFIX="Bearer ";
+    //todo 最好不要用状态码
+    /**
+     * token有效
+     * */
+    public static final int TOKEN_VALID=1;
+    /**
+     * token无效
+     * */
+    public static final int TOKEN_INVALID=-1;
+    /**
+     * token有效但要重新签发
+     * */
+    public static final int TOKEN_REISSUE=2;
 
 
 
@@ -83,8 +100,12 @@ public class TokenUtil extends JwtMap {
      * @return true为过期
      */
     public static boolean isTokenExpired(String token) {
-        return System.currentTimeMillis() >
-                extractClaim(token, Claims::getExpiration).getTime();
+        try {
+            return System.currentTimeMillis() >
+                    extractClaim(token, Claims::getExpiration).getTime();
+        }catch (TokenExpiredException tee){
+            return true;
+        }
     }
 
     public static boolean needReissue(String token) {
@@ -92,15 +113,26 @@ public class TokenUtil extends JwtMap {
                 extractClaim(token, Claims::getExpiration).getTime()- RedisServiceImpl.IMMINENT_TIME;
     }
 
+
+
     /**
      * 解析token字符串中的信息.
      *
      * @param token
-     * @return
+     * @deprecated 推荐使用Token类来获取token信息,不用解析多次token.
      */
     public static <T> T extractClaim(String token, Function< Claims, T> claimsResolver) {
         Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
+    }
+
+    public static <T> T extractClaim(Claims claims, Function< Claims, T> claimsResolver) {
+        return claimsResolver.apply(claims);
+    }
+
+    public static TokenGrade extractTokenGrade(Claims claims){
+        String grade=claims.get(CustomClaims.TOKEN_GRADE, String.class);
+        return TokenGrade.gainTokenGradeByName(grade);
     }
 
     public static TokenGrade extractTokenGrade(String token){
@@ -130,7 +162,7 @@ public class TokenUtil extends JwtMap {
      * @param token
      * @return claims
      */
-    private static Claims extractAllClaims(String token){
+    public static Claims extractAllClaims(String token) {
         return Jwts
                 .parserBuilder()
                 // 获取alg开头的信息
@@ -139,6 +171,7 @@ public class TokenUtil extends JwtMap {
                 // 解析token字符串
                 .parseClaimsJws(token)
                 .getBody();
+
     }
 
     /**
@@ -151,6 +184,18 @@ public class TokenUtil extends JwtMap {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-
-
+    //todo 检查redis里有无token
+    public static int inspectToken(Token token) {
+        // token过期
+        if (token.checkExpired()){
+            log.debug("token过期");
+            return TOKEN_INVALID;
+        }
+        // token临期
+        if (token.needReissue()){
+            log.debug("token重新签发");
+            return TOKEN_REISSUE;
+        }
+        return TOKEN_VALID;
+    }
 }

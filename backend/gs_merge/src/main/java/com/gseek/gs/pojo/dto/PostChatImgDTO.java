@@ -21,9 +21,9 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 @NoArgsConstructor
 public class PostChatImgDTO implements DTOPerService{
 
-    MultipartFile picture;
-    Long time;
-    Integer toUserId;
+    private MultipartFile picture;
+    private Long time;
+    private Integer toUserId;
 
 
     public PostChatImgDTO(HttpServletRequest request) throws JsonProcessingException {

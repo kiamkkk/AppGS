@@ -2,9 +2,8 @@ package com.gseek.gs.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gseek.gs.dao.GoodMapper;
-import com.gseek.gs.dao.GoodTagMapper;
-import com.gseek.gs.dao.TagMapper;
+import com.gseek.gs.dao.*;
+import com.gseek.gs.pojo.business.GoodDetailBO;
 import com.gseek.gs.pojo.business.GoodsWithoutAccountAndSoldBO;
 import com.gseek.gs.service.inter.GoodService;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +11,6 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,6 +29,10 @@ public class GoodServiceImpl implements GoodService {
     GoodMapper goodMapper;
     @Autowired
     GoodTagMapper goodTagMapper;
+    @Autowired
+    GoodFavMapper goodFavMapper;
+    @Autowired
+    UserInformationMapper userInformationMapper;
 
     @Override
     public String getGoodsByType(String typeName) throws JsonProcessingException {
@@ -50,17 +52,15 @@ public class GoodServiceImpl implements GoodService {
     }
 
     @Override
-    public String getGoodByGoodId(int goodId) throws JsonProcessingException {
+    public String getGoodByGoodId(int goodId, int userId) throws JsonProcessingException {
 
-        List<Integer> goodIds=new ArrayList<>();
-        goodIds.add(goodId);
-        List<GoodsWithoutAccountAndSoldBO> bos= goodMapper.selectGoodsByGoodIdsWithoutAccountAndSold(goodIds);
+        GoodsWithoutAccountAndSoldBO bo=goodMapper.selectGoodByGoodIdWithoutAccount(goodId);
+        String ownerPhotoPath = userInformationMapper
+                .selectUserInformationByUserId(bo.getOwnUserId())
+                .getHeadSculpture();
+        boolean fav = goodFavMapper.selectFavByUserIdAndGoodId(userId, goodId) != null;
 
-        if (bos.get(0)==null){
-            return objectMapper.writeValueAsString("");
-        }
-
-        return objectMapper.writeValueAsString(bos.get(0));
+        return objectMapper.writeValueAsString(new GoodDetailBO(bo, ownerPhotoPath, fav));
     }
     @Override
     public String queryAllCheckedGood() throws JsonProcessingException {

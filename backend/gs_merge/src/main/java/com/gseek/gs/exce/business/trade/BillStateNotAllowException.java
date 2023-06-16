@@ -9,10 +9,6 @@ import com.gseek.gs.exce.business.BusinessException;
  */
 public class BillStateNotAllowException extends BusinessException {
 
-    /**
-     *
-     *
-     * */
     public BillStateNotAllowException(BillState state) {
         super("交易状态为不允许");
         code=400;

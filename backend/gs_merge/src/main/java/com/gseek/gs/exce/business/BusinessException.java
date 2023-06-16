@@ -22,4 +22,7 @@ public class BusinessException extends BaseException {
         super(message);
     }
 
+    public BusinessException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

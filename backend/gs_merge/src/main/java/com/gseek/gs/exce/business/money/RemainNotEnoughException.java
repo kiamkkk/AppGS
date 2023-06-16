@@ -11,7 +11,7 @@ import com.gseek.gs.exce.business.common.ForbiddenException;
 public class RemainNotEnoughException extends ForbiddenException {
 
     public RemainNotEnoughException() {
-        super();
-        msg= "账户余额不足";
+        super("账户余额不足");
+        msg= "RemainNotEnough";
     }
 }

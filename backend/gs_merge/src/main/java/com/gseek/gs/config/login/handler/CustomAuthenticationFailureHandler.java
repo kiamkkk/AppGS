@@ -38,13 +38,13 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
 
         ObjectNode objectNode=objectMapper.createObjectNode();
         if (exception instanceof UsernameNotFoundException) {
-            response.setStatus(400);
-            objectNode.put("code", 400);
+            response.setStatus(403);
+            objectNode.put("code", 403);
             objectNode.put("message", "UserNotFound");
         }
         if (exception instanceof BadCredentialsException) {
-            response.setStatus(400);
-            objectNode.put("code", 400);
+            response.setStatus(403);
+            objectNode.put("code", 403);
             objectNode.put("message", "PasswordWrong");
         }
         if (exception instanceof CustomAuthenticationException cae){

@@ -41,7 +41,7 @@ public class AdminAuthenticationFilter extends AbstractAuthenticationProcessingF
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-            throws AuthenticationException ,ContentTypeWrongException{
+            throws AuthenticationException {
         log.info("adminAttemptAuthentication开始");//
         //仅当ContentType为application/json时进行登录
         if(request.getContentType().equals(MediaType.APPLICATION_JSON_VALUE)){

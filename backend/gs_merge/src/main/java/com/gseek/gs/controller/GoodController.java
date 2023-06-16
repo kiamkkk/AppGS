@@ -2,12 +2,15 @@ package com.gseek.gs.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gseek.gs.config.login.handler.CustomWebAuthenticationDetails;
 import com.gseek.gs.exce.business.common.ParameterWrongException;
 import com.gseek.gs.pojo.bean.ParameterWrongBean;
 import com.gseek.gs.service.inter.GoodService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Slf4j
 @RequestMapping("/goods")
-public class GoodController {
+public class GoodController implements Controller{
 
     @Autowired
     ObjectMapper objectMapper;
@@ -66,8 +69,10 @@ public class GoodController {
      * 根据商品id获取商品信息.
      * */
     @GetMapping("/good_id/{good_id}")
-    public String getGoodByGoodId(@PathVariable("good_id") int goodId)
+    public String getGoodByGoodId(@PathVariable("good_id") int goodId,
+                                  @CurrentSecurityContext(expression = "Authentication") Authentication authentication)
             throws JsonProcessingException, ParameterWrongException {
+        CustomWebAuthenticationDetails details=perService(authentication);
         //入参检验
         if (goodId<=0){
             throw new ParameterWrongException(
@@ -75,7 +80,7 @@ public class GoodController {
                             .addParameters("good_id",goodId+"")
             );
         }
-        return goodService.getGoodByGoodId(goodId);
+        return goodService.getGoodByGoodId(goodId, details.getUserId());
     }
 
     /**

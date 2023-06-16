@@ -70,7 +70,7 @@ public class UserController implements Controller{
         CustomWebAuthenticationDetails details =perService(authentication);
         // 鉴权
         if (!Objects.equals(authentication.getName(), userName)){
-            throw new ForbiddenException();
+            throw ForbiddenException.gainNotAccess();
         }
 
         return userService.getRealNameInformation(details.getUserId());
@@ -93,12 +93,12 @@ public class UserController implements Controller{
     public String postRealNameInformation(@PathVariable("username") String userName,
                                           @CurrentSecurityContext(expression = "Authentication") Authentication authentication,
                                           @RequestBody PostRealNameInformationDTO dto)
-            throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
+            throws JsonProcessingException, ForbiddenException, ServerException {
         CustomWebAuthenticationDetails details =perService(authentication);
         dto.perService();
         // 鉴权
         if (!Objects.equals(authentication.getName(), userName)){
-            throw new ForbiddenException();
+            throw ForbiddenException.gainNotAccess();
         }
 
         return userService.postRealNameInformation(details.getUserId(),dto);
@@ -119,7 +119,7 @@ public class UserController implements Controller{
         dto.perService();
         // 鉴权
         if (!Objects.equals(authentication.getName(), userName)){
-            throw new ForbiddenException();
+            throw ForbiddenException.gainNotAccess();
         }
 
         int userId=details.getUserId();

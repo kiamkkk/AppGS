@@ -14,7 +14,7 @@ public class GoodSellingException extends BusinessException {
     public GoodSellingException() {
         super("商品正在出售");
         code=400;
-        msg="Good is Selling";
+        msg="GoodIsSelling";
     }
 
 }

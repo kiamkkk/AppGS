@@ -1,6 +1,7 @@
 package com.gseek.gs.dao;
 
 import com.gseek.gs.pojo.business.GoodFavBO;
+import com.gseek.gs.pojo.data.GoodFavDO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -26,5 +27,10 @@ public interface GoodFavMapper {
     /**
      * 获取所有收藏商品信息.
      */
-    List<GoodFavBO> getAllFav(@Param("userId") int userId);
+    List<GoodFavBO> selectAllFavByUserId(@Param("userId") int userId);
+
+    /**
+     * 根据用户id和商品id,获取单个收藏商品信息.
+     * */
+    GoodFavDO selectFavByUserIdAndGoodId(@Param("userId") int userId, @Param("goodId") int goodId);
 }

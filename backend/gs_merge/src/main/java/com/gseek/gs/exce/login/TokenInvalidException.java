@@ -1,16 +1,14 @@
 package com.gseek.gs.exce.login;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
+ * 表示用户token不可用.
+ *
  * @author Phak
  * @since 2023/5/4-23:50
  */
-@Slf4j
 public class TokenInvalidException extends CustomAuthenticationException {
-
     public TokenInvalidException() {
         super("TokenInvalidException");
-        log.error("TokenInvalidException");
+        msg="TokenInvalidException";
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
@@ -32,7 +33,6 @@ public class SecurityConfig {
     public String baseUrl;
     public String loginFormUrl;
 
-
     @Autowired
     @Qualifier("userServiceImpl")
     UserService userService;
@@ -41,6 +41,11 @@ public class SecurityConfig {
     AdminService adminService;
     @Autowired
     JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
+    @Autowired
+    CustomLogoutSuccessHandler logoutSuccessHandler;
+    @Autowired
+    CustomLogoutHandler logoutHandler;
+
 
     /** update by Isabella at 2023/5/17-21:20 **/
     @Bean
@@ -53,9 +58,11 @@ public class SecurityConfig {
         httpSecurity.csrf().disable();
 
         httpSecurity.authorizeHttpRequests()
+                // 路径拦截
                 .requestMatchers(HttpMethod.OPTIONS).permitAll()
                 .requestMatchers(
-                        "/alipay/**","/imgs/**","/users/register","/users","/error","/error/**"
+                        "/alipay/**","/imgs/**","/users/register","/users",
+                        "/error","/error/**"
                 ).permitAll()
                 .requestMatchers("/report/**","/report").permitAll()
                 .requestMatchers("/after_sale/**").permitAll()
@@ -71,7 +78,6 @@ public class SecurityConfig {
                 );
 
         httpSecurity
-
                 .addFilterAt(
                         authenticationFilter(
                                 successHandler,
@@ -86,10 +92,16 @@ public class SecurityConfig {
                         ),
                         UsernamePasswordAuthenticationFilter.class
                 )
-
-                .addFilterBefore(jwtAuthenticationTokenFilter, CustomAuthenticationFilter.class)
-                .addFilterBefore(jwtAuthenticationTokenFilter, AdminAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationTokenFilter, ExceptionTranslationFilter.class)
+/*                .addFilterBefore(jwtAuthenticationTokenFilter, AdminAuthenticationFilter.class)*/
                 ;
+
+        httpSecurity
+                .logout()
+                .logoutUrl("/users/logout")
+                .addLogoutHandler(logoutHandler)
+                .logoutSuccessHandler(logoutSuccessHandler)
+                .permitAll();
         return httpSecurity.build();
     }
 
@@ -158,8 +170,6 @@ public class SecurityConfig {
     @Bean
     public CustomerAuthenticationEntryPoint customerAuthenticationEntryPoint(){
         CustomerAuthenticationEntryPoint caep=new CustomerAuthenticationEntryPoint(getLoginFormUrl());
-        caep.setForceHttps(false);
-        caep.setUseForward(false);
         return caep;
     }
 
@@ -170,7 +180,6 @@ public class SecurityConfig {
     public void setLocalhost(String localhost) {
         this.localhost = localhost;
     }
-
     public String getPort() {
         return port;
     }
@@ -178,7 +187,6 @@ public class SecurityConfig {
     public void setPort(String port) {
         this.port = port;
     }
-
     public String getContextPath() {
         return contextPath;
     }
@@ -186,20 +194,16 @@ public class SecurityConfig {
     public void setContextPath(String contextPath) {
         this.contextPath = contextPath;
     }
-
-
-    public String getBaseUrl() {
+    private String getBaseUrl() {
         if (baseUrl==null){
             baseUrl="http://"+getLocalhost()+":"+getPort()+getContextPath();
         }
         return baseUrl;
     }
-
-    public String getLoginFormUrl() {
+    private String getLoginFormUrl() {
         if (loginFormUrl==null){
             loginFormUrl=getBaseUrl()+"users";
         }
         return loginFormUrl;
     }
-
 }

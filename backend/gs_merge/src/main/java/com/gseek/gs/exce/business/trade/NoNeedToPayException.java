@@ -14,6 +14,6 @@ public class NoNeedToPayException extends BusinessException {
     public NoNeedToPayException() {
         super("该订单不需要支付");
         code=400;
-        msg="该订单不需要支付";
+        msg="NoNeedToPay";
     }
 }

@@ -63,7 +63,7 @@ public class TradeController implements Controller{
         dto.perService();
         // 鉴权
         if (! Objects.equals(details.getUserId(),dto.getBuyerId()) ) {
-            throw new ForbiddenException();
+            throw ForbiddenException.gainNotAccess();
         }
 
         return billService.postBill(dto);

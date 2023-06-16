@@ -174,7 +174,7 @@ public class MessageController implements Controller {
         dto.perService();
 
         if (userId != details.getUserId()){
-            throw new ForbiddenException();
+            throw ForbiddenException.gainNotAccess();
         }
 
         // 储存图片
@@ -206,13 +206,13 @@ public class MessageController implements Controller {
     @PatchMapping("/chats/block")
     public String getChatBlock(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                ChatBlockDTO dto)
-            throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException, ServerException {
+            throws JsonProcessingException, ForbiddenException, ServerException {
 
         CustomWebAuthenticationDetails details = perService(authentication);
         dto.perService();
 
         if (dto.getFromUserId() != details.getUserId()){
-            throw new ForbiddenException();
+            throw ForbiddenException.gainNotAccess();
         }
 
         // 拉黑
