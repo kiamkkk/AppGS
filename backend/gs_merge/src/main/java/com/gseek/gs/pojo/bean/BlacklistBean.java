@@ -14,17 +14,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BlacklistBean {
-    private int claimer_id;
-    private int respondent_id;
-    private String appeal_reason;
+    private int claimerId;
+    private int respondentId;
+    private String appealReason;
     private boolean checked;
     private String provePic;
-    private int black_id;
+    private int blackId;
     public String toMessage( ObjectMapper objectMapper){
         ObjectNode objectNode =objectMapper.createObjectNode();
-        objectNode.put("respondentId", respondent_id);
-        objectNode.put("appealReason", appeal_reason);
-        objectNode.put("blackId",black_id);
+        objectNode.put("respondentId", respondentId);
+        objectNode.put("appealReason", appealReason);
+        objectNode.put("blackId",blackId);
         return objectNode.toPrettyString();
     }
 }

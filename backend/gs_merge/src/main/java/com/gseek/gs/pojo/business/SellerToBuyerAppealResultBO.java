@@ -14,9 +14,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SellerToBuyerAppealResultBO {
     private boolean checked;
-    private int admin_id;
-    private boolean appeal_result;
-    private int damage_degree;
+    private int adminId;
+    private boolean appealResult;
+    private int damageDegree;
     @JsonIgnore
     private boolean accept;
     @JsonIgnore

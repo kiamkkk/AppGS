@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 public class BlacklistBO {
     private String claimerName;
     private String respondentName;
-    private String appeal_reason;
+    private String appealReason;
     private boolean checked;
     private String provePic;
-    private int black_id;
+    private int blackId;
 }

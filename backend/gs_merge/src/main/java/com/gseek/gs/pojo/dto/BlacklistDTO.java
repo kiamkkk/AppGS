@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BlacklistDTO {
-    private int claimer_id;
-    private int respondent_id;
-    private String appeal_reason;
+    private int claimerId;
+    private int respondentId;
+    private String appealReason;
 //    private int black_id;
     private String provePic;
 

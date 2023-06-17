@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BuyerToSellerAppealResultBO {
-    private boolean appeal_result;
+    private boolean appealResult;
     private boolean checked;
-    private int appeal_id;
+    private int appealId;
 }

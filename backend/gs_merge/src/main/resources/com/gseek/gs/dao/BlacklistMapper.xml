@@ -5,31 +5,31 @@
 <mapper namespace="com.gseek.gs.dao.BlacklistMapper">
     <insert id="addReport" parameterType="com.gseek.gs.pojo.dto.BlacklistDTO" >
         insert into gseek.blacklist(claimer_id,respondent_id,appeal_reason,provePic)
-        values (#{blacklistDTO.claimer_id},#{blacklistDTO.respondent_id},#{blacklistDTO.appeal_reason},#{blacklistDTO.provePic});
+        values (#{blacklistDTO.claimerId},#{blacklistDTO.respondentId},#{blacklistDTO.appealReason},#{blacklistDTO.provePic});
     </insert>
     <select id="queryResult" resultType="com.gseek.gs.pojo.business.BlacklistResultBO">
-        select appeal_result from gseek.blacklist where black_id=#{black_id};
+        select appeal_result from gseek.blacklist where black_id=#{blackId};
     </select>
     <select id="queryChecked" resultType="boolean">
-        select checked from gseek.blacklist where black_id=#{black_id};
+        select checked from gseek.blacklist where black_id=#{blackId};
     </select>
     <select id="queryReport" resultType="com.gseek.gs.pojo.bean.BlacklistBean">
-        select * from gseek.blacklist where black_id=#{black_id};
+        select * from gseek.blacklist where black_id=#{blackId};
     </select>
     <delete id="deleteReport" parameterType="int">
-        delete from gseek.blacklist where black_id=#{black_id} ;
+        delete from gseek.blacklist where black_id=#{blackId} ;
     </delete>
     <update id="updateReport" parameterType="com.gseek.gs.pojo.data.BlacklistDO" >
         update gseek.blacklist
             <set>
-                    <if test="appeal_reason != null">
-                        appeal_reason = #{appeal_reason},
+                    <if test="appealReason != null">
+                        appeal_reason = #{appealReason},
                     </if>
                     <if test="provePic != null">
                         provePic = #{provePic},
                     </if>
             </set>
-        where black_id=#{black_id};
+        where black_id=#{blackId};
     </update>
     <select id="queryAllUnchecked" resultType="com.gseek.gs.pojo.data.BlacklistDO">
         select * from gseek.blacklist where checked=0;
@@ -37,21 +37,21 @@
     <update id="auditReport" parameterType="com.gseek.gs.pojo.business.BlacklistResultBO" >
         update gseek.blacklist
         <set>
-            <if test="admin_id != null">
-                admin_id = #{admin_id},
+            <if test="adminId != null">
+                admin_id = #{adminId},
             </if>
-            <if test="disapprove_reason != null">
-                disapprove_reason = #{disapprove_reason},
+            <if test="disapproveReason != null">
+                disapprove_reason = #{disapproveReason},
             </if>
-            <if test="appeal_result != null">
-                appeal_result = #{appeal_result}
+            <if test="appealResult != null">
+                appeal_result = #{appealResult}
             </if>
 
         </set>
-        where black_id = #{black_id};
+        where black_id = #{blackId};
     </update>
     <update id="updateCheck" parameterType="int" >
-        update gseek.blacklist set checked=1 where black_id=#{black_id};
+        update gseek.blacklist set checked=1 where black_id=#{blackId};
     </update>
     <select id="queryByRespondentId" resultType="boolean">
         select appeal_result from gseek.blacklist where respondent_id=#{respondentId};

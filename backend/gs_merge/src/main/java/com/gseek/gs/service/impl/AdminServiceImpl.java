@@ -105,14 +105,14 @@ public class AdminServiceImpl implements AdminService {
         return adminMapper.auditGood(goodCheckedDO);
     }
     public int auditSellerAppeal(SellerToBuyerAppealResultBO sellerToBuyerAppealResultBO,int appealId,int adminId){
-        int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBill_id();
+        int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBillId();
         int claimerId =sellerToBuyerAppealService.queryAppeal(appealId).getMyId();
         int respondentId=billService.selectBill(billId).getBuyerId();
 //            审核通过&&卖家同意按协议走
-        if (sellerToBuyerAppealResultBO.isAppeal_result()&&sellerToBuyerAppealResultBO.isAccept()){
+        if (sellerToBuyerAppealResultBO.isAppealResult()&&sellerToBuyerAppealResultBO.isAccept()){
 
 //                    账号价值受损严重
-            if(sellerToBuyerAppealResultBO.getDamage_degree()==3){
+            if(sellerToBuyerAppealResultBO.getDamageDegree()==3){
 //                    退钱
                 moneyService.returnMoney(billId,respondentId);
 //                        加入黑名单
@@ -122,22 +122,22 @@ public class AdminServiceImpl implements AdminService {
                 messageController.appeal(appealMessageBean);
             }
             else {
-                moneyService.returnMoneyByDegree(billId,sellerToBuyerAppealResultBO.getDamage_degree(),respondentId);
+                moneyService.returnMoneyByDegree(billId,sellerToBuyerAppealResultBO.getDamageDegree(),respondentId);
             }
         }
         // 账号没有损伤，审核不通过
-        if(!sellerToBuyerAppealResultBO.isAppeal_result()){
+        if(!sellerToBuyerAppealResultBO.isAppealResult()){
             NoticeMessage noticeMessage=new NoticeMessage("您的账号未损伤，申诉不通过，有疑问可以询问客服",System.currentTimeMillis(),claimerId);
             messageController.general(noticeMessage);
         }
 //                卖家不同意按协议走&&审核通过
-        if(sellerToBuyerAppealResultBO.isAppeal_result()&&!sellerToBuyerAppealResultBO.isAccept()){
+        if(sellerToBuyerAppealResultBO.isAppealResult()&&!sellerToBuyerAppealResultBO.isAccept()){
             NoticeMessage noticeMessage=new NoticeMessage("申诉通过，请与买家私下调解，有疑问可以询问客服",System.currentTimeMillis(),claimerId);
             messageController.general(noticeMessage);
 //                    通知买家
             int goodId=billService.selectBill(billId).getGoodId();
             String goodName=goodMapper.selectGoodByGoodIdFully(goodId).getGoodName();
-            String appealReason=sellerToBuyerAppealService.queryAppeal(appealId).getAppeal_reason();
+            String appealReason=sellerToBuyerAppealService.queryAppeal(appealId).getAppealReason();
             String message="您因"+appealReason+"被商品"+goodName+"的卖家投诉成功，因对方不接收按协议退款，请私下和解，有疑问可以询问客服";
             NoticeMessage noticeMessage1=new NoticeMessage(message,System.currentTimeMillis(),respondentId);
             messageController.general(noticeMessage1);
@@ -148,11 +148,11 @@ public class AdminServiceImpl implements AdminService {
     }
     public int auditBuyerAppeal(BuyerToSellerAppealResultBO buyerToSellerAppealResultBO,int appealId,int adminId) throws JsonProcessingException {
 //        标记该申诉已经被审核
-        adminMapper.setBuyerCheck(buyerToSellerAppealResultBO.getAppeal_id());
+        adminMapper.setBuyerCheck(buyerToSellerAppealResultBO.getAppealId());
 //        拿到billId
-        int billId=buyerToSellerAppealService.queryAppeal(appealId).getBill_id();
+        int billId=buyerToSellerAppealService.queryAppeal(appealId).getBillId();
 //                审核通过，扣钱
-        if (buyerToSellerAppealResultBO.isAppeal_result()){
+        if (buyerToSellerAppealResultBO.isAppealResult()){
 //            拿到卖家ID
             int respondentId=billService.selectBill(billId).getSellerId();
             moneyService.returnMoney(billId,respondentId);

@@ -56,7 +56,7 @@
         select * from gseek.appeal_buyer_to_seller where checked=0;
     </select>
     <select id="querySellerAppealById" parameterType="int" resultType="com.gseek.gs.pojo.business.SellerToBuyerAppealBO">
-        select appeal_id,appeal_reason,checked,pic_before,pic_after,accept,bill_id from gseek.appeal_seller_to_buyer where `appeal_id`=#{appealId};;
+        select appeal_id,appeal_reason,checked,pic_before,pic_after,accept,bill_id from gseek.appeal_seller_to_buyer where `appeal_id`=#{appealId};
     </select>
     <select id="queryBuyerAppealById" parameterType="int" resultType="com.gseek.gs.pojo.business.BuyerToSellerAppealBO">
         select appeal_id,appeal_reason,checked,provePic,bill_id from gseek.appeal_buyer_to_seller where `appeal_id`=#{appealId};

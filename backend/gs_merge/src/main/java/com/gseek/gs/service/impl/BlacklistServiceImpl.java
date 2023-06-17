@@ -67,21 +67,21 @@ public class BlacklistServiceImpl implements BlacklistService {
 
     public BlacklistBO queryReport(int blackId) throws JsonProcessingException {
         BlacklistBean blacklistBean=blacklistMapper.queryReport(blackId);
-        int climerId=blacklistBean.getClaimer_id();
+        int climerId=blacklistBean.getClaimerId();
         String claimerName=userPasswordMapper.selectUserNameByUserId(climerId);
-        int respondentId=blacklistBean.getRespondent_id();
+        int respondentId=blacklistBean.getRespondentId();
         String respondentName=userPasswordMapper.selectUserNameByUserId(respondentId);
         BlacklistBO blacklistBO=new BlacklistBO(claimerName,respondentName,
-                blacklistBean.getAppeal_reason(),blacklistBean.isChecked(),
-                blacklistBean.getProvePic(),blacklistBean.getBlack_id());
+                blacklistBean.getAppealReason(),blacklistBean.isChecked(),
+                blacklistBean.getProvePic(),blacklistBean.getBlackId());
         return blacklistBO;
     }
 
 
     public int deleteReport(int blackId) throws JsonProcessingException {
-        if(blacklistMapper.queryResult(blackId).isAppeal_result()){
+        if(blacklistMapper.queryResult(blackId).isAppealResult()){
 //              删除后通知被申诉人
-            messageController.blacklistRemove(blacklistMapper.queryReport(blackId).getRespondent_id());
+            messageController.blacklistRemove(blacklistMapper.queryReport(blackId).getRespondentId());
         }
             return blacklistMapper.deleteReport(blackId);
     }
@@ -105,7 +105,7 @@ public class BlacklistServiceImpl implements BlacklistService {
 //      查看是否被加入黑名单
         updateCheck(blackId);
         //如果被加入黑名单提醒用户
-        if(blacklistResultBO.isAppeal_result()){
+        if(blacklistResultBO.isAppealResult()){
             BlacklistBean blacklistBO=blacklistMapper.queryReport(blackId);
             messageController.blacklist(blacklistBO);
         }
@@ -127,7 +127,7 @@ public class BlacklistServiceImpl implements BlacklistService {
         BuyerToSellerAppealBO buyerToSellerAppealBO=buyerToSellerAppealService.queryAppeal(appealId);
 //           拿到申诉人（买家）ID
         int claimerId =buyerToSellerAppealBO.getMyId();
-        String appealReason=buyerToSellerAppealService.queryAppeal(appealId).getAppeal_reason();
+        String appealReason=buyerToSellerAppealService.queryAppeal(appealId).getAppealReason();
         String provePic=buyerToSellerAppealService.queryAppeal(appealId).getProvePic();
         BlacklistDO blacklistDO=new BlacklistDO(claimerId,respondentId,appealReason,
                 true,true,adminId,"",provePic);
@@ -135,8 +135,8 @@ public class BlacklistServiceImpl implements BlacklistService {
     }
     public int insertAuditedBlacklistBySeller(int appealId,int respondentId,int adminId){
         int claimerId =sellerToBuyerAppealService.queryAppeal(appealId).getMyId();
-        String appealReason=sellerToBuyerAppealService.queryAppeal(appealId).getAppeal_reason();
-        String provePic=sellerToBuyerAppealService.queryAppeal(appealId).getPic_after();
+        String appealReason=sellerToBuyerAppealService.queryAppeal(appealId).getAppealReason();
+        String provePic=sellerToBuyerAppealService.queryAppeal(appealId).getPicAfter();
         BlacklistDO blacklistDO=new BlacklistDO(claimerId,respondentId,appealReason,
                 true,true,adminId,"",provePic);
         return blacklistMapper.insertAuditedBlacklist(blacklistDO);

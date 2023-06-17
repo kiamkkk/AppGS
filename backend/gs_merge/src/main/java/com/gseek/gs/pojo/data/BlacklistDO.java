@@ -14,51 +14,51 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BlacklistDO {
-    private int claimer_id;
-    private int respondent_id;
-    private String appeal_reason;
-    private boolean appeal_result;
+    private int claimerId;
+    private int respondentId;
+    private String appealReason;
+    private boolean appealResult;
     private boolean checked;
-    private int admin_id;
-    private int black_id;
-    private String disapprove_reason;
+    private int adminId;
+    private int blackId;
+    private String disapproveReason;
     private String provePic;
 
-    public BlacklistDO(int claimer_id, int respondent_id, String appeal_reason, String provePic) {
-        this.claimer_id = claimer_id;
-        this.respondent_id = respondent_id;
-        this.appeal_reason = appeal_reason;
+    public BlacklistDO(int claimerId, int respondentId, String appealReason, String provePic) {
+        this.claimerId = claimerId;
+        this.respondentId = respondentId;
+        this.appealReason = appealReason;
         this.provePic=provePic;
     }
 
-    public BlacklistDO(String appeal_reason, int black_id, String provePic) {
-        this.appeal_reason = appeal_reason;
-        this.black_id = black_id;
+    public BlacklistDO(String appealReason, int blackId, String provePic) {
+        this.appealReason = appealReason;
+        this.blackId = blackId;
         this.provePic = provePic;
     }
 
-    public BlacklistDO(boolean appeal_result, int admin_id, String disapprove_reason) {
-        this.appeal_result = appeal_result;
-        this.admin_id = admin_id;
-        this.disapprove_reason = disapprove_reason;
+    public BlacklistDO(boolean appealResult, int adminId, String disapproveReason) {
+        this.appealResult = appealResult;
+        this.adminId = adminId;
+        this.disapproveReason = disapproveReason;
     }
 
-    public BlacklistDO(int claimer_id, int respondent_id, String appeal_reason, boolean appeal_result, boolean checked, int admin_id, String disapprove_reason, String provePic) {
-        this.claimer_id = claimer_id;
-        this.respondent_id = respondent_id;
-        this.appeal_reason = appeal_reason;
-        this.appeal_result = appeal_result;
+    public BlacklistDO(int claimerId, int respondentId, String appealReason, boolean appealResult, boolean checked, int adminId, String disapproveReason, String provePic) {
+        this.claimerId = claimerId;
+        this.respondentId = respondentId;
+        this.appealReason = appealReason;
+        this.appealResult = appealResult;
         this.checked = checked;
-        this.admin_id = admin_id;
-        this.disapprove_reason = disapprove_reason;
+        this.adminId = adminId;
+        this.disapproveReason = disapproveReason;
         this.provePic = provePic;
     }
 
-    public BlacklistDO(int admin_id, boolean appeal_result, int black_id, String disapprove_reason) {
-        this.appeal_result = appeal_result;
-        this.admin_id = admin_id;
-        this.disapprove_reason = disapprove_reason;
-        this.black_id=black_id;
+    public BlacklistDO(int adminId, boolean appealResult, int blackId, String disapproveReason) {
+        this.appealResult = appealResult;
+        this.adminId = adminId;
+        this.disapproveReason = disapproveReason;
+        this.blackId=blackId;
 
     }
 

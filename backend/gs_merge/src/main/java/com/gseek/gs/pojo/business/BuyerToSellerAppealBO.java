@@ -13,11 +13,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BuyerToSellerAppealBO {
-    private int appeal_id;
-    private String appeal_reason;
+    private int appealId;
+    private String appealReason;
     private boolean checked;
     private String provePic;
-    private int bill_id;
+    private int billId;
     @JsonIgnore
     private int myId;
 }

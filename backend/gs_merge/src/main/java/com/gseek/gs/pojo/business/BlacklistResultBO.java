@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BlacklistResultBO {
-    private boolean appeal_result;
+    private boolean appealResult;
     private boolean checked;
-    private int admin_id;
-    private int black_id;
-    private String disapprove_reason;
+    private int adminId;
+    private int blackId;
+    private String disapproveReason;
 }

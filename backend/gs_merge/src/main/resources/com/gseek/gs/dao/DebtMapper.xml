@@ -5,7 +5,7 @@
 <mapper namespace="com.gseek.gs.dao.DebtMapper">
     <insert id="addDebt" parameterType="com.gseek.gs.pojo.data.DebtDO" >
         insert into gseek.debt(money,respondent_id)
-        values (#{money},#{respondent_id});
+        values (#{money},#{respondentId});
     </insert>
     <select id="queryDebt" resultType="BigDecimal">
         select money from gseek.debt where respondent_id=#{respondentId};

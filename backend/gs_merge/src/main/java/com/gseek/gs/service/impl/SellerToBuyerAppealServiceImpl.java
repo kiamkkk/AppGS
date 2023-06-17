@@ -59,10 +59,10 @@ public class SellerToBuyerAppealServiceImpl implements SellerToBuyerAppealServic
 
     public int deleteAppeal(int appealId) throws JsonProcessingException {
         //          如果申诉已经通过审核
-        if(queryResult(appealId).isAppeal_result()){
-            int degree=queryResult(appealId).getDamage_degree();
+        if(queryResult(appealId).isAppealResult()){
+            int degree=queryResult(appealId).getDamageDegree();
             // 余额返还
-            int billId=queryAppeal(appealId).getBill_id();
+            int billId=queryAppeal(appealId).getBillId();
             moneyService.returnSellerAppealMoney(billId,billService.selectBill(billId).getBuyerId(),degree);
             moneyService.unfrozenUser(billService.selectBill(billId).getSellerId());
             //从黑名单内删除
@@ -89,7 +89,7 @@ public class SellerToBuyerAppealServiceImpl implements SellerToBuyerAppealServic
         return sellerToBuyerAppealMapper.queryMyId(appealId);
     }
     public AppealMessageBean message(int appealId){
-        int billId=sellerToBuyerAppealMapper.queryAppeal(appealId).getBill_id();
+        int billId=sellerToBuyerAppealMapper.queryAppeal(appealId).getBillId();
         int toUserId=billMapper.selectBillByBillId(billId).getBuyerId();
         int goodId=billMapper.selectBillByBillId(billId).getGoodId();
         String goodName=goodMapper.selectGoodByGoodIdFully(goodId).getGoodName();
