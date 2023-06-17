@@ -52,7 +52,7 @@ public class BuyerServiceImpl implements BuyerService {
 
     @Override
     public String getAllFav(int userId) throws JsonProcessingException {
-        List<GoodFavBO> bos=goodFavMapper.getAllFav(userId);
+        List<GoodFavBO> bos=goodFavMapper.selectAllFavByUserId(userId);
         return objectMapper.writeValueAsString(bos);
     }
 

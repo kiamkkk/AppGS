@@ -1,11 +1,8 @@
 package com.gseek.gs.service.inter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.gseek.gs.pojo.business.GoodsWithoutAccountAndSoldBO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.web.bind.annotation.PathVariable;
-
-import java.util.List;
 
 /**
  * @author Phak
@@ -28,11 +25,10 @@ public interface GoodService {
     String getGoodsByTag(@PathVariable("tag") String tagName) throws JsonProcessingException;
 
     /**
-     *
      * @param goodId 商品id
      * @return
      * */
-    String getGoodByGoodId(@PathVariable("good_id") int goodId) throws JsonProcessingException;
+    String getGoodByGoodId(@PathVariable("good_id") int goodId, int userId) throws JsonProcessingException;
 
     String queryAllCheckedGood() throws JsonProcessingException;
     String queryGoodByName(@Param("goodName") String goodName) throws JsonProcessingException;

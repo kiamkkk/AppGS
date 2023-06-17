@@ -44,6 +44,17 @@ public class ExceptionController {
     }
 
     /**
+     * 处理服务器异常.
+     * 这种异常的原因是服务器自身原因,不能通过用户重新给出数据解决.
+     * */
+    @ExceptionHandler(ServerException.class)
+    public String serverExceptionHandler(ServerException e, HttpServletResponse response){
+        log.error("ServerException:\n",e);
+        response.setStatus(500);
+        return packageMessage(e);
+    }
+
+    /**
      * 这个异常由userService抛出
      * */
     @ExceptionHandler(UsernameNotFoundException.class)
@@ -51,18 +62,6 @@ public class ExceptionController {
         log.info("UsernameNotFoundException: {}",e.getMsg());
         response.setStatus(e.getCode());
         return "UserNotFound";
-    }
-
-    /**
-     * 处理服务器异常.
-     * 这种异常的原因是服务器自身原因,不能通过用户重新给出数据解决.
-     * */
-    @ExceptionHandler(ServerException.class)
-    public String serverExceptionHandler(ServerException e, HttpServletResponse response){
-        log.error("ServerException: {}",e.getMsg());
-        e.printStackTrace();
-        response.setStatus(500);
-        return packageMessage(e);
     }
 
     /**

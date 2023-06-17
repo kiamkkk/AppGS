@@ -12,12 +12,10 @@ import com.gseek.gs.service.inter.BillService;
 import com.gseek.gs.service.inter.BlacklistService;
 import com.gseek.gs.service.inter.MoneyService;
 import com.gseek.gs.service.inter.SellerToBuyerAppealService;
-
 import com.gseek.gs.websocket.controller.MessageController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
 
 /**
  * @author: Isabella
@@ -36,6 +34,7 @@ public class SellerToBuyerAppealServiceImpl implements SellerToBuyerAppealServic
     @Autowired
     BillService billService;
     @Autowired
+    @Lazy
     BlacklistService blacklistService;
     @Autowired
     MessageController messageController;

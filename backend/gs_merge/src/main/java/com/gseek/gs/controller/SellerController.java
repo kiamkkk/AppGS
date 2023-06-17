@@ -45,7 +45,7 @@ public class SellerController implements Controller {
         CustomWebAuthenticationDetails details =perService(authentication);
         // 鉴权
         if (userId != details.getUserId() ){
-            throw new ForbiddenException();
+            throw ForbiddenException.gainNotAccess();
         }
 
         return sellerService.getAllGoods(details.getUserId());
@@ -62,7 +62,7 @@ public class SellerController implements Controller {
         CustomWebAuthenticationDetails details =perService(authentication);
         // 鉴权
         if (userId != details.getUserId() ){
-            throw new ForbiddenException();
+            throw ForbiddenException.gainNotAccess();
         }
 
         return sellerService.getGoodsSold(details.getUserId());

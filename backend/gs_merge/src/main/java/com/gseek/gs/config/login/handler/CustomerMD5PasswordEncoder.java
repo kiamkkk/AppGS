@@ -22,10 +22,10 @@ public class CustomerMD5PasswordEncoder implements PasswordEncoder {
     @Override
     public boolean matches(CharSequence rawPassword, String encodedPassword) {
         return Objects.equals(
-                digest(encodedPassword),
                 digest(
                         addSalt(rawPassword,encodedPassword)
-                )
+                ),
+                digest(encodedPassword)
         );
     }
 

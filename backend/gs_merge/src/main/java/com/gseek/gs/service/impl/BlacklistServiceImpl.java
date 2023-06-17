@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.common.Result;
 import com.gseek.gs.dao.BlacklistMapper;
-import com.gseek.gs.dao.UserIdentificationMapper;
 import com.gseek.gs.dao.UserPasswordMapper;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.pojo.bean.BlacklistBean;
@@ -16,10 +15,10 @@ import com.gseek.gs.pojo.dto.BlacklistDTO;
 import com.gseek.gs.service.inter.BlacklistService;
 import com.gseek.gs.service.inter.BuyerToSellerAppealService;
 import com.gseek.gs.service.inter.SellerToBuyerAppealService;
-import com.gseek.gs.service.inter.UserService;
 import com.gseek.gs.websocket.controller.MessageController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,8 +41,10 @@ public class BlacklistServiceImpl implements BlacklistService {
     @Autowired
     MessageController messageController;
     @Autowired
+    @Lazy
     BuyerToSellerAppealService buyerToSellerAppealService;
     @Autowired
+    @Lazy
     SellerToBuyerAppealService sellerToBuyerAppealService;
     @Autowired
     UserPasswordMapper userPasswordMapper;

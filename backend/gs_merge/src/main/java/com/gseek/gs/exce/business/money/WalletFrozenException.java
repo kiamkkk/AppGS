@@ -11,7 +11,7 @@ import com.gseek.gs.exce.business.common.ForbiddenException;
 public class WalletFrozenException extends ForbiddenException {
 
     public WalletFrozenException() {
-        super();
-        msg="钱包已被冻结";
+        super("钱包已被冻结");
+        msg="WalletFrozen";
     }
 }

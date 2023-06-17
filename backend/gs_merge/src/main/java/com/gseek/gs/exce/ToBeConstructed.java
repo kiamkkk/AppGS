@@ -14,4 +14,8 @@ public class ToBeConstructed extends BaseException{
         code=500;
     }
 
+    public ToBeConstructed(String message, Throwable cause) {
+        super(message, cause);
+        code=500;
+    }
 }

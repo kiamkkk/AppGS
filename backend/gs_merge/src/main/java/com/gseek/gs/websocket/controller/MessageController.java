@@ -23,6 +23,7 @@ import jakarta.websocket.server.ServerEndpoint;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.security.core.Authentication;
@@ -61,6 +62,7 @@ public class MessageController implements Controller {
     ChatRecordService chatRecordService;
     @Autowired
     @Qualifier("adminServiceImpl")
+    @Lazy
     AdminService adminService;
 
     /**
@@ -174,7 +176,7 @@ public class MessageController implements Controller {
         dto.perService();
 
         if (userId != details.getUserId()){
-            throw new ForbiddenException();
+            throw ForbiddenException.gainNotAccess();
         }
 
         // 储存图片
@@ -206,13 +208,13 @@ public class MessageController implements Controller {
     @PatchMapping("/chats/block")
     public String getChatBlock(@CurrentSecurityContext(expression = "authentication") Authentication authentication,
                                ChatBlockDTO dto)
-            throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException, ServerException {
+            throws JsonProcessingException, ForbiddenException, ServerException {
 
         CustomWebAuthenticationDetails details = perService(authentication);
         dto.perService();
 
         if (dto.getFromUserId() != details.getUserId()){
-            throw new ForbiddenException();
+            throw ForbiddenException.gainNotAccess();
         }
 
         // 拉黑

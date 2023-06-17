@@ -11,6 +11,6 @@ public class FileNotFoundException extends BusinessException {
     public FileNotFoundException() {
         super("文件不存在");
         code=404;
-        msg="FileNotFoundException";
+        msg="FileNotFound";
     }
 }

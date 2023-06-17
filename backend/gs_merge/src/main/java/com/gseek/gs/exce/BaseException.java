@@ -43,13 +43,6 @@ public class BaseException extends RuntimeException {
     }
 
     /**
-     * @deprecated 最好有对异常的描述
-     * */
-    public BaseException(Throwable cause) {
-        super(cause);
-    }
-
-    /**
      * 自定义异常一般要用这个构造方法,因为业务中出现的问题原因往往是我们自己给出的.
      *
      * @param message 错误信息
@@ -60,7 +53,7 @@ public class BaseException extends RuntimeException {
     }
 
     /**
-     * 自定义异常也可以用用这个构造方法,因为也有可能借助原有的异常来表达业务逻辑里出现的问题.
+     * 自定义异常也可以用这个构造方法,因为也有可能借助原有的异常来表达业务逻辑里出现的问题.
      *
      * @param message 错误信息
      * @param cause 原始错误

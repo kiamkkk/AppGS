@@ -93,7 +93,7 @@ public class SellerServiceImpl implements SellerService {
         GoodDO goodDO=new GoodDO(userName,dto);
         // 非商品所有人不能操作
         if (goodMapper.selectOwnUserIdByGoodId(goodId) != userId){
-            throw new ForbiddenException();
+            throw ForbiddenException.gainNotAccess();
         }
         // 商品正在交易时禁止修改
         if (isGoodSelling(goodId)){
@@ -136,7 +136,7 @@ public class SellerServiceImpl implements SellerService {
     public String deleteGood(int userId, int goodId) throws JsonProcessingException {
         // 非商品所有人不能操作
         if (goodMapper.selectOwnUserIdByGoodId(goodId) != userId){
-            throw new ForbiddenException();
+            throw ForbiddenException.gainNotAccess();
         }
         // 商品正在交易时禁止修改
         if (isGoodSelling(goodId)){

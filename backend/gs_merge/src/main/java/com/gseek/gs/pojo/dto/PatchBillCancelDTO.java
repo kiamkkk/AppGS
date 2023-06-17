@@ -36,7 +36,7 @@ public class PatchBillCancelDTO implements DTOPerService{
     public void validateParameters() throws ParameterWrongException, JsonProcessingException {
         ParameterWrongBean bean =new ParameterWrongBean();
 
-        if (billId ==null || billId.isEmpty()){
+        if (billId ==null || billId.isBlank()){
             bean.addParameters("billId",billId);
         }
         if (sellerId==null || sellerId==0){

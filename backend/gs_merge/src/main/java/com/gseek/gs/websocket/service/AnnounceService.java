@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.util.MinioUtil;
 import com.gseek.gs.websocket.controller.MessageController;
 import com.gseek.gs.websocket.message.AnnounceMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -22,6 +23,7 @@ import java.util.Map;
  * @since 2023/5/27-15:08
  */
 @Service
+@Slf4j
 public class AnnounceService {
 
     @Autowired

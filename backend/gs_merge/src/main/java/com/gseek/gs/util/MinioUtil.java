@@ -1,7 +1,6 @@
 package com.gseek.gs.util;
 
 import com.gseek.gs.config.MinioConfig;
-import com.gseek.gs.config.SecurityConfig;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.pojo.bean.CoverOrDetailPhotoFileBean;
 import com.gseek.gs.pojo.bean.GoodPhotoFileBean;
@@ -70,9 +69,6 @@ public class MinioUtil {
     public static final String PATH_GOOD_DETAIL="/details/";
     @Autowired
     private MinioConfig prop;
-    @Autowired
-    SecurityConfig securityConfig;
-
     @Autowired
     private MinioClient minioClient;
 

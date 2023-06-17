@@ -20,8 +20,7 @@ public class ServerException extends BaseException{
     /**
      * 推荐使用这个构造方法.
      *
-     * @param cause 错误详细情况.
-     *              在ExceptionController里调用printStackTrace(),以记录在日志里.
+     * @param cause 系统抛出的异常.
      * @param msg 给用户看的错误信息.
      *            - 应该为异常出现的大致环节,如登录时异常、支付时异常、聊天时异常.
      *            - 如是服务器自身问题,就直接写服务器异常.

@@ -20,22 +20,15 @@
         <result column="fav_time" jdbcType="BIGINT" property="favTime"/>
         <collection property="tag" ofType="String"
                     select="com.gseek.gs.dao.GoodDetailPicMapper.selectDetailsByGoodId"
-                    column="{goodId=good_id}"/>
+                    column="good_id"/>
         <collection property="coverPictures" ofType="String"
                     select="com.gseek.gs.dao.GoodCoverPicMapper.selectCoversByGoodId"
-                    column="{goodId=good_id}"/>
+                    column="good_id"/>
         <collection property="detailPictures" ofType="String"
                     select="com.gseek.gs.dao.GoodDetailPicMapper.selectDetailsByGoodId"
-                    column="{goodId=good_id}"/>
+                    column="good_id"/>
     </resultMap>
 
-    <select id="getAllFav" parameterType="int" resultMap="GoodFavBO">
-        select g.good_id, g.good_name, g.good_text, g.own_user_name, g.good_price, g.type_tag_name,f.fav_time
-        from good_fav as f
-                 left join good as g
-                           on g.good_id = f.good_id
-        where f.user_id=#{userId};
-    </select>
 
     <insert id="insertFav" >
         insert into good_fav (user_id, good_id, fav_time)
@@ -46,4 +39,16 @@
         delete from good_fav
         where user_id=#{userId} and good_id=#{goodId};
     </delete>
+
+    <select id="selectAllFavByUserId" parameterType="int" resultMap="GoodFavBO">
+        select g.good_id, g.good_name, g.good_text, g.own_user_name, g.good_price, g.type_tag_name,f.fav_time
+        from good_fav as f
+                 left join good as g
+                           on g.good_id = f.good_id
+        where f.user_id=#{userId};
+    </select>
+
+    <select id="selectFavByUserIdAndGoodId" resultMap="BaseResultMap">
+        select * from good_fav where user_id=#{userId} and good_id=#{goodId};
+    </select>
 </mapper>
