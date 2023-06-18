@@ -1,0 +1,166 @@
+@charset "UTF-8";
+/* 水平间距 */
+/* 水平间距 */
+.container.data-v-57280228 {
+  min-height: 100vh;
+  background: #efefef;
+  padding-bottom: 184rpx;
+}
+.container .header.data-v-57280228 {
+  width: 100%;
+  background: #808080;
+  border-radius: 0rpx 0rpx 0rpx 0rpx;
+  opacity: 1;
+  padding-top: 88rpx;
+  padding-bottom: 16rpx;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.container .header .middle.data-v-57280228 {
+  width: 472rpx;
+  height: 66rpx;
+  background: #e6e6e6;
+  border-radius: 122rpx 122rpx 122rpx 122rpx;
+  opacity: 1;
+  display: flex;
+  align-items: center;
+  padding: 0 20rpx;
+}
+.container .header .middle .iconfont.data-v-57280228 {
+  font-size: 48rpx;
+  margin-right: 20rpx;
+  color: #737373;
+}
+.container .header .middle input.data-v-57280228 {
+  flex: 1;
+  font-size: 32rpx;
+  color: #737373;
+}
+.container .header .left .iconfont.data-v-57280228,
+.container .header .right .iconfont.data-v-57280228 {
+  font-size: 50rpx;
+  color: #fff;
+}
+.container .nav.data-v-57280228 {
+  max-width: 100%;
+  height: 334rpx;
+  background: #ffffff;
+  border-radius: 24rpx 24rpx 24rpx 24rpx;
+  margin: 32rpx 30rpx;
+  padding: 16rpx 20rpx;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+}
+.container .nav .left image.data-v-57280228 {
+  width: 256rpx;
+  height: 302rpx;
+  border-radius: 10rpx 10rpx 10rpx 10rpx;
+  opacity: 1;
+}
+.container .nav .right.data-v-57280228 {
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+}
+.container .nav .right .hd image.data-v-57280228 {
+  width: 372rpx;
+  height: 156rpx;
+  border-radius: 10rpx 10rpx 10rpx 10rpx;
+  opacity: 1;
+}
+.container .nav .right .bd.data-v-57280228 {
+  display: flex;
+  justify-content: space-between;
+}
+.container .nav .right .bd .bd_left image.data-v-57280228 {
+  width: 262rpx;
+  height: 128rpx;
+  border-radius: 10rpx 10rpx 10rpx 10rpx;
+  opacity: 1;
+}
+.container .nav .right .bd .bd_right.data-v-57280228 {
+  width: 90rpx;
+  height: 128rpx;
+  background: #808080;
+  border-radius: 10rpx 10rpx 10rpx 10rpx;
+  opacity: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.container .nav .right .bd .bd_right .iconfont.data-v-57280228 {
+  font-size: 52rpx;
+  color: #fff;
+}
+.container .scroll.data-v-57280228 {
+  padding: 0 30rpx 30rpx;
+  box-sizing: border-box;
+}
+.container .scroll .content.data-v-57280228 {
+  text-align: justify;
+}
+.container .scroll .item.data-v-57280228 {
+  background-color: #fff;
+  margin: 10rpx 3%;
+  margin-bottom: 20rpx;
+  display: inline-block;
+  width: 96%;
+  border-radius: 20rpx;
+  overflow: hidden;
+  box-shadow: 0rpx 10rpx 30rpx rgba(0, 0, 0, 0.05);
+}
+.container .scroll .item image.data-v-57280228 {
+  width: 100%;
+}
+.container .scroll .item .item_content.data-v-57280228 {
+  padding: 16rpx;
+  box-sizing: border-box;
+}
+.container .scroll .item .listTag.data-v-57280228 {
+  display: flex;
+  align-items: center;
+  flex-flow: wrap;
+}
+.container .scroll .item .listTag .tag.data-v-57280228 {
+  display: flex;
+  background: #ffffff;
+  align-items: center;
+  border-radius: 122rpx 122rpx 122rpx 122rpx;
+  padding: 5rpx;
+  opacity: 1;
+  border: 2rpx solid #fb9797;
+  font-size: 12rpx;
+  font-family: PingFang SC-Regular, PingFang SC;
+  font-weight: 400;
+  color: #af6262;
+  margin-right: 8rpx;
+  white-space: nowrap;
+  margin: 4rpx;
+}
+.container .scroll .item .listTag .tag .iconfont.data-v-57280228 {
+  font-size: 13rpx;
+  color: #f32e2e;
+  margin-right: 4rpx;
+}
+.container .scroll .item .title.data-v-57280228 {
+  font-size: 24rpx;
+  font-family: PingFang SC-Regular, PingFang SC;
+  font-weight: 400;
+  color: #000000;
+  margin: 10rpx 0;
+}
+.container .scroll .item .price.data-v-57280228 {
+  font-size: 24rpx;
+  font-family: PingFang SC-Regular, PingFang SC;
+  font-weight: 400;
+  color: #c5434b;
+}
+.container .scroll .item.data-v-57280228 {
+  width: 334rpx;
+  background: #ffffff;
+  border-radius: 12rpx 12rpx 12rpx 12rpx;
+  overflow: hidden;
+}
+

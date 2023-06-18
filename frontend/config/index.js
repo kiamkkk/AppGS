@@ -1,0 +1,1 @@
+export const requestUrl = "http://118.178.243.30:8080"
