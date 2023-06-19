@@ -6,6 +6,7 @@ import com.gseek.gs.common.Result;
 import com.gseek.gs.dao.BlacklistMapper;
 import com.gseek.gs.dao.UserPasswordMapper;
 import com.gseek.gs.exce.ServerException;
+import com.gseek.gs.exce.appeal.AlreadyAuditedException;
 import com.gseek.gs.pojo.bean.BlacklistBean;
 import com.gseek.gs.pojo.business.BlacklistBO;
 import com.gseek.gs.pojo.business.BlacklistResultBO;
@@ -94,17 +95,15 @@ public class BlacklistServiceImpl implements BlacklistService {
         }
         else {
             log.debug("已经被审核无法更改");
-            throw new ServerException("已经被审核无法更改");
+            throw new AlreadyAuditedException();
         }
 
     }
 
-    public List<BlacklistDO> queryAllUnchecked(){
+    public List<BlacklistBO> queryAllUnchecked(){
         return blacklistMapper.queryAllUnchecked();
     }
     public int auditReport(BlacklistResultBO blacklistResultBO, int blackId) throws JsonProcessingException {
-//      查看是否被加入黑名单
-        updateCheck(blackId);
         //如果被加入黑名单提醒用户
         if(blacklistResultBO.isAppealResult()){
             BlacklistBean blacklistBO=blacklistMapper.queryReport(blackId);

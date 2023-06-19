@@ -23,4 +23,15 @@ public class BlacklistMessageBase {
     protected String reason;
     protected String type;
     protected String message;
+    @Override
+    public String toString() {
+        StringBuilder sb=new StringBuilder();
+        sb.append("fromUserId").append(fromUserId)
+                .append("toUserId").append(toUserId)
+                .append("reason").append(reason)
+                .append("type").append(type)
+                .append("message").append(message);
+        return sb.toString();
+
+    }
 }

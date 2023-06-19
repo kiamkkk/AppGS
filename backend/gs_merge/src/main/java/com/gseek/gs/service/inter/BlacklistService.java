@@ -45,7 +45,7 @@ public interface BlacklistService {
     /**
      *查看所有未审核的黑名单
      * */
-    List<BlacklistDO> queryAllUnchecked();
+    List<BlacklistBO> queryAllUnchecked();
     /**
      *审核黑名单
      * */

@@ -8,6 +8,7 @@ import com.gseek.gs.dao.BillMapper;
 import com.gseek.gs.dao.GoodMapper;
 import com.gseek.gs.dao.MoneyMapper;
 import com.gseek.gs.exce.ServerException;
+import com.gseek.gs.exce.business.common.ForbiddenException;
 import com.gseek.gs.pojo.bean.AppealMessageBean;
 import com.gseek.gs.pojo.business.*;
 import com.gseek.gs.pojo.data.BillDO;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -66,12 +68,12 @@ public class AdminController {
     *查看未审核的黑名单
     * */
     @GetMapping("/audit/report/unChecked")
-    public List<BlacklistDO> queryAllUnchecked(@CurrentSecurityContext(expression = "authentication ") Authentication authentication){
+    public List<BlacklistBO> queryAllUnchecked(@CurrentSecurityContext(expression = "authentication ") Authentication authentication){
         if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
             return blacklistService.queryAllUnchecked();
         }else {
-            log.error("向下转型失败|不能将authentication中的detail转为adminWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            log.error("用户等级不够|向下转型失败|不能将authentication中的detail转为adminWebAuthenticationDetails");
+            throw new ForbiddenException();
         }
 
     }
@@ -81,13 +83,12 @@ public class AdminController {
     @PatchMapping("/audit/report/{blackId}")
     public String auditReport(@PathVariable int blackId, @RequestBody BlacklistResultBO blacklistResultBO,
                               @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws JsonProcessingException {
-
         if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
             blacklistService.auditReport(blacklistResultBO,blackId);
             return result.gainPatchSuccess();
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为adminWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            throw new ForbiddenException();
         }
 
     }
@@ -147,6 +148,7 @@ public class AdminController {
     @GetMapping("/audit/product/all")
     public List<GoodBO> queryUnCheckedProduct(@CurrentSecurityContext(expression = "authentication ") Authentication authentication){
         if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
+//            TODO 这里有问题
             return adminService.queryUnCheckedProduct();
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");

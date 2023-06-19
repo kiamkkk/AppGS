@@ -8,7 +8,7 @@
         values (#{blacklistDTO.claimerId},#{blacklistDTO.respondentId},#{blacklistDTO.appealReason},#{blacklistDTO.provePic});
     </insert>
     <select id="queryResult" resultType="com.gseek.gs.pojo.business.BlacklistResultBO">
-        select appeal_result from gseek.blacklist where black_id=#{blackId};
+        select appeal_result,checked,admin_id,disapprove_reason from gseek.blacklist where black_id=#{blackId};
     </select>
     <select id="queryChecked" resultType="boolean">
         select checked from gseek.blacklist where black_id=#{blackId};
@@ -31,8 +31,8 @@
             </set>
         where black_id=#{blackId};
     </update>
-    <select id="queryAllUnchecked" resultType="com.gseek.gs.pojo.data.BlacklistDO">
-        select * from gseek.blacklist where checked=0;
+    <select id="queryAllUnchecked" resultType="com.gseek.gs.pojo.business.BlacklistBO">
+        select claimer_id,respondent_id,appeal_reason,checked,provePic,black_id from gseek.blacklist where checked=0;
     </select>
     <update id="auditReport" parameterType="com.gseek.gs.pojo.business.BlacklistResultBO" >
         update gseek.blacklist
@@ -44,7 +44,10 @@
                 disapprove_reason = #{disapproveReason},
             </if>
             <if test="appealResult != null">
-                appeal_result = #{appealResult}
+                appeal_result = #{appealResult},
+            </if>
+            <if test="blackId != null">
+                checked=1
             </if>
 
         </set>

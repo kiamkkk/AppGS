@@ -10,6 +10,7 @@ import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.business.common.ForbiddenException;
 import com.gseek.gs.pojo.bean.AppealMessageBean;
 import com.gseek.gs.pojo.business.SellerToBuyerAppealBO;
+import com.gseek.gs.pojo.business.SellerToBuyerAppealResultBO;
 import com.gseek.gs.pojo.dto.SellerToBuyerAppealDTO;
 import com.gseek.gs.service.inter.BillService;
 import com.gseek.gs.service.inter.BlacklistService;
@@ -73,7 +74,7 @@ public class SellerToBuyerAppealController {
             return sellerToBuyerAppealService.queryAppeal(appealId);
         }
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-            int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBill_id();
+            int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBillId();
             int respondentId=billService.selectBill(billId).getBuyerId();
 //            申诉者和被申诉者才能看
             if (sellerToBuyerAppealService.queryMyId(appealId)!=details.getUserId()
@@ -114,20 +115,20 @@ public class SellerToBuyerAppealController {
      * 查看申诉结果
     * */
     @GetMapping("/query/audit/{appealId}")
-    public String queryResult(@PathVariable int appealId,
-                              @CurrentSecurityContext(expression = "authentication ") Authentication authentication){
+    public SellerToBuyerAppealResultBO queryResult(@PathVariable int appealId,
+                                                   @CurrentSecurityContext(expression = "authentication ") Authentication authentication){
         if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
-            return sellerToBuyerAppealService.queryResult(appealId).toString();
+            return sellerToBuyerAppealService.queryResult(appealId);
         }
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-            int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBill_id();
+            int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBillId();
             int respondentId=billService.selectBill(billId).getBuyerId();
 //            被申诉者和申诉者才能查看
             if (sellerToBuyerAppealService.queryMyId(appealId)!=details.getUserId()
                     && respondentId!=details.getUserId()){
                 throw new ForbiddenException();
             }
-            return sellerToBuyerAppealService.queryResult(appealId).toString();
+            return sellerToBuyerAppealService.queryResult(appealId);
 
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
