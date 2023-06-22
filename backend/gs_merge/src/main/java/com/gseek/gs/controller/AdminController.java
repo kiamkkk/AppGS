@@ -105,7 +105,7 @@ public class AdminController {
             return result.gainPutSuccess();
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为adminWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            throw new ForbiddenException();
         }
 
     }
@@ -121,9 +121,8 @@ public class AdminController {
             return result.gainPatchSuccess();
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为adminWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            throw new ForbiddenException();
         }
-
     }
     /**
      *审核卖家举报买家
@@ -138,7 +137,7 @@ public class AdminController {
             return result.gainPatchSuccess();
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            throw new ForbiddenException();
         }
 
     }
@@ -152,7 +151,7 @@ public class AdminController {
             return adminService.queryUnCheckedProduct();
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            throw new ForbiddenException();
         }
 
     }
@@ -165,9 +164,8 @@ public class AdminController {
             return adminService.queryUnCheckedSellerAppeal();
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            throw new ForbiddenException();
         }
-
     }
     /**
      * 查看所有没有审核的买家申诉
@@ -178,7 +176,7 @@ public class AdminController {
             return adminService.queryUnCheckedBuyerAppeal();
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            throw new ForbiddenException();
         }
 
     }
@@ -192,7 +190,7 @@ public class AdminController {
             return adminService.querySellerAppealById(appealId);
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            throw new ForbiddenException();
         }
 
     }
@@ -206,7 +204,7 @@ public class AdminController {
             return adminService.queryBuyerAppealById(appealId);
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            throw new ForbiddenException();
         }
 
     }
@@ -220,9 +218,7 @@ public class AdminController {
             return goodMapper.selectGoodAccountByBillId(billId);
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            throw new ForbiddenException();
         }
-
     }
-
 }
