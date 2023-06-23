@@ -87,7 +87,7 @@ public class BlacklistController implements com.gseek.gs.controller.Controller {
             return objectMapper.writeValueAsString(blacklistService.queryResult(blackId));
         } else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ForbiddenException("认证时出错");
+            throw new ForbiddenException();
         }
 
     }
@@ -159,7 +159,7 @@ public class BlacklistController implements com.gseek.gs.controller.Controller {
 
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ForbiddenException("已经被审核，无法更改");
+                throw new ForbiddenException();
         }
 
 

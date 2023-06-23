@@ -8,6 +8,7 @@ import com.gseek.gs.config.login.handler.admin.AdminWebAuthenticationDetails;
 import com.gseek.gs.dao.BillMapper;
 import com.gseek.gs.dao.GoodMapper;
 import com.gseek.gs.exce.ServerException;
+import com.gseek.gs.exce.appeal.AlreadyAuditedException;
 import com.gseek.gs.exce.business.common.ForbiddenException;
 import com.gseek.gs.pojo.bean.AppealMessageBean;
 import com.gseek.gs.pojo.business.BuyerToSellerAppealBO;
@@ -70,7 +71,7 @@ public class BuyerToSellerAppealController {
 
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            throw new ForbiddenException();
         }
 
     }
@@ -88,7 +89,7 @@ public class BuyerToSellerAppealController {
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             int billId=buyerToSellerAppealService.queryAppeal(appealId).getBillId();
             int respondentId=billService.selectBill(billId).getSellerId();
-//            申诉人和被申诉人能看
+//            只有申诉人和被申诉人能看
             if (buyerToSellerAppealService.queryMyId(appealId)!=details.getUserId()
             && respondentId!=details.getUserId()){
                 throw new ForbiddenException();
@@ -97,7 +98,7 @@ public class BuyerToSellerAppealController {
 
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            throw new ForbiddenException();
         }
 
     }
@@ -121,7 +122,7 @@ public class BuyerToSellerAppealController {
             return result.gainDeleteSuccess();
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            throw new ForbiddenException();
         }
     }
     /**
@@ -147,7 +148,7 @@ public class BuyerToSellerAppealController {
 
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            throw new ForbiddenException();
         }
 
     }
@@ -168,13 +169,13 @@ public class BuyerToSellerAppealController {
             BuyerToSellerAppealDTO buyerToSellerAppealDTO=new BuyerToSellerAppealDTO(appealReason,realPath,billId,myId);
 //          被审核就不能改了
             if(buyerToSellerAppealService.queryResult(appealId).isChecked()){
-                throw new ServerException("已被审核，无法更改");
+                throw new AlreadyAuditedException();
             }
             buyerToSellerAppealService.updateAppeal(buyerToSellerAppealDTO);
             return result.gainPatchSuccess();
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("已被审核，无法更改");
+            throw new ForbiddenException();
         }
 
 

@@ -56,7 +56,6 @@ public class UserController implements Controller{
                                      @CurrentSecurityContext(expression = "Authentication") Authentication authentication)
             throws ServerException, JsonProcessingException {
         CustomWebAuthenticationDetails details =perService(authentication);
-
         return userService.getUserInformation(details.getUserId());
     }
 

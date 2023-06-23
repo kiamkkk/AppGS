@@ -7,6 +7,7 @@ import com.gseek.gs.config.login.handler.CustomWebAuthenticationDetails;
 import com.gseek.gs.config.login.handler.admin.AdminWebAuthenticationDetails;
 import com.gseek.gs.dao.BillMapper;
 import com.gseek.gs.exce.ServerException;
+import com.gseek.gs.exce.appeal.AlreadyAuditedException;
 import com.gseek.gs.exce.business.common.ForbiddenException;
 import com.gseek.gs.pojo.bean.AppealMessageBean;
 import com.gseek.gs.pojo.business.SellerToBuyerAppealBO;
@@ -84,7 +85,7 @@ public class SellerToBuyerAppealController {
             return sellerToBuyerAppealService.queryAppeal(appealId);
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            throw new ForbiddenException();
         }
 
     }
@@ -107,7 +108,7 @@ public class SellerToBuyerAppealController {
             return result.gainDeleteSuccess();
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            throw new ForbiddenException();
         }
 
     }
@@ -132,7 +133,7 @@ public class SellerToBuyerAppealController {
 
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            throw new ForbiddenException();
         }
 
     }
@@ -154,13 +155,13 @@ public class SellerToBuyerAppealController {
             SellerToBuyerAppealDTO sellerToBuyerAppealDTO=new SellerToBuyerAppealDTO(appealReason,pathBefore,pathAfter,accept,billId,myId);
 //            已经被审核了无法更改
             if(sellerToBuyerAppealService.queryResult(appealId).isChecked()){
-                throw new ServerException("已被审核，无法更改");
+                throw new AlreadyAuditedException();
             }
             sellerToBuyerAppealService.updateAppeal(sellerToBuyerAppealDTO);
             return result.gainPatchSuccess();
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            throw new ForbiddenException();
         }
 
     }
