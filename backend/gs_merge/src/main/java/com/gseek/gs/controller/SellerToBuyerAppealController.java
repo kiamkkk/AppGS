@@ -8,7 +8,6 @@ import com.gseek.gs.config.login.handler.admin.AdminWebAuthenticationDetails;
 import com.gseek.gs.dao.BillMapper;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.business.common.ForbiddenException;
-import com.gseek.gs.pojo.bean.AppealMessageBean;
 import com.gseek.gs.pojo.business.SellerToBuyerAppealBO;
 import com.gseek.gs.pojo.dto.SellerToBuyerAppealDTO;
 import com.gseek.gs.service.inter.BillService;
@@ -73,7 +72,7 @@ public class SellerToBuyerAppealController {
             return sellerToBuyerAppealService.queryAppeal(appealId);
         }
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-            int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBill_id();
+            int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBillId();
             int respondentId=billService.selectBill(billId).getBuyerId();
 //            申诉者和被申诉者才能看
             if (sellerToBuyerAppealService.queryMyId(appealId)!=details.getUserId()
@@ -120,7 +119,7 @@ public class SellerToBuyerAppealController {
             return sellerToBuyerAppealService.queryResult(appealId).toString();
         }
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-            int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBill_id();
+            int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBillId();
             int respondentId=billService.selectBill(billId).getBuyerId();
 //            被申诉者和申诉者才能查看
             if (sellerToBuyerAppealService.queryMyId(appealId)!=details.getUserId()

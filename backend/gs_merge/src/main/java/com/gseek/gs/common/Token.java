@@ -3,6 +3,7 @@ package com.gseek.gs.common;
 import com.gseek.gs.service.impl.RedisServiceImpl;
 import com.gseek.gs.util.TokenUtil;
 import io.jsonwebtoken.Claims;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
@@ -10,13 +11,21 @@ import io.jsonwebtoken.Claims;
  * @author Phak
  * @since 2023/6/4-23:28
  */
+@Slf4j
 public class Token {
-
-    TokenUtil tokenUtil;
     private Claims claims;
 
     public Token(String token) {
-        claims= TokenUtil.extractAllClaims(token);
+        claims = TokenUtil.extractAllClaims(token);
+    }
+
+    /**
+     * 去掉prefix后解析token
+     * */
+    public Token(String token, String prefix) {
+        this(
+                token.substring(prefix.length())
+        );
     }
 
     /**

@@ -54,11 +54,11 @@ public class StrUtilTest {
         assert ! StrUtil.checkEmail("12345$678#sad.vom");
     }
 
-
     @Test
-    public void desensitizeIdNumberTest(){
-        System.err.println(StrUtil.desensitizeIdNumber("37282420041306611x"));
-
+    public void checkDestinationWhenRight(){
+        assert StrUtil.checkUserDestination("/user/114514/abcdefg/hijklmn")
+                : "StrUtil#checkUserDestination fail";
     }
+
 
 }

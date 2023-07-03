@@ -1,14 +1,14 @@
 package com.gseek.gs.config;
 
-import com.gseek.gs.websocket.service.MessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
-import org.springframework.amqp.rabbit.listener.api.ChannelAwareMessageListener;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,29 +20,33 @@ import org.springframework.context.annotation.Configuration;
  * @since 2023/5/15-17:18
  */
 @Configuration
+@EnableRabbit
 @Slf4j
 public class RabbitMQConfig {
-    public static String host;
-    public static int port;
-    public static String username;
-    public static String password;
-    public static String virtualHost;
+    @Value("${spring.rabbitmq.host}")
+    public String host;
+    @Value("${spring.rabbitmq.port}")
+    public int port;
+    @Value("${spring.rabbitmq.username}")
+    public String username;
+    @Value("${spring.rabbitmq.password}")
+    public String password;
+    @Value("${spring.rabbitmq.virtual-host}")
+    public String virtualHost;
 
     public final static String EXCHANGE_TOPIC = "gseekExchange";
     /**
      * 绑定键
      */
-    public final static String KEY_ANNOUNCE = "topic.announce";
-    public final static String KEY_NOTICE = "topic.notice";
-    public final static String KEY_DELIVERY = "topic.delivery";
-    public final static String KEY_CHAT = "topic.chat";
+    public final static String KEY_NOTICE = "notice";
+    public final static String KEY_DELIVERY = "delivery";
+    public final static String KEY_CHAT = "chat";
     public final static String KEY_BLACKLIST = "topic.blacklist";
     public final static String KEY_APPEAL = "topic.appeal";
     public final static String KEY_ADMIN = "topic.admin";
     /**
      * 队列
      * */
-    public final static String QUEUE_ANNOUNCE = "announceQueue";
     public final static String QUEUE_NOTICE = "noticeQueue";
     public final static String QUEUE_DELIVERY = "deliveryQueue";
     public final static String QUEUE_CHAT = "chatQueue";
@@ -50,18 +54,11 @@ public class RabbitMQConfig {
     public final static String QUEUE_APPEAL = "appealQueue";
     public final static String QUEUE_ADMIN = "adminQueue";
 
-    @Autowired
-    MessageService messageService;
-
     @Bean("gseekExchange")
     public TopicExchange gseekExchange() {
         return new TopicExchange(EXCHANGE_TOPIC,true,false);
     }
 
-    @Bean("announceQueue")
-    public Queue announceQueue() {
-        return new Queue(RabbitMQConfig.QUEUE_ANNOUNCE,true);
-    }
     @Bean("noticeQueue")
     public Queue noticeQueue() {
         return new Queue(RabbitMQConfig.QUEUE_NOTICE,true);
@@ -87,10 +84,6 @@ public class RabbitMQConfig {
         return new Queue(RabbitMQConfig.QUEUE_ADMIN,true);
     }
 
-    @Bean
-    public Binding announceQueueBindingTopicExchange() {
-        return BindingBuilder.bind(announceQueue()).to(gseekExchange()).with(KEY_ANNOUNCE);
-    }
     @Bean
     public Binding noticeQueueBindingTopicExchange() {
         return BindingBuilder.bind(noticeQueue()).to(gseekExchange()).with(KEY_NOTICE);
@@ -122,8 +115,6 @@ public class RabbitMQConfig {
         connectionFactory.setUsername(username);
         connectionFactory.setPassword(password);
         connectionFactory.setVirtualHost(virtualHost);
-        connectionFactory.setPublisherConfirmType(CachingConnectionFactory.ConfirmType.CORRELATED);
-        connectionFactory.setPublisherReturns(true);
         return connectionFactory;
     }
     @Bean
@@ -131,61 +122,29 @@ public class RabbitMQConfig {
         RabbitTemplate rabbitTemplate = new RabbitTemplate();
         rabbitTemplate.setConnectionFactory(connectionFactory);
         rabbitTemplate.setMandatory(true);
-
-        rabbitTemplate.setConfirmCallback((correlationData, ack, cause) -> {
-            //todo 消息确认后回调方法
-        });
-
-        rabbitTemplate.setReturnsCallback(returnedMessage -> {
-            //todo 回退消息处理
-        });
-
+        rabbitTemplate.setMessageConverter(messageConverter());
         return rabbitTemplate;
     }
 
-    /**
-     * 接受消息的监听，这个监听会接受消息队列topicQueue的消息
-     * 针对消费者配置
-     */
-    @Bean
-    public SimpleMessageListenerContainer messageContainer() {
-        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(connectionFactory());
-        container.setQueues(announceQueue(),noticeQueue(),deliveryQueue(),chatQueue());
+    @Bean("customMessageContainer")
+    public SimpleMessageListenerContainer messageContainer(ConnectionFactory connectionFactory) {
+        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        container.setQueues(
+                noticeQueue(), deliveryQueue(), chatQueue()
+        );
+
         container.setExposeListenerChannel(true);
-        container.setMaxConcurrentConsumers(1);
-        container.setConcurrentConsumers(1);
-        //设置确认模式手工确认
-        container.setAcknowledgeMode(AcknowledgeMode.MANUAL);
-        container.setMessageListener((ChannelAwareMessageListener) (message, channel) -> {
-            byte[] body = message.getBody();
-            String msg = new String(body);
-            log.debug("rabbitmq收到消息:\n{}",msg);
-            messageService.receiveMsg(msg);
-            //确认消息成功消费
-            channel.basicAck(message.getMessageProperties().getDeliveryTag(), true);
-            log.debug("消息处理成功！ 已经推送到websocket！");
-        });
+        container.setMaxConcurrentConsumers(10);
+        container.setConcurrentConsumers(7);
+        //设置确认模式自动确认
+        container.setAcknowledgeMode(AcknowledgeMode.AUTO);
         return container;
     }
 
-    @Value("${spring.rabbitmq.host}")
-    public void setHost(String host) {
-        RabbitMQConfig.host = host;
+    @Bean
+    public MessageConverter messageConverter(){
+        return new Jackson2JsonMessageConverter();
     }
-    @Value("${spring.rabbitmq.port}")
-    public void setPort(int port) {
-        RabbitMQConfig.port = port;
-    }
-    @Value("${spring.rabbitmq.username}")
-    public void setUsername(String username) {
-        RabbitMQConfig.username = username;
-    }
-    @Value("${spring.rabbitmq.password}")
-    public void setPassword(String password) {
-        RabbitMQConfig.password = password;
-    }
-    @Value("${spring.rabbitmq.virtual-host}")
-    public void setVirtualHost(String virtualHost) {
-        RabbitMQConfig.virtualHost = virtualHost;
-    }
+
 }

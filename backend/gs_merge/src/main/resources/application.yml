@@ -4,6 +4,9 @@ server:
     context-path: /
 
 spring:
+  main:
+    allow-bean-definition-overriding: true
+
   profiles:
     include:
       alipay
@@ -19,6 +22,7 @@ spring:
       database:
         db1: 0
         db2: 1
+        db3: 2
       host: 127.0.0.1
       port: 6379
       pool:
@@ -35,9 +39,11 @@ spring:
     virtual-host: GseekHost
     relay_host: GseekHost
 
+
+
 logging:
   level:
-    root: info
+    root: debug
 
 minio:
   endpoint: http://127.0.0.1:9000

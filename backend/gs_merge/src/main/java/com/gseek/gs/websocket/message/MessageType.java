@@ -29,6 +29,10 @@ public enum MessageType {
      * */
     DELIVERY,
     /**
+     * 告知消息被拒收的消息
+     * */
+    BLOCK,
+    /**
      * 被加入黑名单通知
      * */
     BLACKLIST,

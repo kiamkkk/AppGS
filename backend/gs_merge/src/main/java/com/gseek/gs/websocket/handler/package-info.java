@@ -4,4 +4,4 @@
  * @author Phak
  * @since 2023/5/15-17:12
  */
-package com.gseek.gs.websocket.handel;
+package com.gseek.gs.websocket.handler;

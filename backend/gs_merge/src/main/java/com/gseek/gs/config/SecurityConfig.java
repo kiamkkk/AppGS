@@ -62,7 +62,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS).permitAll()
                 .requestMatchers(
                         "/alipay/**","/imgs/**","/users/register","/users",
-                        "/error","/error/**"
+                        "/error","/error/**","/test/**", "/templates/**", "/webjars/**",
+                        "/static/**"
                 ).permitAll()
                 .requestMatchers("/report/**","/report").permitAll()
                 .requestMatchers("/after_sale/**").permitAll()
@@ -102,6 +103,8 @@ public class SecurityConfig {
                 .addLogoutHandler(logoutHandler)
                 .logoutSuccessHandler(logoutSuccessHandler)
                 .permitAll();
+
+
         return httpSecurity.build();
     }
 
@@ -172,6 +175,7 @@ public class SecurityConfig {
         CustomerAuthenticationEntryPoint caep=new CustomerAuthenticationEntryPoint(getLoginFormUrl());
         return caep;
     }
+
 
     public String getLocalhost() {
         return localhost;

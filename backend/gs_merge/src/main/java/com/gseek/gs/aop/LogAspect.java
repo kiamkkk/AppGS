@@ -14,7 +14,6 @@ import java.util.List;
  * @author Phak
  * @since 2023/5/28-19:48
  */
-/*@Aspect*/
 @Slf4j
 @Component
 public class LogAspect {

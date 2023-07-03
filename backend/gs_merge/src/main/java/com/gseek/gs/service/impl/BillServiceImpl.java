@@ -69,7 +69,7 @@ public class BillServiceImpl implements BillService {
     private static final String ROLE_BUYER="buyer";
 
     @RabbitListener(queues = TimeoutConfig.QUEUE_TIMEOUT)
-    public void receiveTimeout(Message message) {
+    public void receiveTimeout(Message message) throws JsonProcessingException {
 
         int billId = StrUtil.bytesToInt(message.getBody());
         log.info("订单过期，订单号为:\n{}",billId);

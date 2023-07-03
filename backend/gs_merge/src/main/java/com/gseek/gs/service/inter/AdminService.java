@@ -4,12 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gseek.gs.pojo.business.*;
 import com.gseek.gs.pojo.data.AdminDO;
 import com.gseek.gs.pojo.data.GoodCheckedDO;
-import com.gseek.gs.pojo.dto.PatchUserInformationDTO;
-import com.gseek.gs.pojo.dto.PostRealNameInformationDTO;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -48,11 +45,11 @@ public interface AdminService extends UserDetailsService {
     /**
      *审核商品
      * */
-    int auditGood(GoodCheckedDO goodChecked);
+    int auditGood(GoodCheckedDO goodChecked) throws JsonProcessingException;
     /**
      *审核卖家申诉
      * */
-    int auditSellerAppeal(SellerToBuyerAppealResultBO sellerToBuyerAppealResultBO,int appealId,int adminId);
+    int auditSellerAppeal(SellerToBuyerAppealResultBO sellerToBuyerAppealResultBO,int appealId,int adminId) throws JsonProcessingException;
     /**
      *审核买家申诉
      * */

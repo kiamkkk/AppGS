@@ -11,9 +11,7 @@ import com.gseek.gs.pojo.dto.BuyerToSellerAppealDTO;
 import com.gseek.gs.service.inter.BillService;
 import com.gseek.gs.service.inter.BlacklistService;
 import com.gseek.gs.service.inter.BuyerToSellerAppealService;
-
 import com.gseek.gs.service.inter.MoneyService;
-import com.gseek.gs.util.FileUtils;
 import com.gseek.gs.websocket.controller.MessageController;
 import com.gseek.gs.websocket.message.NoticeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +44,7 @@ public class BuyerToSellerAppealServiceImpl implements BuyerToSellerAppealServic
     }
 
 
-    public int addBuyerToSellerAppeal(BuyerToSellerAppealDTO buyerToSellerAppealDTO,int billId) {
+    public int addBuyerToSellerAppeal(BuyerToSellerAppealDTO buyerToSellerAppealDTO,int billId) throws JsonProcessingException {
         int respondentId=billMapper.selectBillByBillId(billId).getSellerId();
 //            暂时冻结被申诉人账号
         moneyService.frozenUser(respondentId);

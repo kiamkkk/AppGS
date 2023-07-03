@@ -27,7 +27,8 @@ public class MvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns(
                         "/users","/users/register","/users/account", "/users/account/**",
-                        "/alipay/**","/imgs/**", "/error", "/error/**"
+                        "/alipay/**","/imgs/**", "/error", "/error/**", "/test/**", "/templates/**",
+                        "/webjars/**", "/static/**", "/websocket"
                 );
     }
 }

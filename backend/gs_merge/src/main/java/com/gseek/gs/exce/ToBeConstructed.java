@@ -18,4 +18,7 @@ public class ToBeConstructed extends BaseException{
         super(message, cause);
         code=500;
     }
+
+    public ToBeConstructed(Exception e) {
+    }
 }

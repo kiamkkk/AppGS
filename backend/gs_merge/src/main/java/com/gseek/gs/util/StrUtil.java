@@ -1,5 +1,6 @@
 package com.gseek.gs.util;
 
+import com.gseek.gs.exce.ToBeConstructed;
 import org.springframework.stereotype.Component;
 
 import java.util.regex.Matcher;
@@ -41,6 +42,11 @@ public class StrUtil {
      * */
     private static final String BASE64_FORMAT = "^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$";
 
+    /**
+     * 订阅特定用户推送的地址的格式：
+     * /user/任意位数字/任意字符
+     * */
+    private static final String USER_DESTINATION_FORMAT = "/user/(\\d+)/.*";
     private static final String BILLID_FORMAT = "^[0-9]+$";
 
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(PASSWORD_FORMAT);
@@ -49,6 +55,7 @@ public class StrUtil {
     private static final Pattern TOKEN_PATTEN =Pattern.compile(TOKEN_FORMAT);
     private static  final Pattern BASE64_PATTEN=Pattern.compile(BASE64_FORMAT);
     private static final Pattern BILLID_PATTEN=Pattern.compile(BILLID_FORMAT);
+    private static final Pattern USER_DESTINATION_PATTEN=Pattern.compile(USER_DESTINATION_FORMAT);
 
     /**
      * 检验密码格式是否正确
@@ -102,6 +109,11 @@ public class StrUtil {
 
     public static boolean checkBillId(String billId){
         Matcher matcher=BILLID_PATTEN.matcher(billId);
+        return matcher.matches();
+    }
+
+    public static boolean checkUserDestination(String userDestination){
+        Matcher matcher=USER_DESTINATION_PATTEN.matcher(userDestination);
         return matcher.matches();
     }
 
@@ -169,6 +181,23 @@ public class StrUtil {
             ans|=a[3-i];//保存 byte 值到 ans 的最低 8 位上
         }
         return ans;
+    }
+
+    /**
+     * 获取路径中间的数字
+     * */
+    public static String gainDestination(String destination){
+        Matcher matcher =USER_DESTINATION_PATTEN.matcher(destination);
+        if ( matcher.find() ){
+            String userId = matcher.group(1);
+            if (userId == null){
+                return "";
+            }
+            String prefix = "/user/"+userId;
+            int prefixIndex = prefix.length();
+            return destination.substring(prefixIndex);
+        }
+        throw new ToBeConstructed("destination wrong");
     }
 
 

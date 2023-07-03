@@ -76,6 +76,12 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
         String rawToken = request.getHeader("Authorization");
         log.debug("doFilterInternal开始");
 
+        //todo websocket部分测试用，测完删掉！
+        if (rawToken==null){
+            rawToken = request.getParameter("Authentication");
+        }
+        //todo 测试部分结束
+
         if (rawToken==null){
             log.debug("该请求无token，直接放行");
             chain.doFilter(request, response);
@@ -146,77 +152,6 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter  {
             log.info("token {} 格式异常", rawToken);
         }
 
-        /*if (StrUtil.checkToken(rawToken)) {
-
-            String token = rawToken.substring(TokenUtil.TOKEN_PREFIX.length());
-            // token过期
-            if (TokenUtil.isTokenExpired(token)){
-                log.info("token {} 过期",token);
-                throw new TokenInvalidException();
-            }
-
-            log.debug("token格式正确 {} ",token);
-            TokenGrade grade=TokenUtil.extractTokenGrade(token);
-            String userName = TokenUtil.extractClaim(token, Claims::getSubject);
-            log.info("用户名{},权限为{}",userName,grade);
-
-            if (! token.isBlank() && redisService.isUserHasToken(userName)) {
-                if (! userName.isBlank() ) {
-                    //验证token是否过期
-                    int code=redisService.inspectToken(token);
-                    switch (code) {
-                        case TOKEN_VALID -> {
-                            log.debug("token {} 可用 ", token);
-                        }
-                        case TOKEN_REISSUE -> {
-                            String newToken = tokenUtil.reissueToken(token, userName, grade);
-                            //todo 放响应头里感觉不太好，我是这样想：
-                            // 1、要么直接在这放进响应体里，controller里再读一遍响应体来改；
-                            // 2、要么想想办法把新token传到controller里，统一写入响应体。
-                            response.setHeader("newToken", newToken);
-                            log.info("用户 {} 的token重签发,新token为 {}", userName, token);
-                        }
-                        case TOKEN_INVALID -> {
-                            log.debug("用户 {} 的token {} 过期", userName, token);
-                            throw new TokenInvalidException();
-                        }
-                        default -> {
-                            log.error("检查token是否过期时出错：出现异常状态码{}", code);
-                        }
-                    }
-                    log.debug("状态码 {}",code);
-
-                    // 根据权限不同，使用不同的UserService
-                    if (grade==TokenGrade.USER){
-                        OrdinaryUser user =(OrdinaryUser) this.userService.loadUserByUsername(userName);
-
-                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                                user, user.getPassword(), user.getAuthorities());
-                        authentication.setDetails(new CustomWebAuthenticationDetailsSource().buildDetails(
-                                request).setUserId(user.getUserId()));
-
-                        log.debug("认证用户 {} ,设置security context", userName);
-
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                    }else if (grade==TokenGrade.ADMIN){
-                        OrdinaryAdmin admin=(OrdinaryAdmin) this.adminService.loadUserByUsername(userName);
-                        log.info(admin.toString());
-                        UsernamePasswordAuthenticationToken adminAuthentication = new UsernamePasswordAuthenticationToken(
-                                admin, admin.getPassword(), admin.getAuthorities());
-                        adminAuthentication.setDetails(new AdminWebAuthenticationDetailsSource().buildDetails(
-                                request).setAdminId(admin.getAdminId()));
-
-                        log.debug("认证管理员 {} ,设置security context", userName);
-
-                        SecurityContextHolder.getContext().setAuthentication(adminAuthentication);
-                    }else {
-                        log.warn("权限错误");
-                    }
-                }
-            }
-        }else {
-            log.info("token {} 格式异常", rawToken);
-        }*/
         log.debug("doFilterInternal结束");
         chain.doFilter(request, response);
     }

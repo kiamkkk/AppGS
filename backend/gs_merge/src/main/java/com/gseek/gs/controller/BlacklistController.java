@@ -84,7 +84,7 @@ public class BlacklistController {
         }
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 //            只有用户本人可以查看
-            if (blacklistMapper.queryReport(blackId).getClaimer_id()!=details.getUserId()){
+            if (blacklistMapper.queryReport(blackId).getClaimerId()!=details.getUserId()){
                 throw new ForbiddenException();
             }
             return objectMapper.writeValueAsString(blacklistService.queryResult(blackId));
@@ -106,8 +106,8 @@ public class BlacklistController {
         }
 //        只有举报人和被举报人能查看
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-            if (blacklistMapper.queryReport(blackId).getClaimer_id()!=details.getUserId()
-            ||blacklistMapper.queryReport(blackId).getRespondent_id()!=details.getUserId()){
+            if (blacklistMapper.queryReport(blackId).getClaimerId()!=details.getUserId()
+            ||blacklistMapper.queryReport(blackId).getRespondentId()!=details.getUserId()){
                 throw new ForbiddenException();
             }
             return objectMapper.writeValueAsString(blacklistService.queryReport(blackId));
@@ -130,7 +130,7 @@ public class BlacklistController {
         }
 //        只有申诉者可以删除订单
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-            if (blacklistMapper.queryReport(blackId).getClaimer_id()!=details.getUserId()){
+            if (blacklistMapper.queryReport(blackId).getClaimerId()!=details.getUserId()){
                 throw new ForbiddenException();
             }
             blacklistService.deleteReport(blackId);
@@ -151,7 +151,7 @@ public class BlacklistController {
                                HttpServletRequest request) throws IOException {
 //        只有申诉人本人能更新
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-            if (blacklistMapper.queryReport(blackId).getClaimer_id()!=details.getUserId()){
+            if (blacklistMapper.queryReport(blackId).getClaimerId()!=details.getUserId()){
                 throw new ForbiddenException();
             }
             String realPath=FileUtils.fileUtil(provePic,request);

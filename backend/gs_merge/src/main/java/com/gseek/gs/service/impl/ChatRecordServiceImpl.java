@@ -50,7 +50,7 @@ public class ChatRecordServiceImpl implements ChatRecordService, ScheduledServic
      * 每一小时同步一次
      * */
     @Async("async")
-    @Scheduled(cron="0 0 0/1 * * ?")
+    @Scheduled(cron="0 0 */1 * * ?")
     @Override
     public void redisToMysql(){
         List<ChatDO> chatDOs=redisService.getChatRecodes();

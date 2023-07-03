@@ -7,6 +7,8 @@ import com.gseek.gs.config.login.handler.CustomWebAuthenticationDetails;
 import com.gseek.gs.controller.Controller;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.business.common.ForbiddenException;
+import com.gseek.gs.exce.business.websocket.chat.WebSocketException;
+import com.gseek.gs.exce.business.websocket.chat.WrongSubscribeException;
 import com.gseek.gs.pojo.bean.AppealMessageBean;
 import com.gseek.gs.pojo.bean.BlacklistBean;
 import com.gseek.gs.pojo.business.GoodAccountBO;
@@ -14,9 +16,10 @@ import com.gseek.gs.pojo.dto.ChatBlockDTO;
 import com.gseek.gs.pojo.dto.PostChatImgDTO;
 import com.gseek.gs.service.inter.AdminService;
 import com.gseek.gs.service.inter.ChatRecordService;
-import com.gseek.gs.service.inter.RedisService;
 import com.gseek.gs.util.MinioUtil;
 import com.gseek.gs.websocket.message.*;
+import com.gseek.gs.websocket.message.chat.ChatMessage;
+import com.gseek.gs.websocket.message.chat.ChatPicMessage;
 import com.gseek.gs.websocket.service.MessageService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.websocket.server.ServerEndpoint;
@@ -24,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.security.core.Authentication;
@@ -43,18 +47,11 @@ import javax.crypto.IllegalBlockSizeException;
 public class MessageController implements Controller {
 
     @Autowired
-    @Qualifier("redisServiceImpl")
-    RedisService redisService;
-
-    @Autowired
     ObjectMapper objectMapper;
-
     @Autowired
     Result result;
-
     @Autowired
     MinioUtil minioUtil;
-
     @Autowired
     MessageService messageService;
     @Autowired
@@ -65,10 +62,25 @@ public class MessageController implements Controller {
     @Lazy
     AdminService adminService;
 
+    @MessageExceptionHandler(WebSocketException.class)
+    public void exp(Exception e) {
+        // todo 异常处理
+        if(e instanceof WebSocketException ){
+            if (e instanceof WrongSubscribeException wse){
+                messageService.disconnect(wse);
+            }
+        }
+    }
+    /**
+     * 接收聊天消息
+     * */
+    @MessageMapping("/user/queue/chat")
+    public void receiveChat(ChatMessage message){
+        messageService.sendMessage(message);
+    }
+
     /**
      * 广播
-     *
-     *
      * */
     public void announce(AnnounceMessage message) {
         messageService.sendMessage(message);
@@ -76,16 +88,13 @@ public class MessageController implements Controller {
 
     /**
      * 交货消息
-     *
      * */
     public void delivery(long time, GoodAccountBO bo) {
         NoticeMessage message=new NoticeMessage(time,bo,objectMapper);
         messageService.sendMessage(message);
     }
-
     /**
      * 一般通知
-     *
      * */
     public void general(NoticeMessage message) {
         messageService.sendMessage(message);
@@ -115,6 +124,7 @@ public class MessageController implements Controller {
         AppealNoticeMessage appealNoticeMessage=new AppealNoticeMessage(appealMessageBean);
         messageService.sendMessage(appealNoticeMessage);
     }
+
     /**
      * 被移出黑名单通知
      *
@@ -122,16 +132,6 @@ public class MessageController implements Controller {
     public void appealRemove(AppealMessageBean appealMessageBean){
         AppealNoticeMessage appealNoticeMessage=new AppealNoticeMessage("被移出黑名单",appealMessageBean);
         messageService.sendMessage(appealNoticeMessage);
-    }
-
-    /**
-     * 用户聊天
-     * */
-    @MessageMapping("/user/chat")
-    public void chat(@Payload BaseMessage message) throws JsonProcessingException {
-       messageService.sendMessage(message);
-        // 用另一个线程储存聊天记录
-        chatRecordService.insertMessage(message);
     }
     /**
      * 客服聊天
@@ -164,6 +164,8 @@ public class MessageController implements Controller {
     /**
      * 用户聊天时发送图片
      * Content-Type:multipart/form-data
+     *
+     * @deprecated 待改造
      * */
 
     @PostMapping("/chats/imgs/{good_id}/{user_id}")
@@ -189,7 +191,8 @@ public class MessageController implements Controller {
         // 推送消息
         ChatPicMessage message=new ChatPicMessage(userId, dto.getToUserId(), goodId,
                 authentication.getName(), url, dto.getTime());
-        chat(message);
+        //todo 改回来
+        /*chat(message);*/
 
         return result.gainPostSuccess();
     }
@@ -199,6 +202,7 @@ public class MessageController implements Controller {
             throws JsonProcessingException {
         return chatRecordService.getChatRecords(goodId,userId);
     }
+
     @GetMapping("/chats/admin/records/{goodId}/{userId}")
     public String getAdminChatRecords(@PathVariable("goodId") int goodId,@PathVariable("userId") int userId) throws JsonProcessingException {
         //TODO 提醒前端goodId=-1

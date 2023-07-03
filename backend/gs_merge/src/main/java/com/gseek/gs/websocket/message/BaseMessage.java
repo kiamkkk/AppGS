@@ -1,19 +1,19 @@
 package com.gseek.gs.websocket.message;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Phak
  * @since 2023/5/16-18:41
  */
+@Slf4j
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class BaseMessage {
     @JsonIgnore
     public final static Integer SYSTEM_FROM_USER_ID =-1;
@@ -36,14 +36,13 @@ public class BaseMessage {
     @Override
     public String toString() {
         StringBuilder sb=new StringBuilder();
-        sb.append("fromUserId:").append(fromUserId)
-          .append("toUserId").append(toUserId)
-          .append("goodId").append(goodId)
-          .append("fromUserName").append(fromUserName)
-          .append("type").append(type)
-          .append("message").append(message)
-          .append("time").append(time);
+        sb.append("fromUserId:").append(fromUserId).append("\n")
+          .append("toUserId:").append(toUserId).append("\n")
+          .append("goodId:").append(goodId).append("\n")
+          .append("fromUserName:").append(fromUserName).append("\n")
+          .append("type:").append(type).append("\n")
+          .append("message:").append(message).append("\n")
+          .append("time:").append(time).append("\n");
         return sb.toString();
-
     }
 }

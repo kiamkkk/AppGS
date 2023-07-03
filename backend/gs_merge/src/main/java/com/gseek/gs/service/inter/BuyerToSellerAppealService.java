@@ -16,7 +16,7 @@ public interface BuyerToSellerAppealService {
     /**
      *添加买家申诉
      * */
-    int addBuyerToSellerAppeal(BuyerToSellerAppealDTO buyerToSellerAppealDTO,int billId);
+    int addBuyerToSellerAppeal(BuyerToSellerAppealDTO buyerToSellerAppealDTO,int billId) throws JsonProcessingException;
     /**
      *查看申诉
      * */

@@ -2,6 +2,7 @@ package com.gseek.gs.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gseek.gs.pojo.data.ChatDO;
+import com.gseek.gs.websocket.message.BaseMessage;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +32,9 @@ public class RedisConfig {
 
     @Value("${spring.data.redis.database.db2}")
     private int db2;
+
+    @Value("${spring.data.redis.database.db3}")
+    private int db3;
 
     @Value("${spring.data.redis.host}")
     private String host;
@@ -87,6 +91,26 @@ public class RedisConfig {
 
         //使用Jackson2JsonRedisSerializer来序列化和反序列化redis的value值（默认使用JDK的序列化方式）
         Jackson2JsonRedisSerializer<ChatDO> jacksonSeial = new Jackson2JsonRedisSerializer(ChatDO.class);
+        // 值采用json序列化
+        template.setValueSerializer(jacksonSeial);
+        //使用StringRedisSerializer来序列化和反序列化redis的key值
+        template.setKeySerializer(new StringRedisSerializer());
+        template.afterPropertiesSet();
+
+        return template;
+    }
+
+    /**
+     * 管理离线聊天消息.
+     * */
+    @Bean("offlineTemplate")
+    public RedisTemplate<String, BaseMessage> offlineTemplate(){
+        RedisTemplate<String, BaseMessage> template = new RedisTemplate<>();
+        // 配置连接工厂
+        template.setConnectionFactory(redisConnectionFactory(db3));
+
+        //使用Jackson2JsonRedisSerializer来序列化和反序列化redis的value值（默认使用JDK的序列化方式）
+        Jackson2JsonRedisSerializer<ChatDO> jacksonSeial = new Jackson2JsonRedisSerializer(BaseMessage.class);
         // 值采用json序列化
         template.setValueSerializer(jacksonSeial);
         //使用StringRedisSerializer来序列化和反序列化redis的key值

@@ -9,7 +9,6 @@ import com.gseek.gs.dao.BillMapper;
 import com.gseek.gs.dao.GoodMapper;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.business.common.ForbiddenException;
-import com.gseek.gs.pojo.bean.AppealMessageBean;
 import com.gseek.gs.pojo.dto.BuyerToSellerAppealDTO;
 import com.gseek.gs.service.inter.BillService;
 import com.gseek.gs.service.inter.BlacklistService;
@@ -17,7 +16,6 @@ import com.gseek.gs.service.inter.BuyerToSellerAppealService;
 import com.gseek.gs.service.inter.MoneyService;
 import com.gseek.gs.util.FileUtils;
 import com.gseek.gs.websocket.controller.MessageController;
-import com.gseek.gs.websocket.message.NoticeMessage;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +82,7 @@ public class BuyerToSellerAppealController {
         }
 
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-            int billId=buyerToSellerAppealService.queryAppeal(appealId).getBill_id();
+            int billId=buyerToSellerAppealService.queryAppeal(appealId).getBillId();
             int respondentId=billService.selectBill(billId).getSellerId();
 //            申诉人和被申诉人能看
             if (buyerToSellerAppealService.queryMyId(appealId)!=details.getUserId()
@@ -134,7 +132,7 @@ public class BuyerToSellerAppealController {
 
         }
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-            int billId=buyerToSellerAppealService.queryAppeal(appealId).getBill_id();
+            int billId=buyerToSellerAppealService.queryAppeal(appealId).getBillId();
             int respondentId=billService.selectBill(billId).getSellerId();
 //            只有申诉者和被申诉者能看
             if (buyerToSellerAppealService.queryMyId(appealId)!=details.getUserId()

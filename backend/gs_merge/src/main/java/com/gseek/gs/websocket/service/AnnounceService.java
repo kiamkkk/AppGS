@@ -45,11 +45,12 @@ public class AnnounceService {
      * 每30分钟读取一次所有公告名
      * */
     @Async("async")
-    @Scheduled(cron = "0 0/30 * * * ? ")
+    @Scheduled(cron = "0 */30 * * * ? ")
     public void readAnnounce() throws IOException {
         List<String> names = minioUtil.listAnnounce();
         for (String name : names){
             // 本地有没有储存这个公告
+
             if ( ! announces.containsKey(name) ){
                 // 没有发布过的公告，储存到本地并发布
                 // 从minio取出的文件名自带路径

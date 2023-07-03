@@ -1,7 +1,8 @@
-package com.gseek.gs.websocket.message;
+package com.gseek.gs.websocket.message.chat;
 
 
 import com.gseek.gs.pojo.dto.PostChatImgDTO;
+import com.gseek.gs.websocket.message.MessageType;
 import lombok.Getter;
 
 /**
@@ -9,7 +10,7 @@ import lombok.Getter;
  * @since 2023/5/16-18:45
  */
 @Getter
-public class ChatPicMessage extends BaseMessage{
+public class ChatPicMessage extends ChatMessage {
     public ChatPicMessage(Integer fromUserId, Integer toUserId, Integer goodId,
                           String fromUserName, String url, Long time) {
         super(fromUserId, toUserId, goodId,

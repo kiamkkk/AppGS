@@ -88,7 +88,7 @@ public class AdminServiceImpl implements AdminService {
     public BuyerToSellerAppealBO queryBuyerAppealById(int appealId){
         return adminMapper.queryBuyerAppealById(appealId);
     }
-    public int auditGood(GoodCheckedDO goodCheckedDO){
+    public int auditGood(GoodCheckedDO goodCheckedDO) throws JsonProcessingException {
 //        拿到goodId
         int goodId=goodCheckedDO.getGoodId();
 //        设置为已经被审核
@@ -101,7 +101,7 @@ public class AdminServiceImpl implements AdminService {
         }
         return adminMapper.auditGood(goodCheckedDO);
     }
-    public int auditSellerAppeal(SellerToBuyerAppealResultBO sellerToBuyerAppealResultBO,int appealId,int adminId){
+    public int auditSellerAppeal(SellerToBuyerAppealResultBO sellerToBuyerAppealResultBO,int appealId,int adminId) throws JsonProcessingException {
         int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBillId();
         int claimerId =sellerToBuyerAppealService.queryAppeal(appealId).getMyId();
         int respondentId=billService.selectBill(billId).getBuyerId();
