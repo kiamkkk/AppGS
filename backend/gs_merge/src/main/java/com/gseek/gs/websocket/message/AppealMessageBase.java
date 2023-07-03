@@ -30,7 +30,7 @@ public class AppealMessageBase {
     @Override
     public String toString() {
         StringBuilder sb=new StringBuilder();
-        sb.append("fromUserId:").append(fromUserId)
+        sb.append("fromUserId").append(fromUserId)
                 .append("toUserId").append(toUserId)
                 .append("billId").append(billId)
                 .append("goodName").append(goodName)

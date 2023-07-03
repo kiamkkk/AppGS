@@ -91,8 +91,6 @@ public class AdminServiceImpl implements AdminService {
     public int auditGood(GoodCheckedDO goodCheckedDO) throws JsonProcessingException {
 //        拿到goodId
         int goodId=goodCheckedDO.getGoodId();
-//        设置为已经被审核
-        adminMapper.setGoodCheck(goodId);
         //通过审核通知卖家
         if(goodCheckedDO.isResult()){
             int toUserId=goodMapper.selectOwnUserIdByGoodId(goodId);
@@ -105,30 +103,33 @@ public class AdminServiceImpl implements AdminService {
         int billId=sellerToBuyerAppealService.queryAppeal(appealId).getBillId();
         int claimerId =sellerToBuyerAppealService.queryAppeal(appealId).getMyId();
         int respondentId=billService.selectBill(billId).getBuyerId();
+        boolean result=sellerToBuyerAppealResultBO.isAppealResult();
+        boolean accept=sellerToBuyerAppealResultBO.isAccept();
+        int damageDegree=sellerToBuyerAppealResultBO.getDamageDegree();
 //            审核通过&&卖家同意按协议走
-        if (sellerToBuyerAppealResultBO.isAppealResult()&&sellerToBuyerAppealResultBO.isAccept()){
-
+        if (result&&accept){
 //                    账号价值受损严重
-            if(sellerToBuyerAppealResultBO.getDamageDegree()==3){
+            if(damageDegree==3){
 //                    退钱
                 moneyService.returnMoney(billId,respondentId);
-//                        加入黑名单
+//                    加入黑名单
                 blacklistService.insertAuditedBlacklistBySeller(appealId,respondentId,adminId);
-//                        消息通知
+//                    消息通知
                 AppealMessageBean appealMessageBean=buyerToSellerAppealService.message(appealId);
                 messageController.appeal(appealMessageBean);
             }
             else {
+//                等级为1或2的退款
                 moneyService.returnMoneyByDegree(billId,sellerToBuyerAppealResultBO.getDamageDegree(),respondentId);
             }
         }
         // 账号没有损伤，审核不通过
-        if(!sellerToBuyerAppealResultBO.isAppealResult()){
+        else if(!result){
             NoticeMessage noticeMessage=new NoticeMessage("您的账号未损伤，申诉不通过，有疑问可以询问客服",System.currentTimeMillis(),claimerId);
             messageController.general(noticeMessage);
         }
 //                卖家不同意按协议走&&审核通过
-        if(sellerToBuyerAppealResultBO.isAppealResult()&&!sellerToBuyerAppealResultBO.isAccept()){
+        else {
             NoticeMessage noticeMessage=new NoticeMessage("申诉通过，请与买家私下调解，有疑问可以询问客服",System.currentTimeMillis(),claimerId);
             messageController.general(noticeMessage);
 //                    通知买家
@@ -144,8 +145,6 @@ public class AdminServiceImpl implements AdminService {
         return adminMapper.auditSellerAppeal(sellerToBuyerAppealResultBO);
     }
     public int auditBuyerAppeal(BuyerToSellerAppealResultBO buyerToSellerAppealResultBO,int appealId,int adminId) throws JsonProcessingException {
-//        标记该申诉已经被审核
-        adminMapper.setBuyerCheck(buyerToSellerAppealResultBO.getAppealId());
 //        拿到billId
         int billId=buyerToSellerAppealService.queryAppeal(appealId).getBillId();
 //                审核通过，扣钱

@@ -11,10 +11,11 @@
 	</view>
 </template>
 <script>
-import {initVueI18n} from '@dcloudio/uni-i18n'
-import messages from './i18n/index.js'
-
-const {
+	import {
+		initVueI18n
+	} from '@dcloudio/uni-i18n'
+	import messages from './i18n/index.js'
+	const {
 		t
 	} = initVueI18n(messages)
 	/**

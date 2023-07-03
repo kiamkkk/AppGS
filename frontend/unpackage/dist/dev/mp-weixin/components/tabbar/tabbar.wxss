@@ -1,0 +1,28 @@
+@charset "UTF-8";
+/* 水平间距 */
+/* 水平间距 */
+.tabbar {
+  display: flex;
+  justify-content: center;
+  position: fixed;
+  bottom: 52rpx;
+  width: 100%;
+  left: 0;
+}
+.tabbar .tabbar_region {
+  width: 720rpx;
+  height: 132rpx;
+  background: #808080;
+  box-shadow: 0rpx 8rpx 12rpx 0rpx rgba(0, 0, 0, 0.25);
+  opacity: 1;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-radius: 100rpx;
+}
+.tabbar .tabbar_region .item image {
+  width: 48rpx;
+  height: 50rpx;
+  opacity: 1;
+}
+

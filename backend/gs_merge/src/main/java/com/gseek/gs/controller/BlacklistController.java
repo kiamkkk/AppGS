@@ -9,6 +9,7 @@ import com.gseek.gs.config.login.handler.admin.AdminWebAuthenticationDetails;
 import com.gseek.gs.dao.BlacklistMapper;
 import com.gseek.gs.exce.ServerException;
 import com.gseek.gs.exce.business.common.ForbiddenException;
+import com.gseek.gs.pojo.business.BlacklistBO;
 import com.gseek.gs.pojo.data.BlacklistDO;
 import com.gseek.gs.pojo.dto.BlacklistDTO;
 import com.gseek.gs.service.inter.BlacklistService;
@@ -35,7 +36,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/report")
 @Slf4j
-public class BlacklistController {
+public class BlacklistController implements com.gseek.gs.controller.Controller {
     @Autowired
     BlacklistService blacklistService;
     @Autowired
@@ -55,21 +56,17 @@ public class BlacklistController {
     public String addReport(@RequestParam("provePic") MultipartFile provePic, @RequestParam int respondentId,
                             @RequestParam String appealReason, @RequestParam int claimerId,
                             HttpServletRequest request, @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws IOException {
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
-            if (claimerId!=details.getUserId()){
-                throw new ForbiddenException();
-            }
-            String realPath = FileUtils.fileUtil(provePic,request);
-            //保存到数据库
-            BlacklistDTO blacklistDTO =new BlacklistDTO(claimerId,respondentId,appealReason,realPath);
-            System.out.println(blacklistDTO);
-            blacklistService.addReport(blacklistDTO);
-            return result.gainPostSuccess();
-
-        }else {
-            log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+//            TODO 被举报人是否存在的异常还没写
+        CustomWebAuthenticationDetails details =perService(authentication);
+        if (claimerId!=details.getUserId()){
+            throw new ForbiddenException("claimer must be logined user");
         }
+        String realPath = FileUtils.fileUtil(provePic,request);
+        //保存到数据库
+        BlacklistDTO blacklistDTO =new BlacklistDTO(claimerId,respondentId,appealReason,realPath);
+        System.out.println(blacklistDTO);
+        blacklistService.addReport(blacklistDTO);
+        return result.gainPostSuccess();
 
     }
     /**
@@ -82,7 +79,7 @@ public class BlacklistController {
 //            管理员直接查看
             return objectMapper.writeValueAsString(blacklistService.queryResult(blackId));
         }
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
+        else if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
 //            只有用户本人可以查看
             if (blacklistMapper.queryReport(blackId).getClaimerId()!=details.getUserId()){
                 throw new ForbiddenException();
@@ -90,7 +87,7 @@ public class BlacklistController {
             return objectMapper.writeValueAsString(blacklistService.queryResult(blackId));
         } else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            throw new ForbiddenException();
         }
 
     }
@@ -98,22 +95,23 @@ public class BlacklistController {
      * 查看黑名单举报
      * */
     @GetMapping("/{blackId}")
-    public String queryReport(@PathVariable int blackId,
-                              @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws JsonProcessingException {
+    public BlacklistBO queryReport(@PathVariable int blackId,
+                                   @CurrentSecurityContext(expression = "authentication ") Authentication authentication) throws JsonProcessingException {
         if(authentication.getDetails() instanceof AdminWebAuthenticationDetails adminDetails) {
 //            管理员直接查看
-            return objectMapper.writeValueAsString(blacklistService.queryReport(blackId));
+//            TODO 突然有问题了（？
+            return blacklistService.queryReport(blackId);
         }
 //        只有举报人和被举报人能查看
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
+        else if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             if (blacklistMapper.queryReport(blackId).getClaimerId()!=details.getUserId()
             ||blacklistMapper.queryReport(blackId).getRespondentId()!=details.getUserId()){
                 throw new ForbiddenException();
             }
-            return objectMapper.writeValueAsString(blacklistService.queryReport(blackId));
+            return blacklistService.queryReport(blackId);
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            throw new ForbiddenException();
         }
 
     }
@@ -129,7 +127,7 @@ public class BlacklistController {
             return result.gainDeleteSuccess();
         }
 //        只有申诉者可以删除订单
-        if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
+        else if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             if (blacklistMapper.queryReport(blackId).getClaimerId()!=details.getUserId()){
                 throw new ForbiddenException();
             }
@@ -137,7 +135,7 @@ public class BlacklistController {
             return result.gainDeleteSuccess();
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("认证时出错");
+            throw new ForbiddenException();
         }
 
 
@@ -161,7 +159,7 @@ public class BlacklistController {
 
         }else {
             log.error("向下转型失败|不能将authentication中的detail转为CustomWebAuthenticationDetails");
-            throw new ServerException("已经被审核，无法更改");
+                throw new ForbiddenException();
         }
 
 

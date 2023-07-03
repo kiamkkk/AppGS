@@ -2,6 +2,7 @@ package com.gseek.gs.dao;
 
 
 import com.gseek.gs.pojo.bean.BlacklistBean;
+import com.gseek.gs.pojo.business.BlacklistBO;
 import com.gseek.gs.pojo.business.BlacklistResultBO;
 import com.gseek.gs.pojo.data.BlacklistDO;
 import com.gseek.gs.pojo.dto.BlacklistDTO;
@@ -45,7 +46,7 @@ public interface BlacklistMapper {
     /**
      *查询所有未审核举报
      * */
-    List<BlacklistDO> queryAllUnchecked();
+    List<BlacklistBO> queryAllUnchecked();
     /**
      *审核举报
      * */
