@@ -47,16 +47,20 @@
         select admin_name from gseek.admin where admin_id=#{adminId};
     </select>
     <select id="queryUnCheckedProduct"  resultType="com.gseek.gs.pojo.business.GoodBO">
-        select * from gseek.good_checked where checked=0;
+    select good_id,good_name, account, account_password, good_text,
+           own_user_id, own_user_name, good_price, create_time,
+           modified_time, sold, type_tag_name
+           from gseek.good where good_id=
+                ANY(SELECT good_id FROM gseek.good_checked where checked=0);
     </select>
     <select id="queryUnCheckedSellerAppeal"  resultType="com.gseek.gs.pojo.business.SellerToBuyerAppealBO">
         select * from gseek.appeal_seller_to_buyer where checked=0;
     </select>
     <select id="queryUnCheckedBuyerAppeal"  resultType="com.gseek.gs.pojo.business.BuyerToSellerAppealBO">
-        select * from gseek.appeal_buyer_to_seller where checked=0;
+        select appeal_id,appeal_reason,provePic,bill_id,checked,my_id from gseek.appeal_buyer_to_seller where checked=0;
     </select>
     <select id="querySellerAppealById" parameterType="int" resultType="com.gseek.gs.pojo.business.SellerToBuyerAppealBO">
-        select appeal_id,appeal_reason,checked,pic_before,pic_after,accept,bill_id from gseek.appeal_seller_to_buyer where `appeal_id`=#{appealId};;
+        select appeal_id,appeal_reason,checked,pic_before,pic_after,accept,bill_id from gseek.appeal_seller_to_buyer where `appeal_id`=#{appealId};
     </select>
     <select id="queryBuyerAppealById" parameterType="int" resultType="com.gseek.gs.pojo.business.BuyerToSellerAppealBO">
         select appeal_id,appeal_reason,checked,provePic,bill_id from gseek.appeal_buyer_to_seller where `appeal_id`=#{appealId};
@@ -76,6 +80,10 @@
             <if test="disapproveReason != null">
                 disapprove_reason = #{disapproveReason},
             </if>
+--             标记为已审核
+            <if test="good_id != null">
+                checked = 1,
+            </if>
         </set>
         <where >
             good_id=#{goodId};
@@ -93,8 +101,12 @@
             <if test="damageDegree != null">
                 `damage_degree` = #{damage_degree},
             </if>
+            --             标记为已审核
+            <if test="appeal_id != null">
+                checked = 1,
+            </if>
         </set>
-        <where >
+        <where>
             appeal_id=#{appealId};
         </where>
     </update>
@@ -106,6 +118,10 @@
             </if>
             <if test="appealResult != null">
                 appeal_result = #{appeal_result},
+            </if>
+            --             标记为已审核
+            <if test="appeal_id != null">
+                checked = 1,
             </if>
         </set>
         <where >

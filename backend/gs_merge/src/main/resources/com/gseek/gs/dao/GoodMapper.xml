@@ -191,7 +191,7 @@
                good_price, create_time, modified_time, type_tag_name
         from good
         where good_id=
-              (select good_id from good_checked where result=1)
+              (select good_id from good_checked where `result`=1)
     </select>
 
     <select id="queryGoodByName" parameterType="String" resultMap="GoodsWithoutAccountAndSoldBO">

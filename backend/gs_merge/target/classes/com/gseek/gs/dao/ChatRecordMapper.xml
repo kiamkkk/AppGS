@@ -8,7 +8,7 @@
         <result column="good_id" jdbcType="INTEGER" property="goodId" />
         <result column="from_user_id" jdbcType="INTEGER" property="fromUserId" />
         <result column="to_user_id" jdbcType="INTEGER" property="toUserId" />
-        <result column="text" jdbcType="INTEGER" property="text" />
+        <result column="text" jdbcType="VARCHAR" property="text" />
         <result column="send_time" jdbcType="INTEGER" property="sendTime" />
     </resultMap>
 

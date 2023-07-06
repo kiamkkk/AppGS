@@ -10,4 +10,13 @@ public class AdminMessage extends BaseMessage{
         super(fromUserId, toUserId, SYSTEM_GOOD_ID, identity+fromUserId,
                 MessageType.ADMIN.name(), message, time);
     }
+    @Override
+    public void setMessage(String message) {
+        super.setMessage(message);
+    }
+
+    @Override
+    public void setTime(Long time) {
+        super.setTime(time);
+    }
 }

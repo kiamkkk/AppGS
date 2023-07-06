@@ -4,6 +4,9 @@ server:
     context-path: /
 
 spring:
+  main:
+    allow-bean-definition-overriding: true
+
   profiles:
     include:
       alipay
@@ -19,7 +22,8 @@ spring:
       database:
         db1: 0
         db2: 1
-      host: 127.0.0.1
+        db3: 2
+      host: 47.120.6.123
       port: 6379
       pool:
         max-active: 100
@@ -28,19 +32,21 @@ spring:
         max-wait: -1
 
   rabbitmq:
-    host: 127.0.0.1
+    host: 47.120.6.123
     port: 5672
-    username: guest
-    password: guest
+    username: gseek
+    password: gseek
     virtual-host: GseekHost
     relay_host: GseekHost
+
+
 
 logging:
   level:
     root: info
 
 minio:
-  endpoint: http://127.0.0.1:9000
+  endpoint: http://47.120.6.123:9000
   accessKey: gseek
   secretKey: gseek123456
   bucketName: gseek
@@ -55,6 +61,8 @@ custom:
   agreementFee: 0.01
 
   # 主机名
-  localhost: 118.178.243.30
+  localhost: 47.120.6.123
+#  118.178.243.30
+#  47.120.6.123
 
 

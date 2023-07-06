@@ -10,7 +10,7 @@ import lombok.*;
 @Setter
 @Getter
 @AllArgsConstructor
-public class BlacklistMessageBase {
+public class BlacklistMessageBase extends BaseMessage{
     @JsonIgnore
     public final static Integer SYSTEM_FROM_USER_ID =-1;
     @JsonIgnore
@@ -26,11 +26,11 @@ public class BlacklistMessageBase {
     @Override
     public String toString() {
         StringBuilder sb=new StringBuilder();
-        sb.append("fromUserId").append(fromUserId)
-                .append("toUserId").append(toUserId)
-                .append("reason").append(reason)
-                .append("type").append(type)
-                .append("message").append(message);
+        sb.append("fromUserId").append(fromUserId).append("\n")
+                .append("toUserId").append(toUserId).append("\n")
+                .append("reason").append(reason).append("\n")
+                .append("type").append(type).append("\n")
+                .append("message").append(message).append("\n");
         return sb.toString();
 
     }

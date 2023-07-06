@@ -3,6 +3,8 @@ package com.gseek.gs.websocket.service;
 import com.gseek.gs.exce.business.websocket.chat.WebSocketException;
 import com.gseek.gs.exce.business.websocket.chat.WrongSubscribeException;
 import com.gseek.gs.pojo.dto.ChatBlockDTO;
+import com.gseek.gs.service.inter.AdminService;
+import com.gseek.gs.service.inter.ChatRecordService;
 import com.gseek.gs.websocket.message.*;
 import com.gseek.gs.websocket.message.chat.ChatMessage;
 import com.gseek.gs.websocket.message.chat.ChatTextMessage;
@@ -41,6 +43,10 @@ public class MessageService {
     private RedisTemplate<String, BaseMessage> offlineTemplate;
     @Autowired
     private RabbitTemplate rabbitTemplate;
+    @Autowired
+    private AdminService adminService;
+    @Autowired
+    ChatRecordService chatRecordService;
     private StompEncoder stompEncoder = new StompEncoder();
 
 
@@ -145,25 +151,62 @@ public class MessageService {
         template.convertAndSendToUser(message.getToUserId()+"", "/queue/chat", message);
     }
 
-    //黑名单的消息提醒
+
     /**
-     * @deprecated 暂待修改
+     * 黑名单的消息提醒
      * */
-    public void sendMessage(BlacklistMessageBase bm){
-        template.convertAndSendToUser(bm.getToUserId()+"","/remind/blacklist/",bm);
+    public void sendMessage(BlacklistMessageBase message){
+        // 不在线，储存消息
+        if (! checkOnline(message.getToUserId())){
+            saveOfflineMessage(message.getToUserId(), message);
+            return;
+        }
+
+        if (message.getType().equals(MessageType.BLACKLIST.toString())||message.getType().equals(MessageType.BLACKLIST_REMOVE.toString())){
+            template.convertAndSendToUser(message.getToUserId()+"", "/queue/blacklist", message);
+        }
+        template.convertAndSendToUser(message.getToUserId()+"", "/queue/notice", message);
     }
-    //申诉的消息提醒
+
     /**
-     * @deprecated 暂待修改
+     * 申诉的消息提醒
      * */
-    public void sendMessage(AppealMessageBase bm){
-        template.convertAndSendToUser(bm.getToUserId()+"","/remind/appeal",bm);
+    public void sendMessage(AppealMessageBase message){
+        // 不在线，储存消息
+        if (! checkOnline(message.getToUserId())){
+            saveOfflineMessage(message.getToUserId(), message);
+            return;
+        }
+
+        if (message.getType().equals(MessageType.APPEAL.toString())){
+            template.convertAndSendToUser(message.getToUserId()+"", "/queue/appeal", message);
+        }
+        template.convertAndSendToUser(message.getToUserId()+"", "/queue/notice", message);
     }
     //客服的消息提醒
     /**
      * @deprecated 暂待修改
      * */
-    public void sendMessage(AdminMessage bm){
+    public void sendMessage(AdminMessage message){
+        int goodId=message.getGoodId();
+        int fromUserId=message.getFromUserId();
+        String identity=message.getFromUserName().substring(0,2);
+        //TODO 告诉前端有身份要求
+        if(identity.equals("用户")){
+            int[] adminId=chatRecordService.selectToUser(goodId,fromUserId);
+            if(adminId[0]!=0){
+                message.setToUserId(adminId[0]);
+            }
+            else{
+                int newAdminId=adminService.selectRandomAdmin();
+                message.setToUserId(newAdminId);
+            }
+        }
+        if(identity.equals("管理")){
+            int[] toUserId=chatRecordService.selectToUser(goodId,fromUserId);
+            message.setToUserId(toUserId[0]);
+        }
+        chatRecordService.insertMessage(message);
         template.convertAndSendToUser(bm.getToUserId()+"","/admin/chat",bm);
     }
 

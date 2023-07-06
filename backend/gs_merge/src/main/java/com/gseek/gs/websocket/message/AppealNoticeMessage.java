@@ -17,4 +17,13 @@ public class AppealNoticeMessage extends AppealMessageBase{
     public AppealNoticeMessage(String message,AppealMessageBean bo){
         super(SYSTEM_FROM_USER_ID,bo.getToUserId(),"因撤销申诉",bo.getBillId(),  MessageType.APPEAL.name(), message);
     }
+    @Override
+    public void setMessage(String message) {
+        super.setMessage(message);
+    }
+
+    @Override
+    public void setTime(Long time) {
+        super.setTime(time);
+    }
 }

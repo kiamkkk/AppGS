@@ -14,7 +14,7 @@ public class ForbiddenException extends BusinessException {
      * @deprecated 见父类
      * */
     public ForbiddenException() {
-        super();
+        super("Forbidden");
         code=403;
     }
 

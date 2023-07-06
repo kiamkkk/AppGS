@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @AllArgsConstructor
-public class AppealMessageBase {
+public class AppealMessageBase extends BaseMessage{
     @JsonIgnore
     public final static Integer SYSTEM_FROM_USER_ID =-1;
     @JsonIgnore
@@ -30,12 +30,12 @@ public class AppealMessageBase {
     @Override
     public String toString() {
         StringBuilder sb=new StringBuilder();
-        sb.append("fromUserId").append(fromUserId)
-                .append("toUserId").append(toUserId)
-                .append("billId").append(billId)
-                .append("goodName").append(goodName)
-                .append("type").append(type)
-                .append("message").append(message);
+        sb.append("fromUserId").append(fromUserId).append("\n")
+                .append("toUserId").append(toUserId).append("\n")
+                .append("billId").append(billId).append("\n")
+                .append("goodName").append(goodName).append("\n")
+                .append("type").append(type).append("\n")
+                .append("message").append(message).append("\n");
         return sb.toString();
 
     }

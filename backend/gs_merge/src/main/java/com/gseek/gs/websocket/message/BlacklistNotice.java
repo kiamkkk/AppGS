@@ -14,4 +14,13 @@ public class BlacklistNotice extends BlacklistMessageBase{
     public BlacklistNotice(String message,int toUserId){
         super(SYSTEM_FROM_USER_ID,toUserId, "因撤销举报", MessageType.BLACKLIST_REMOVE.name(), message);
     }
+    @Override
+    public void setMessage(String message) {
+        super.setMessage(message);
+    }
+
+    @Override
+    public void setTime(Long time) {
+        super.setTime(time);
+    }
 }

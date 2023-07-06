@@ -150,7 +150,7 @@ public class BlacklistController implements com.gseek.gs.controller.Controller {
 //        只有申诉人本人能更新
         if (authentication.getDetails() instanceof CustomWebAuthenticationDetails details){
             if (blacklistMapper.queryReport(blackId).getClaimerId()!=details.getUserId()){
-                throw new ForbiddenException();
+                throw new ForbiddenException("not allow");
             }
             String realPath=FileUtils.fileUtil(provePic,request);
             BlacklistDO blacklistDO =new BlacklistDO(appealReason,blackId,realPath);

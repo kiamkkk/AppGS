@@ -1,8 +1,13 @@
+com\gseek\gs\dao\AdminMapperTest.class
+com\gseek\gs\websocket\WebsocketTest.class
+com\gseek\gs\dao\GoodFavMapperTest.class
+com\gseek\gs\util\StrUtilTest.class
+com\gseek\gs\util\TokenUtilTest.class
+com\gseek\gs\dao\BoughtGoodMapperTest.class
 com\gseek\gs\dao\GoodMapperTest.class
 com\gseek\gs\util\MinioUtilTest.class
 com\gseek\gs\util\RedisTest.class
-com\gseek\gs\dao\AdminMapperTest.class
+com\gseek\gs\websocket\support\TestChannelInterceptor.class
 com\gseek\gs\GsApplicationTests.class
+com\gseek\gs\websocket\support\TestPrincipal.class
 com\gseek\gs\service\impl\BlacklistServiceImplTest.class
-com\gseek\gs\util\StrUtilTest.class
-com\gseek\gs\util\TokenUtilTest.class

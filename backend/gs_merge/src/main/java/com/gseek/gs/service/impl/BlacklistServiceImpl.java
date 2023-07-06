@@ -90,7 +90,8 @@ public class BlacklistServiceImpl implements BlacklistService {
 
 
     public int updateReport(BlacklistDO blacklistDO) {
-        if(!blacklistDO.isChecked()){
+        boolean check=blacklistMapper.queryChecked(blacklistDO.getBlackId());
+        if(!check){
             return blacklistMapper.updateReport(blacklistDO);
         }
         else {
