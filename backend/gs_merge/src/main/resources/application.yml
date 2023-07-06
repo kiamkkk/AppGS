@@ -37,9 +37,8 @@ spring:
     username: gseek
     password: gseek
     virtual-host: GseekHost
-    relay_host: GseekHost
-
-
+    requested-heartbeat: 60
+    connection-timeout: 120000
 
 logging:
   level:

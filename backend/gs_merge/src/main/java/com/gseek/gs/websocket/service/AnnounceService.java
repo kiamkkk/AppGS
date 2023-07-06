@@ -45,7 +45,7 @@ public class AnnounceService {
      * 每30分钟读取一次所有公告名
      * */
     @Async("async")
-    @Scheduled(cron = "0 */30 * * * ? ")
+    @Scheduled(cron = "* */30 * * * ? ")
     public void readAnnounce() throws IOException {
         List<String> names = minioUtil.listAnnounce();
         for (String name : names){

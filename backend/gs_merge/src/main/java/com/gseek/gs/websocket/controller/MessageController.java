@@ -137,28 +137,9 @@ public class MessageController implements Controller {
      * 客服聊天
      *
      * */
-    @MessageMapping("/user/admin/chat")
-    public void adminChat(@Payload AdminMessage message) throws JsonProcessingException {
-        int goodId=message.getGoodId();
-        int fromUserId=message.getFromUserId();
-        String identity=message.getFromUserName();
-        //TODO 告诉前端有身份要求
-        if(identity.equals("用户")){
-            int[] adminId=chatRecordService.selectToUser(goodId,fromUserId);
-            if(adminId[0]!=0){
-                message.setToUserId(adminId[0]);
-            }
-            else{
-                int newAdminId=adminService.selectRandomAdmin();
-                message.setToUserId(newAdminId);
-            }
-        }
-        if(identity.equals("管理员")){
-            int[] toUserId=chatRecordService.selectToUser(goodId,fromUserId);
-            message.setToUserId(toUserId[0]);
-        }
+    @MessageMapping("/user/queue/admin_chat")
+    public void adminChat(AdminMessage message){
         messageService.sendMessage(message);
-        chatRecordService.insertMessage(message);
     }
 
     /**
@@ -192,7 +173,7 @@ public class MessageController implements Controller {
         ChatPicMessage message=new ChatPicMessage(userId, dto.getToUserId(), goodId,
                 authentication.getName(), url, dto.getTime());
         //todo 改回来
-        /*chat(message);*/
+        messageService.sendMessage(message);
 
         return result.gainPostSuccess();
     }

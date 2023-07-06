@@ -28,5 +28,5 @@ public interface ChatRecordMapper {
      * 根据商品id、用户id,获取聊天记录.
      * 用户id只能是接收者(to_user_id)
      * */
-    int[] selectToUser(@Param("goodId") int goodId, @Param("userId") int userId);
+    int[] selectToUser(@Param("goodId") int goodId, @Param("fromUserId") int fromUserId);
 }

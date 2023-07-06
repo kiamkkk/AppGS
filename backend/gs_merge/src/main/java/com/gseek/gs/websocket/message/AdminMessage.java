@@ -7,7 +7,7 @@ package com.gseek.gs.websocket.message;
 public class AdminMessage extends BaseMessage{
 
     public AdminMessage(int toUserId, int fromUserId,String message,Long time,String identity) {
-        super(fromUserId, toUserId, SYSTEM_GOOD_ID, identity+fromUserId,
+        super(fromUserId, toUserId, SYSTEM_GOOD_ID, identity,
                 MessageType.ADMIN.name(), message, time);
     }
     @Override

@@ -21,13 +21,13 @@
     <insert id="insertChat" parameterType="com.gseek.gs.pojo.data.ChatDO">
         insert into chat (good_id, from_user_id, to_user_id, text, send_time) values
         <foreach collection="chatDOs" item="item" index="index" separator=",">
-            (#{item.goodId}, #{item.fromUserId}, #{item.toUserId}, #{item.text}, #{item.sendTime});
+            (#{item.goodId}, #{item.fromUserId}, #{item.toUserId}, #{item.text}, #{item.sendTime})
         </foreach>
     </insert>
 
     <select id="selectToUser" resultType="integer">
         select to_user_id
         from ( select * from chat where good_id = #{goodId} ) as cg
-        where cg.from_user_id=#{userId} ;
+        where cg.from_user_id=#{fromUserId} ;
     </select>
 </mapper>

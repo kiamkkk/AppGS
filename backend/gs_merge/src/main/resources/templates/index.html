@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://thymeleaf.org">
+<html lang="en" xmlns:th="http://thymeleaf.org" xmlns="http://www.w3.org/1999/html">
 <head>
     <title>WebSocket Test</title>
     <link href="/webjars/bootstrap/css/bootstrap.min.css" type="text/css" rel="stylesheet">
@@ -9,11 +9,25 @@
     <meta charset="UTF-8">
 
     <script>
+        var all_token;
+        var nowHost;
         var stompClient = null;
         const Http = new XMLHttpRequest();
 
         function logout(userName, password){
-            return fetch('http://localhost:8080/users/logout', {
+
+            var radios = document.getElementsByName('host');
+            var selectedValue;
+            for (var i = 0; i < radios.length; i++) {
+                if (radios[i].checked) {
+                    selectedValue = radios[i].value;
+                    break;
+                }
+            }
+
+            nowHost = selectedValue;
+
+            return fetch('http://'+nowHost+':8080/users/logout', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -30,7 +44,7 @@
         function getToken(userName, password) {
             return logout(userName, password).then(
                 () => {
-                    return fetch('http://localhost:8080/users', {
+                    return fetch('http://'+nowHost+':8080/users', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -48,7 +62,7 @@
 
         function connect(userName, password) {
             getToken(userName, password).then(token => {
-                var socket = new WebSocket('ws://localhost:8080/websocket?Authentication='+token);
+                var socket = new WebSocket('ws://'+ nowHost +':8080/websocket?Authentication='+token);
                 stompClient = Stomp.over(socket);
                 stompClient.heartbeat.outgoing=3*60*1000;
                 stompClient.heartbeat.incoming=3*60*1000;
@@ -60,21 +74,43 @@
                     subscribe('/user/queue/notice');
                     subscribe('/user/queue/chat');
                 });
+
+                all_token = token;
             });
         }
 
         function sendMessage(){
             var userId=$('#chatToUserId').val();
             var message= {
-                fromUserId:6,
+                fromUserId:$( "#loginUserId" ).val(),
                 toUserId:userId,
                 goodId:212112,
-                fromUserName:'forehand',
+                fromUserName: $( "#loginUserName" ).val(),
                 type:'CHAT_TEXT',
-                message:'send from forehand',
-                time:1145141919810
+                message:$( '#textForChat' ).val() + userId,
+                time:new Date().getTime()
             }
             stompClient.send('/user/queue/chat', {}, JSON.stringify(message));
+        }
+
+        function sendMessagePic(userName, password){
+            let url = 'http://' + nowHost + ':8080/chats/imgs/114514/';
+            var file = $("#sendChatPic")[0];
+            var userId = $('#chatToUserId').val();
+            url += userId;
+
+            Http.open("POST", url);
+
+            Http.setRequestHeader("Content-Type", "multipart/form-data");
+            Http.setRequestHeader("Authorization", all_token);
+
+            var formData = new FormData();
+            formData.append("picture", file);
+            formData.append("time", new Date().getTime());
+            formData.append("toUserId", $('chatToUserId').val());
+
+            Http.send(formData);
+
         }
 
         function setConnected(connected) {
@@ -83,6 +119,8 @@
             $("#sendAnnouncement").prop("disabled", !connected);
             $("#sendNotice").prop("disabled", !connected);
             $("#sendChat").prop("disabled", !connected);
+            //todo 为什么发不上去？？？
+            /*$("#sendChatPic").prop("disabled", !connected);*/
 
             if (connected) {
                 $("#conversation").show();
@@ -112,13 +150,13 @@
         }
 
         function sendAnnouncement(){
-            const url='http://localhost:8080/test/anno';
+            const url='http://'+nowHost+':8080/test/anno';
             Http.open("GET", url);
             Http.send();
         }
 
         function sendNotice(){
-            const url='http://localhost:8080/test/notice/'+$("#toUserId").val();
+            const url='http://'+nowHost+':8080/test/notice/'+$("#toUserId").val();
             console.log( url );
             Http.open("GET", url);
             Http.send();
@@ -128,11 +166,12 @@
             $("form").on('submit', function (e) {
                 e.preventDefault();
             });
-            $( "#login" ).click(function() { connect( $( "#loginUserName" ).val(),  $( "#loginPassword" ).val()); });
+            $( "#login" ).click(function() { connect( $( "#loginUserName" ).val(),  $( "#loginPassword" ).val() ); });
             $( "#disconnect" ).click(function() { disconnect(); });
             $( "#sendAnnouncement" ).click(function() { sendAnnouncement(); });
             $( "#sendNotice" ).click(function() { sendNotice(); });
             $( "#sendChat" ).click(function() { sendMessage(); });
+            $( "#sendChatPic").click(function () { sendMessagePic($( "#loginUserName" ).val(),  $( "#loginPassword" ).val() ); });
         });
     </script>
 
@@ -145,9 +184,19 @@
     <div class="row">
         <div class="col-md-6">
             <form class="form-inline">
+
+                <div class="form-group">
+                    <label>选择host后再登录</label><br>
+                    <input type="radio" id="local" name="host" value="localhost"> <label for="local">localhost</label><br>
+                    <input type="radio" id="far" name="host" value="118.178.243.30"> <label for="far">118.178.243.30</label><br>
+                </div>
+
                 <div class="form-group">
                     <label for="loginUserName">输入用户名</label>
                     <input type="text" id="loginUserName" class="form-control" placeholder="用户名" value="gseekUser">
+
+                    <label for="loginUserId">输入用户id</label>
+                    <input type="text" id="loginUserId" class="form-control" placeholder="用户id" value="3">
 
                     <label for="loginPassword">输入用户密码</label>
                     <input type="text" id="loginPassword" class="form-control" placeholder="用户密码" value="123456">
@@ -157,10 +206,6 @@
                     </button>
                 </div>
 
-                <!--<div class="form-group">
-                    <label for="connect">WebSocket connection:</label>
-                    <button id="connect" class="btn btn-default" type="submit">Connect</button>
-                </div>-->
             </form>
         </div>
         <div class="col-md-6">
@@ -175,9 +220,16 @@
                     <button id="sendNotice" class="btn btn-default" type="submit" disabled="disabled">发送通知给用户</button>
                 </div>
                 <div class="form-inline">
-                    <label for="chatToUserId">输入用户id</label>
-                    <input type="text" id="chatToUserId" class="form-control" placeholder="输入id" value="3" >
-                    <button id="sendChat" class="btn btn-default" type="submit" disabled="disabled">发送聊天消息给用户</button>
+                    <label for="chatToUserId">输入用户id</label><br>
+                    <input type="text" id="chatToUserId" class="form-control" placeholder="输入id" value="3" ><br>
+
+                    <label for="textForChat">输入文字聊天消息</label><br>
+                    <input type="text" id="textForChat" class="form-control" placeholder="输入文字" value="send from frontEnd to " ><br>
+                    <button id="sendChat" class="btn btn-default" type="submit" disabled="disabled">发送文字聊天消息给用户</button><br>
+
+                    <label for="imgForChat">输入图片聊天消息</label><br>
+                    <input type="file" id="imgForChat">
+                    <button id="sendChatPic" class="btn btn-default" type="submit" disabled="disabled">上传并发送图片聊天消息给用户</button>
                 </div>
             </form>
 

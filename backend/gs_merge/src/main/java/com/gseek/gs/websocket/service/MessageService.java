@@ -3,6 +3,7 @@ package com.gseek.gs.websocket.service;
 import com.gseek.gs.exce.business.websocket.chat.WebSocketException;
 import com.gseek.gs.exce.business.websocket.chat.WrongSubscribeException;
 import com.gseek.gs.pojo.dto.ChatBlockDTO;
+
 import com.gseek.gs.service.inter.AdminService;
 import com.gseek.gs.service.inter.ChatRecordService;
 import com.gseek.gs.websocket.message.*;
@@ -11,6 +12,7 @@ import com.gseek.gs.websocket.message.chat.ChatTextMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -27,6 +29,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+
+import static com.gseek.gs.websocket.message.BaseMessage.SYSTEM_GOOD_ID;
 
 
 /**
@@ -45,9 +49,10 @@ public class MessageService {
     private RabbitTemplate rabbitTemplate;
     @Autowired
     private AdminService adminService;
-    @Autowired
-    ChatRecordService chatRecordService;
     private StompEncoder stompEncoder = new StompEncoder();
+    @Autowired
+    @Qualifier("chatRecordServiceImpl")
+    private ChatRecordService chatRecordService;
 
 
     @Autowired
@@ -133,6 +138,7 @@ public class MessageService {
             template.convertAndSendToUser(message.getToUserId()+"", "/queue/delivery", message);
         }
         template.convertAndSendToUser(message.getToUserId()+"", "/queue/notice", message);
+
     }
 
     /**
@@ -149,6 +155,8 @@ public class MessageService {
             message = new ChatTextMessage(message);
         }
         template.convertAndSendToUser(message.getToUserId()+"", "/queue/chat", message);
+        // 保存聊天记录
+        chatRecordService.insertMessage(message);
     }
 
 
@@ -183,31 +191,38 @@ public class MessageService {
         }
         template.convertAndSendToUser(message.getToUserId()+"", "/queue/notice", message);
     }
-    //客服的消息提醒
     /**
-     * @deprecated 暂待修改
+     * 客服与用户的聊天
      * */
     public void sendMessage(AdminMessage message){
-        int goodId=message.getGoodId();
+        int goodId=SYSTEM_GOOD_ID;
         int fromUserId=message.getFromUserId();
-        String identity=message.getFromUserName().substring(0,2);
-        //TODO 告诉前端有身份要求
-        if(identity.equals("用户")){
+        String identity=message.getFromUserName();
+        // 不在线，储存消息
+        if (! checkOnline(message.getToUserId())){
+            saveOfflineMessage(message.getToUserId(), message);
+            return;
+        }
+//        身份为用户
+        if(identity.equals("USER")){
+//            寻找上一个与该用户聊天的客服
             int[] adminId=chatRecordService.selectToUser(goodId,fromUserId);
             if(adminId[0]!=0){
                 message.setToUserId(adminId[0]);
             }
             else{
+//                该用户之前没和管理员聊天过
                 int newAdminId=adminService.selectRandomAdmin();
                 message.setToUserId(newAdminId);
             }
+            template.convertAndSendToUser("ADMIN"+message.getToUserId()+"", "/queue/admin_chat", message);
         }
-        if(identity.equals("管理")){
-            int[] toUserId=chatRecordService.selectToUser(goodId,fromUserId);
-            message.setToUserId(toUserId[0]);
+//        身份为管理员
+        if(identity.equals("ADMIN")){
+            template.convertAndSendToUser(message.getToUserId()+"", "/queue/admin_chat", message);
         }
+        // 保存聊天记录
         chatRecordService.insertMessage(message);
-        template.convertAndSendToUser(bm.getToUserId()+"","/admin/chat",bm);
     }
 
 

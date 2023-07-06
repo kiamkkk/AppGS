@@ -1,5 +1,7 @@
 package com.gseek.gs.websocket.handel;
 
+import com.gseek.gs.common.Token;
+import com.gseek.gs.common.TokenGrade;
 import com.gseek.gs.util.TokenUtil;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +37,15 @@ public class TokenInterceptor implements ChannelInterceptor {
                 if (header instanceof LinkedList) {
                     // 设置当前访问的认证用户
                     String userId= TokenUtil.extractClaim((String) ((LinkedList<?>) header).get(0), Claims::getSubject);
+//                    获取身份信息
+                    String rawToken = ((Map) raw).get("Authorization").toString();
+                    String cookedToken = rawToken.substring(TokenUtil.TOKEN_PREFIX.length());
+                    Token token=new Token(cookedToken);
+                    TokenGrade grade=token.getGrade();
+//                    用户为管理员加前缀
+                    if(grade.equals(TokenGrade.ADMIN)){
+                        accessor.setUser( new UserPrincipal("ADMIN"+userId) );
+                    }
                     accessor.setUser( new UserPrincipal(userId) );
                 }
             }

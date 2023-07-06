@@ -75,4 +75,5 @@ public interface RedisService {
     List<ChatDO> getChatRecodes();
 
     boolean fuzzyQuery(String matchKey);
+
 }
