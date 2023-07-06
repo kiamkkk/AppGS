@@ -25,6 +25,8 @@ public class GsApplication {
                     .append("|                                                    |\n")
                     .append("------------------------------------------------------\n");
             System.out.println(beginPage);
+        }else {
+            System.out.println("Begin...");
         }
     }
 }

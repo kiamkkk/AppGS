@@ -3,12 +3,14 @@ package com.gseek.gs.websocket.service;
 import com.gseek.gs.exce.business.websocket.chat.WebSocketException;
 import com.gseek.gs.exce.business.websocket.chat.WrongSubscribeException;
 import com.gseek.gs.pojo.dto.ChatBlockDTO;
+import com.gseek.gs.service.inter.ChatRecordService;
 import com.gseek.gs.websocket.message.*;
 import com.gseek.gs.websocket.message.chat.ChatMessage;
 import com.gseek.gs.websocket.message.chat.ChatTextMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -42,6 +44,9 @@ public class MessageService {
     @Autowired
     private RabbitTemplate rabbitTemplate;
     private StompEncoder stompEncoder = new StompEncoder();
+    @Autowired
+    @Qualifier("chatRecordServiceImpl")
+    private ChatRecordService chatRecordService;
 
 
     @Autowired
@@ -127,6 +132,7 @@ public class MessageService {
             template.convertAndSendToUser(message.getToUserId()+"", "/queue/delivery", message);
         }
         template.convertAndSendToUser(message.getToUserId()+"", "/queue/notice", message);
+
     }
 
     /**
@@ -143,6 +149,8 @@ public class MessageService {
             message = new ChatTextMessage(message);
         }
         template.convertAndSendToUser(message.getToUserId()+"", "/queue/chat", message);
+        // 保存聊天记录
+        chatRecordService.insertMessage(message);
     }
 
     //黑名单的消息提醒

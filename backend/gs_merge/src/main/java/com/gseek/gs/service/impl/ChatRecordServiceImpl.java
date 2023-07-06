@@ -47,10 +47,10 @@ public class ChatRecordServiceImpl implements ChatRecordService, ScheduledServic
 
     /**
      * 将redis中的聊天记录储存在mysql里.
-     * 每一小时同步一次
+     * 每30秒同步一次
      * */
     @Async("async")
-    @Scheduled(cron="0 0 */1 * * ?")
+    @Scheduled(cron="*/30 * * * * ?")
     @Override
     public void redisToMysql(){
         List<ChatDO> chatDOs=redisService.getChatRecodes();

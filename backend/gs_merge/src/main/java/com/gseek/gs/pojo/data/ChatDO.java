@@ -21,7 +21,7 @@ public class ChatDO {
     private Long sendTime;
 
     public ChatDO(BaseMessage message) {
-        this.fromUserId=message.getToUserId();
+        this.fromUserId=message.getFromUserId();
         this.toUserId=message.getToUserId();
         this.sendTime=message.getTime();
         this.text=message.getMessage();

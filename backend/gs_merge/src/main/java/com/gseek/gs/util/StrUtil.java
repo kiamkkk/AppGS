@@ -46,7 +46,7 @@ public class StrUtil {
      * 订阅特定用户推送的地址的格式：
      * /user/任意位数字/任意字符
      * */
-    private static final String USER_DESTINATION_FORMAT = "/user/(\\d+)/.*";
+    private static final String USER_DESTINATION_FORMAT = "/user/queue/.*";
     private static final String BILLID_FORMAT = "^[0-9]+$";
 
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(PASSWORD_FORMAT);

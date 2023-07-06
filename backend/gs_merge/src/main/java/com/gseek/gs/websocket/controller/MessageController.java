@@ -192,7 +192,7 @@ public class MessageController implements Controller {
         ChatPicMessage message=new ChatPicMessage(userId, dto.getToUserId(), goodId,
                 authentication.getName(), url, dto.getTime());
         //todo 改回来
-        /*chat(message);*/
+        messageService.sendMessage(message);
 
         return result.gainPostSuccess();
     }

@@ -221,7 +221,7 @@ public class MinioUtil {
      * */
     private String[] createChatImgPathAndFileName(int goodId,int fromUserId,long time){
         String[] pathAndFileName=new String[2];
-        pathAndFileName[0]=PATH_CHATS+"/"+goodId+"/";
+        pathAndFileName[0]=PATH_CHATS + goodId + "/" + fromUserId + "/";
         pathAndFileName[1]=fromUserId+"_"+time+SUFFIX_JPG;
         return pathAndFileName;
     }
